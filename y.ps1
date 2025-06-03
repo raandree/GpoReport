@@ -1,55 +1,47 @@
-# Load the XML file
-$xmlPath = 'D:\Git\raandreeSamplerTest1\gpo2.xml'
+$searchValue = 'Account Lockout'
+$xmlPath = 'C:\Git\GpoReport\reports\t1.xml'
 $xml = [xml](Get-Content $xmlPath)
 
 # Register the namespace used in the XML
-$xmlNameSpaceList = $xml.SelectNodes('//namespace::*[not(. = ../../namespace::*)]')
+$xmlNameSpaceNodes = $xml.SelectNodes('//namespace::*[not(. = ../../namespace::*)]')
+$xmlNameSpaceNodes = $xmlNameSpaceNodes | Sort-Object -Property LocalName -Unique
 $xmlNameSpaceManager = [System.Xml.XmlNamespaceManager]::new($xml.NameTable)
+$xmlNameSpaces = @{}
 
-foreach ($nsNode in $xmlNameSpaceList)
-{
-    try
-    {
+foreach ($nsNode in $xmlNameSpaceNodes) {
+    try {
+        if ($nsNode.LocalName -like 'q*') {            
+            $xmlNameSpaces[$nsNode.LocalName] = $nsNode.Value
+        }
         $xmlNameSpaceManager.AddNamespace($nsNode.LocalName, $nsNode.Value)
     }
-    catch
-    {
+    catch {
         Write-Verbose "Error adding namespace: $($_.Exception.Message)"
     }
 }
 
-$relevantNamespaces = $xmlNameSpaceManager -like 'q*'
-
-$searchProperty = 'Name'
-$searchValue = ''
-
-$elements = foreach ($relevantNamespace in $relevantNamespaces)
-{
-    $xml.SelectNodes("//$($relevantNamespace):$($searchProperty)", $xmlNameSpaceManager)
+$elements = foreach ($xmlNamespace in $xmlNameSpaces.GetEnumerator()) {
+    $xml.SelectNodes("//*[namespace-uri() = '$($xmlNamespace.Value)']", $xmlNameSpaceManager)
 }
 
-if ($searchValue)
-{
-    $elements = $elements | Where-Object { $_.InnerText -like "*$searchValue*" }
+if ($searchValue) {
+    $elements = $elements | Where-Object { $_.OuterXml -like "*$searchValue*" }
 }
 
-$possibleParentNodeTypes = 'Policy', 'UserRightsAssignment', 'SecurityOptions'
+#$possibleParentNodeTypes = 'Policy', 'UserRightsAssignment', 'SecurityOptions'
 Write-Host "Found $($elements.Count) elements containing '$searchValue':" -ForegroundColor Green
-foreach ($element in $elements)
-{
+foreach ($element in $elements) {
     Write-Host "- $($element.InnerText)"
 
     $parentNode = $element.ParentNode
 
     $elementTypeName = $parentNode.psobject.TypeNames[0].Split('#')[-1]
-    if ($elementTypeName -notin $possibleParentNodeTypes)
-    {
+    if ($elementTypeName -notin $possibleParentNodeTypes) {
         continue
     }
 
     $properties = @{}
-    foreach ($property in ($parentNode | Get-Member -MemberType Property))
-    {
+    foreach ($property in ($parentNode | Get-Member -MemberType Property)) {
         $properties[$property.Name] = $parentNode.($property.Name)
     }
     [PSCustomObject]$properties
