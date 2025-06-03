@@ -1,0 +1,2514 @@
+<?xml version="1.0" encoding="utf-16"?>
+<GPO xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.microsoft.com/GroupPolicy/Settings">
+  <Identifier>
+    <Identifier xmlns="http://www.microsoft.com/GroupPolicy/Types">{995407FC-4101-4BD3-ACFC-F5FA311603E4}</Identifier>
+    <Domain xmlns="http://www.microsoft.com/GroupPolicy/Types">contoso.com</Domain>
+  </Identifier>
+  <Name>x1</Name>
+  <IncludeComments>true</IncludeComments>
+  <CreatedTime>2025-06-03T12:36:25</CreatedTime>
+  <ModifiedTime>2025-06-03T12:38:17</ModifiedTime>
+  <ReadTime>2025-06-03T12:38:30.98386Z</ReadTime>
+  <SecurityDescriptor>
+    <SDDL xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">O:DAG:DAD:PAI(OA;CI;CR;edacfd8f-ffb3-11d1-b41d-00a0c968f939;;AU)(A;;CCDCLCSWRPWPDTLOSDRCWDWO;;;DA)(A;CI;CCDCLCSWRPWPDTLOSDRCWDWO;;;DA)(A;CI;CCDCLCSWRPWPDTLOSDRCWDWO;;;S-1-5-21-1436523760-1216564473-3506967851-519)(A;CI;LCRPLORC;;;ED)(A;CI;LCRPLORC;;;AU)(A;CI;CCDCLCSWRPWPDTLOSDRCWDWO;;;SY)(A;CIIO;CCDCLCSWRPWPDTLOSDRCWDWO;;;CO)S:AI(OU;CIIDSA;WPWD;;f30e3bc2-9ff0-11d1-b603-0000f80367c1;WD)(OU;CIIOIDSA;WP;f30e3bbe-9ff0-11d1-b603-0000f80367c1;bf967aa5-0de6-11d0-a285-00aa003049e2;WD)(OU;CIIOIDSA;WP;f30e3bbf-9ff0-11d1-b603-0000f80367c1;bf967aa5-0de6-11d0-a285-00aa003049e2;WD)</SDDL>
+    <Owner xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">
+      <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-21-1436523760-1216564473-3506967851-512</SID>
+      <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">contoso\Domain Admins</Name>
+    </Owner>
+    <Group xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">
+      <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-21-1436523760-1216564473-3506967851-512</SID>
+      <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">contoso\Domain Admins</Name>
+    </Group>
+    <PermissionsPresent xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">true</PermissionsPresent>
+    <Permissions xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">
+      <InheritsFromParent>false</InheritsFromParent>
+      <TrusteePermissions>
+        <Trustee>
+          <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-21-1436523760-1216564473-3506967851-519</SID>
+          <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">contoso\Enterprise Admins</Name>
+        </Trustee>
+        <Type xsi:type="PermissionType">
+          <PermissionType>Allow</PermissionType>
+        </Type>
+        <Inherited>false</Inherited>
+        <Applicability>
+          <ToSelf>true</ToSelf>
+          <ToDescendantObjects>false</ToDescendantObjects>
+          <ToDescendantContainers>true</ToDescendantContainers>
+          <ToDirectDescendantsOnly>false</ToDirectDescendantsOnly>
+        </Applicability>
+        <Standard>
+          <GPOGroupedAccessEnum>Edit, delete, modify security</GPOGroupedAccessEnum>
+        </Standard>
+        <AccessMask>0</AccessMask>
+      </TrusteePermissions>
+      <TrusteePermissions>
+        <Trustee>
+          <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-9</SID>
+          <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\ENTERPRISE DOMAIN CONTROLLERS</Name>
+        </Trustee>
+        <Type xsi:type="PermissionType">
+          <PermissionType>Allow</PermissionType>
+        </Type>
+        <Inherited>false</Inherited>
+        <Applicability>
+          <ToSelf>true</ToSelf>
+          <ToDescendantObjects>false</ToDescendantObjects>
+          <ToDescendantContainers>true</ToDescendantContainers>
+          <ToDirectDescendantsOnly>false</ToDirectDescendantsOnly>
+        </Applicability>
+        <Standard>
+          <GPOGroupedAccessEnum>Read</GPOGroupedAccessEnum>
+        </Standard>
+        <AccessMask>0</AccessMask>
+      </TrusteePermissions>
+      <TrusteePermissions>
+        <Trustee>
+          <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-18</SID>
+          <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\SYSTEM</Name>
+        </Trustee>
+        <Type xsi:type="PermissionType">
+          <PermissionType>Allow</PermissionType>
+        </Type>
+        <Inherited>false</Inherited>
+        <Applicability>
+          <ToSelf>true</ToSelf>
+          <ToDescendantObjects>false</ToDescendantObjects>
+          <ToDescendantContainers>true</ToDescendantContainers>
+          <ToDirectDescendantsOnly>false</ToDirectDescendantsOnly>
+        </Applicability>
+        <Standard>
+          <GPOGroupedAccessEnum>Edit, delete, modify security</GPOGroupedAccessEnum>
+        </Standard>
+        <AccessMask>0</AccessMask>
+      </TrusteePermissions>
+      <TrusteePermissions>
+        <Trustee>
+          <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-21-1436523760-1216564473-3506967851-512</SID>
+          <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">contoso\Domain Admins</Name>
+        </Trustee>
+        <Type xsi:type="PermissionType">
+          <PermissionType>Allow</PermissionType>
+        </Type>
+        <Inherited>false</Inherited>
+        <Applicability>
+          <ToSelf>true</ToSelf>
+          <ToDescendantObjects>false</ToDescendantObjects>
+          <ToDescendantContainers>true</ToDescendantContainers>
+          <ToDirectDescendantsOnly>false</ToDirectDescendantsOnly>
+        </Applicability>
+        <Standard>
+          <GPOGroupedAccessEnum>Edit, delete, modify security</GPOGroupedAccessEnum>
+        </Standard>
+        <AccessMask>0</AccessMask>
+      </TrusteePermissions>
+      <TrusteePermissions>
+        <Trustee>
+          <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-11</SID>
+          <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\Authenticated Users</Name>
+        </Trustee>
+        <Type xsi:type="PermissionType">
+          <PermissionType>Allow</PermissionType>
+        </Type>
+        <Inherited>false</Inherited>
+        <Applicability>
+          <ToSelf>true</ToSelf>
+          <ToDescendantObjects>false</ToDescendantObjects>
+          <ToDescendantContainers>true</ToDescendantContainers>
+          <ToDirectDescendantsOnly>false</ToDirectDescendantsOnly>
+        </Applicability>
+        <Standard>
+          <GPOGroupedAccessEnum>Apply Group Policy</GPOGroupedAccessEnum>
+        </Standard>
+        <AccessMask>0</AccessMask>
+      </TrusteePermissions>
+    </Permissions>
+    <AuditingPresent xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">false</AuditingPresent>
+  </SecurityDescriptor>
+  <FilterDataAvailable>true</FilterDataAvailable>
+  <Computer>
+    <VersionDirectory>1</VersionDirectory>
+    <VersionSysvol>1</VersionSysvol>
+    <Enabled>true</Enabled>
+    <ExtensionData>
+      <Extension xmlns:q1="http://www.microsoft.com/GroupPolicy/Settings/Security" xsi:type="q1:SecuritySettings">
+        <q1:Account>
+          <q1:Name>ClearTextPassword</q1:Name>
+          <q1:SettingBoolean>false</q1:SettingBoolean>
+          <q1:Type>Password</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>LockoutBadCount</q1:Name>
+          <q1:SettingNumber>3</q1:SettingNumber>
+          <q1:Type>Account Lockout</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>LockoutDuration</q1:Name>
+          <q1:SettingNumber>15</q1:SettingNumber>
+          <q1:Type>Account Lockout</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>MaximumPasswordAge</q1:Name>
+          <q1:SettingNumber>60</q1:SettingNumber>
+          <q1:Type>Password</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>MinimumPasswordAge</q1:Name>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Type>Password</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>MinimumPasswordLength</q1:Name>
+          <q1:SettingNumber>14</q1:SettingNumber>
+          <q1:Type>Password</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>PasswordComplexity</q1:Name>
+          <q1:SettingBoolean>true</q1:SettingBoolean>
+          <q1:Type>Password</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>PasswordHistorySize</q1:Name>
+          <q1:SettingNumber>24</q1:SettingNumber>
+          <q1:Type>Password</q1:Type>
+        </q1:Account>
+        <q1:Account>
+          <q1:Name>ResetLockoutCount</q1:Name>
+          <q1:SettingNumber>15</q1:SettingNumber>
+          <q1:Type>Account Lockout</q1:Type>
+        </q1:Account>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeBackupPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeCreateGlobalPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-6</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\SERVICE</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-20</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\NETWORK SERVICE</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-19</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\LOCAL SERVICE</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeCreatePagefilePrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeCreatePermanentPrivilege</q1:Name>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeCreateSymbolicLinkPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeCreateTokenPrivilege</q1:Name>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeDebugPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeDenyBatchLogonRight</q1:Name>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR DOMAIN ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR ENTERPRISE ADMINS</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeDenyInteractiveLogonRight</q1:Name>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR DOMAIN ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR ENTERPRISE ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-546</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Guests</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeDenyNetworkLogonRight</q1:Name>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR DOMAIN ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR ENTERPRISE ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-546</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Guests</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-113</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\Local account</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeDenyRemoteInteractiveLogonRight</q1:Name>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR DOMAIN ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR ENTERPRISE ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-546</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Guests</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-113</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\Local account</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeDenyServiceLogonRight</q1:Name>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR DOMAIN ADMINS</Name>
+          </q1:Member>
+          <q1:Member>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">ADD YOUR ENTERPRISE ADMINS</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeEnableDelegationPrivilege</q1:Name>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeImpersonatePrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-19</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\LOCAL SERVICE</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-20</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\NETWORK SERVICE</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-6</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\SERVICE</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeInteractiveLogonRight</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-545</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Users</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeLoadDriverPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeLockMemoryPrivilege</q1:Name>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeManageVolumePrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeNetworkLogonRight</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-555</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Remote Desktop Users</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeProfileSingleProcessPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeRemoteShutdownPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeRestorePrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeSecurityPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeSystemEnvironmentPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeSystemTimePrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-19</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">NT AUTHORITY\LOCAL SERVICE</Name>
+          </q1:Member>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeTakeOwnershipPrivilege</q1:Name>
+          <q1:Member>
+            <SID xmlns="http://www.microsoft.com/GroupPolicy/Types">S-1-5-32-544</SID>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">BUILTIN\Administrators</Name>
+          </q1:Member>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeTcbPrivilege</q1:Name>
+        </q1:UserRightsAssignment>
+        <q1:UserRightsAssignment>
+          <q1:Name>SeTrustedCredManAccessPrivilege</q1:Name>
+        </q1:UserRightsAssignment>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\CachedLogonsCount</q1:KeyName>
+          <q1:SettingString>"10"</q1:SettingString>
+          <q1:Display>
+            <q1:Name>Interactive logon: Number of previous logons to cache (in case domain controller is not available)</q1:Name>
+            <q1:Units>logons</q1:Units>
+            <q1:DisplayNumber>10</q1:DisplayNumber>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScRemoveOption</q1:KeyName>
+          <q1:SettingString>"1"</q1:SettingString>
+          <q1:Display>
+            <q1:Name>Interactive logon: Smart card removal behavior</q1:Name>
+            <q1:Units />
+            <q1:DisplayString>Lock Workstation</q1:DisplayString>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorAdmin</q1:KeyName>
+          <q1:SettingNumber>2</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>User Account Control: Behavior of the elevation prompt for administrators in Admin Approval Mode</q1:Name>
+            <q1:Units />
+            <q1:DisplayString>Prompt for consent on the secure desktop</q1:DisplayString>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorUser</q1:KeyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>User Account Control: Behavior of the elevation prompt for standard users</q1:Name>
+            <q1:Units />
+            <q1:DisplayString>Automatically deny elevation requests</q1:DisplayString>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableInstallerDetection</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>User Account Control: Detect application installations and prompt for elevation</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableLUA</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>User Account Control: Run all administrators in Admin Approval Mode</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableSecureUIAPaths</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>User Account Control: Only elevate UIAccess applications that are installed in secure locations</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableVirtualization</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>User Account Control: Virtualize file and registry write failures to per-user locations</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\FilterAdministratorToken</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>User Account Control: Admin Approval Mode for the Built-in Administrator account</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\InactivityTimeoutSecs</q1:KeyName>
+          <q1:SettingNumber>900</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Interactive logon: Machine inactivity limit</q1:Name>
+            <q1:Units>seconds</q1:Units>
+            <q1:DisplayNumber>900</q1:DisplayNumber>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters\SupportedEncryptionTypes</q1:KeyName>
+          <q1:SettingNumber>2147483640</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: Configure encryption types allowed for Kerberos</q1:Name>
+            <q1:Units />
+            <q1:DisplayFields>
+              <q1:Field>
+                <q1:Name>DES_CBC_CRC</q1:Name>
+                <q1:Value>false</q1:Value>
+              </q1:Field>
+              <q1:Field>
+                <q1:Name>DES_CBC_MD5</q1:Name>
+                <q1:Value>false</q1:Value>
+              </q1:Field>
+              <q1:Field>
+                <q1:Name>RC4_HMAC_MD5</q1:Name>
+                <q1:Value>false</q1:Value>
+              </q1:Field>
+              <q1:Field>
+                <q1:Name>AES128_HMAC_SHA1</q1:Name>
+                <q1:Value>true</q1:Value>
+              </q1:Field>
+              <q1:Field>
+                <q1:Name>AES256_HMAC_SHA1</q1:Name>
+                <q1:Value>true</q1:Value>
+              </q1:Field>
+              <q1:Field>
+                <q1:Name>Future encryption types</q1:Name>
+                <q1:Value>true</q1:Value>
+              </q1:Field>
+            </q1:DisplayFields>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\LegalNoticeCaption</q1:KeyName>
+          <q1:SettingString>"US Department of Defense Warning Statement"</q1:SettingString>
+          <q1:Display>
+            <q1:Name>Interactive logon: Message title for users attempting to log on</q1:Name>
+            <q1:Units />
+            <q1:DisplayString>"US Department of Defense Warning Statement"</q1:DisplayString>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\LegalNoticeText</q1:KeyName>
+          <q1:SettingStrings>
+            <q1:Value>You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.</q1:Value>
+            <q1:Value>By using this IS (which includes any device attached to this IS), you consent to the following conditions:</q1:Value>
+            <q1:Value>-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.</q1:Value>
+            <q1:Value>-At any time, the USG may inspect and seize data stored on this IS.</q1:Value>
+            <q1:Value>-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.</q1:Value>
+            <q1:Value>-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.</q1:Value>
+            <q1:Value>-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.</q1:Value>
+          </q1:SettingStrings>
+          <q1:Display>
+            <q1:Name>Interactive logon: Message text for users attempting to log on</q1:Name>
+            <q1:Units />
+            <q1:DisplayStrings>
+              <q1:Value>You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.</q1:Value>
+              <q1:Value>By using this IS (which includes any device attached to this IS), you consent to the following conditions:</q1:Value>
+              <q1:Value>-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.</q1:Value>
+              <q1:Value>-At any time, the USG may inspect and seize data stored on this IS.</q1:Value>
+              <q1:Value>-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.</q1:Value>
+              <q1:Value>-This IS includes security measures (e.g., authentication and access controls) to protect USG interests--not for your personal benefit or privacy.</q1:Value>
+              <q1:Value>-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.</q1:Value>
+            </q1:DisplayStrings>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous</q1:KeyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network access: Let Everyone permissions apply to anonymous users</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>false</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy\Enabled</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>System cryptography: Use FIPS compliant algorithms for encryption, hashing, and signing</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\LimitBlankPasswordUse</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Accounts: Limit local account use of blank passwords to console logon only</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\LmCompatibilityLevel</q1:KeyName>
+          <q1:SettingNumber>5</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: LAN Manager authentication level</q1:Name>
+            <q1:Units />
+            <q1:DisplayString>Send NTLMv2 response only. Refuse LM &amp; NTLM</q1:DisplayString>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\MSV1_0\allownullsessionfallback</q1:KeyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: Allow LocalSystem NULL session fallback</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>false</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\MSV1_0\NTLMMinClientSec</q1:KeyName>
+          <q1:SettingNumber>537395200</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: Minimum session security for NTLM SSP based (including secure RPC) clients</q1:Name>
+            <q1:Units />
+            <q1:DisplayFields>
+              <q1:Field>
+                <q1:Name>Require NTLMv2 session security</q1:Name>
+                <q1:Value>true</q1:Value>
+              </q1:Field>
+              <q1:Field>
+                <q1:Name>Require 128-bit encryption</q1:Name>
+                <q1:Value>true</q1:Value>
+              </q1:Field>
+            </q1:DisplayFields>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\MSV1_0\NTLMMinServerSec</q1:KeyName>
+          <q1:SettingNumber>537395200</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: Minimum session security for NTLM SSP based (including secure RPC) servers</q1:Name>
+            <q1:Units />
+            <q1:DisplayFields>
+              <q1:Field>
+                <q1:Name>Require NTLMv2 session security</q1:Name>
+                <q1:Value>true</q1:Value>
+              </q1:Field>
+              <q1:Field>
+                <q1:Name>Require 128-bit encryption</q1:Name>
+                <q1:Value>true</q1:Value>
+              </q1:Field>
+            </q1:DisplayFields>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\NoLMHash</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: Do not store LAN Manager hash value on next password change</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\pku2u\AllowOnlineID</q1:KeyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: Allow PKU2U authentication requests to this computer to use online identities.
+
+</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>false</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\RestrictAnonymous</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network access: Do not allow anonymous enumeration of SAM accounts and shares</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\RestrictAnonymousSAM</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network access: Do not allow anonymous enumeration of SAM accounts</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\RestrictRemoteSAM</q1:KeyName>
+          <q1:SettingString>"O:BAG:BAD:(A;;RC;;;BA)"</q1:SettingString>
+          <q1:Display>
+            <q1:Name>Network access: Restrict clients allowed to make remote calls to SAM</q1:Name>
+            <q1:Units />
+            <q1:DisplayString>"O:BAG:BAD:(A;;RC;;;BA)"</q1:DisplayString>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Lsa\SCENoApplyLegacyAuditPolicy</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Audit: Force audit policy subcategory settings (Windows Vista or later) to override audit policy category settings</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Control\Session Manager\ProtectionMode</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>System objects: Strengthen default permissions of internal system objects (e.g. Symbolic Links)</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\LanManServer\Parameters\RequireSecuritySignature</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Microsoft network server: Digitally sign communications (always)</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\LanManServer\Parameters\RestrictNullSessAccess</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network access: Restrict anonymous access to Named Pipes and Shares</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnablePlainTextPassword</q1:KeyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Microsoft network client: Send unencrypted password to third-party SMB servers</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>false</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\RequireSecuritySignature</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Microsoft network client: Digitally sign communications (always)</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\LDAP\LDAPClientIntegrity</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Network security: LDAP client signing requirements</q1:Name>
+            <q1:Units />
+            <q1:DisplayString>Negotiate signing</q1:DisplayString>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters\DisablePasswordChange</q1:KeyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Domain member: Disable machine account password changes</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>false</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters\MaximumPasswordAge</q1:KeyName>
+          <q1:SettingNumber>30</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Domain member: Maximum machine account password age</q1:Name>
+            <q1:Units>days</q1:Units>
+            <q1:DisplayNumber>30</q1:DisplayNumber>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters\RequireSignOrSeal</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Domain member: Digitally encrypt or sign secure channel data (always)</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters\RequireStrongKey</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Domain member: Require strong (Windows 2000 or later) session key</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters\SealSecureChannel</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Domain member: Digitally encrypt secure channel data (when possible)</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:KeyName>MACHINE\System\CurrentControlSet\Services\Netlogon\Parameters\SignSecureChannel</q1:KeyName>
+          <q1:SettingNumber>1</q1:SettingNumber>
+          <q1:Display>
+            <q1:Name>Domain member: Digitally sign secure channel data (when possible)</q1:Name>
+            <q1:Units />
+            <q1:DisplayBoolean>true</q1:DisplayBoolean>
+          </q1:Display>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:SystemAccessPolicyName>EnableAdminAccount</q1:SystemAccessPolicyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:SystemAccessPolicyName>EnableGuestAccount</q1:SystemAccessPolicyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:SystemAccessPolicyName>LSAAnonymousNameLookup</q1:SystemAccessPolicyName>
+          <q1:SettingNumber>0</q1:SettingNumber>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:SystemAccessPolicyName>NewAdministratorName</q1:SystemAccessPolicyName>
+          <q1:SettingString>"X_Admin"</q1:SettingString>
+        </q1:SecurityOptions>
+        <q1:SecurityOptions>
+          <q1:SystemAccessPolicyName>NewGuestName</q1:SystemAccessPolicyName>
+          <q1:SettingString>"Visitor"</q1:SettingString>
+        </q1:SecurityOptions>
+        <q1:SystemServices>
+          <q1:Name>seclogon</q1:Name>
+          <q1:StartupMode>Disabled</q1:StartupMode>
+          <q1:SecurityDescriptor>
+            <PermissionsPresent xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">false</PermissionsPresent>
+            <AuditingPresent xmlns="http://www.microsoft.com/GroupPolicy/Types/Security">false</AuditingPresent>
+          </q1:SecurityDescriptor>
+        </q1:SystemServices>
+        <q1:Blocked>false</q1:Blocked>
+      </Extension>
+      <Name>Security</Name>
+    </ExtensionData>
+    <ExtensionData>
+      <Extension xmlns:q2="http://www.microsoft.com/GroupPolicy/Settings/Auditing" xsi:type="q2:AuditSettings">
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Credential Validation</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce923f-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Security Group Management</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9237-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit User Account Management</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9235-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit PNP Activity</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9248-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Process Creation</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce922b-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Account Lockout</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9217-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>2</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Group Membership</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9249-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Logoff</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9216-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Logon</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9215-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Other Logon/Logoff Events</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce921c-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Special Logon</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce921b-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Detailed File Share</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9244-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>2</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit File Share</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9224-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Other Object Access Events</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9227-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Removable Storage</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9245-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Audit Policy Change</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce922f-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Authentication Policy Change</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9230-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Authorization Policy Change</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9231-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit MPSSVC Rule-Level Policy Change</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9232-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Other Policy Change Events</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9234-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Sensitive Privilege Use</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9228-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit IPsec Driver</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9213-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>2</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Other System Events</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9214-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Security State Change</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9210-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit Security System Extension</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9211-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>1</q2:SettingValue>
+        </q2:AuditSetting>
+        <q2:AuditSetting>
+          <q2:PolicyTarget>System</q2:PolicyTarget>
+          <q2:SubcategoryName>Audit System Integrity</q2:SubcategoryName>
+          <q2:SubcategoryGuid>{0cce9212-69ae-11d9-bed3-505054503030}</q2:SubcategoryGuid>
+          <q2:SettingValue>3</q2:SettingValue>
+        </q2:AuditSetting>
+      </Extension>
+      <Name>Advanced Audit Configuration</Name>
+    </ExtensionData>
+    <ExtensionData>
+      <Extension xmlns:q3="http://www.microsoft.com/GroupPolicy/Settings/Registry" xsi:type="q3:RegistrySettings">
+        <q3:Policy>
+          <q3:Name>Prevent enabling lock screen camera</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Disables the lock screen camera toggle switch in PC Settings and prevents a camera from being invoked on the lock screen.
+
+By default, users can enable invocation of an available camera on the lock screen.
+
+If you enable this setting, users will no longer be able to enable or disable lock screen camera access in PC Settings, and the camera cannot be invoked on the lock screen.</q3:Explain>
+          <q3:Supported>At least Windows Server 2012 R2, Windows 8.1 or Windows RT 8.1</q3:Supported>
+          <q3:Category>Control Panel/Personalization</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Prevent enabling lock screen slide show</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Disables the lock screen slide show settings in PC Settings and prevents a slide show from playing on the lock screen.
+
+By default, users can enable a slide show that will run after they lock the machine.
+
+If you enable this setting, users will no longer be able to modify slide show settings in PC Settings, and no slide show will ever start.</q3:Explain>
+          <q3:Supported>At least Windows Server 2012 R2, Windows 8.1 or Windows RT 8.1</q3:Supported>
+          <q3:Category>Control Panel/Personalization</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Enable insecure guest logons</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting determines if the SMB client will allow insecure guest logons to an SMB server.
+
+If you enable this policy setting or if you do not configure this policy setting, the SMB client will allow insecure guest logons.
+
+If you disable this policy setting, the SMB client will reject insecure guest logons.
+
+Insecure guest logons are used by file servers to allow unauthenticated access to shared folders. While uncommon in an enterprise environment, insecure guest logons are frequently used by consumer Network Attached Storage (NAS) appliances acting as file servers. Windows file servers require authentication and do not use insecure guest logons by default. Since insecure guest logons are unauthenticated, important security features such as SMB Signing and SMB Encryption are disabled. As a result, clients that allow insecure guest logons are vulnerable to a variety of man-in-the-middle attacks that can result in data loss, data corruption, and exposure to malware. Additionally, any data written to a file server using an insecure guest logon is potentially accessible to anyone on the network. Microsoft recommends disabling insecure guest logons and configuring file servers to require authenticated access."
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>Network/Lanman Workstation</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Prohibit use of Internet Connection Sharing on your DNS domain network</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Determines whether administrators can enable and configure the Internet Connection Sharing (ICS) feature of an Internet connection and if the ICS service can run on the computer.
+
+ICS lets administrators configure their system as an Internet gateway for a small network and provides network services, such as name resolution and addressing through DHCP, to the local private network.
+
+If you enable this setting, ICS cannot be enabled or configured by administrators, and the ICS service cannot run on the computer. The Advanced tab in the Properties dialog box for a LAN or remote access connection is removed. The Internet Connection Sharing page is removed from the New Connection Wizard. The Network Setup Wizard is disabled.
+
+If you disable this setting or do not configure it and have two or more connections, administrators can enable ICS. The Advanced tab in the properties dialog box for a LAN or remote access connection is available. In addition, the user is presented with the option to enable Internet Connection Sharing in the Network Setup Wizard and Make New Connection Wizard. (The Network Setup Wizard is available only in Windows XP Professional.)
+
+By default, ICS is disabled when you create a remote access connection, but administrators can use the Advanced tab to enable it. When running the New Connection Wizard or Network Setup Wizard, administrators can choose to enable ICS.
+
+Note: Internet Connection Sharing is only available when two or more network connections are present.
+
+Note: When the "Prohibit access to properties of a LAN connection," "Ability to change properties of an all user remote access connection," or "Prohibit changing properties of a private remote access connection" settings are set to deny access to the Connection Properties dialog box, the Advanced tab for the connection is blocked.
+
+Note: Nonadministrators are already prohibited from configuring Internet Connection Sharing, regardless of this setting.
+
+Note: Disabling this setting does not prevent Wireless Hosted Networking from using the ICS service for DHCP services. To prevent the ICS service from running, on the Network Permissions tab in the network's policy properties, select the "Don't use hosted networks" check box.</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems or Windows XP Professional</q3:Supported>
+          <q3:Category>Network/Network Connections</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Hardened UNC Paths</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting configures secure access to UNC paths.
+
+If you enable this policy, Windows only allows access to the specified UNC paths after fulfilling additional security requirements.
+</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Network/Network Provider</q3:Category>
+          <q3:Text>
+            <q3:Name>Specify hardened network paths.
+In the name field, type a fully-qualified UNC path for each network resource.
+To secure all access to a share with a particular name, regardless of the server name, specify a server name of '*' (asterisk). For example, "\\*\NETLOGON".
+To secure all access to all shares hosted on a server, the share name portion of the UNC path may be omitted. For example, "\\SERVER".
+
+In the value field, specify one or more of the following options, separated by commas:
+    'RequireMutualAuthentication=1': Mutual authentication between the client and server is required to ensure the client connects to the correct server.
+    'RequireIntegrity=1': Communication between the client and server must employ an integrity mechanism to prevent data tampering.
+    'RequirePrivacy=1': Communication between the client and the server must be encrypted to prevent third parties from observing sensitive data.</q3:Name>
+          </q3:Text>
+          <q3:ListBox>
+            <q3:Name>Hardened UNC Paths:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:ExplicitValue>true</q3:ExplicitValue>
+            <q3:Additive>true</q3:Additive>
+            <q3:Value>
+              <q3:Element>
+                <q3:Name>\\*\SYSVOL</q3:Name>
+                <q3:Data>RequireMutualAuthentication=1, RequireIntegrity=1</q3:Data>
+              </q3:Element>
+              <q3:Element>
+                <q3:Name>\\*\NETLOGON</q3:Name>
+                <q3:Data>RequireMutualAuthentication=1, RequireIntegrity=1</q3:Data>
+              </q3:Element>
+            </q3:Value>
+          </q3:ListBox>
+          <q3:Text>
+            <q3:Name> </q3:Name>
+          </q3:Text>
+          <q3:Text>
+            <q3:Name>You should require both Integrity and Mutual Authentication for any UNC paths that host executable programs, script files, or files that control security policies.
+
+Consider hosting files that do not require Integrity or Privacy on separate shares from those that absolutely need such security for optimal performance.
+
+For additional details on configuring Windows computers to require additional security when accessing specific UNC paths, visit http://support.microsoft.com/kb/3000483.</q3:Name>
+          </q3:Text>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>ECC Curve Order</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting determines the priority order of ECC curves used with ECDHE cipher suites.
+
+If you enable this policy setting, ECC curves are prioritized in the order specified.(Enter one Curve name per line)
+
+If you disable or do not configure this policy setting, the default ECC curve order is used.
+
+Default Curve Order
+============
+curve25519
+NistP256
+NistP384
+
+To See all the curves supported on the system, Use the following command:
+
+CertUtil.exe -DisplayEccCurve
+
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>Network/SSL Configuration Settings</q3:Category>
+          <q3:Text>
+            <q3:Name>Type the ECC curve names in the preferred order (one curve name per line)</q3:Name>
+          </q3:Text>
+          <q3:MultiText>
+            <q3:Name>ECC Curve Order:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:string>NistP384</q3:string>
+              <q3:string>NistP256</q3:string>
+            </q3:Value>
+          </q3:MultiText>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Minimize the number of simultaneous connections to the Internet or a Windows Domain</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>
+        This policy setting determines if a computer can have multiple connections to the internet or to a Windows domain. If multiple connections are allowed, it then determines how network traffic will be routed.
+
+        If this policy setting is set to 0, a computer can have simultaneous connections to the internet, to a Windows domain, or to both. Internet traffic can be routed over any connection - including a cellular connection and any metered network. This was previously the Disabled state for this policy setting. This option was first available in Windows 8.
+
+        If this policy setting is set to 1, any new automatic internet connection is blocked when the computer has at least one active internet connection to a preferred type of network. Here's the order of preference (from most preferred to least preferred): Ethernet, WLAN, then cellular. Ethernet is always preferred when connected. Users can still manually connect to any network. This was previously the Enabled state for this policy setting. This option was first available in Windows 8.
+
+        If this policy setting is set to 2, the behavior is similar to 1. However, if a cellular data connection is available, it will always stay connected for services that require a cellular connection. When the user is connected to a WLAN or Ethernet connection, no internet traffic will be routed over the cellular connection. This option was first available in Windows 10 (Version 1703).
+
+        If this policy setting is set to 3, the behavior is similar to 2. However, if there's an Ethernet connection, Windows won't allow users to connect to a WLAN manually. A WLAN can only be connected (automatically or manually) when there's no Ethernet connection.
+
+        This policy setting is related to the "Enable Windows to soft-disconnect a computer from a network" policy setting.
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2012, Windows 8 or Windows RT</q3:Supported>
+          <q3:Category>Network/Windows Connection Manager</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Minimize Policy Options</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>3 = Prevent Wi-Fi when on Ethernet</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Prohibit connection to non-domain networks when connected to domain authenticated network</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting prevents computers from connecting to both a domain based network and a non-domain based network at the same time.
+
+If this policy setting is enabled, the computer responds to automatic and manual network connection attempts based on the following circumstances:
+
+Automatic connection attempts
+- When the computer is already connected to a domain based network, all automatic connection attempts to non-domain networks are blocked.
+- When the computer is already connected to a non-domain based network, automatic connection attempts to domain based networks are blocked.
+
+Manual connection attempts
+- When the computer is already connected to either a non-domain based network or a domain based network over media other than Ethernet, and a user attempts to create a manual connection to an additional network in violation of this policy setting, the existing network connection is disconnected and the manual connection is allowed.
+- When the computer is already connected to either a non-domain based network or a domain based network over Ethernet, and a user attempts to create a manual connection to an additional network in violation of this policy setting, the existing Ethernet connection is maintained and the manual connection attempt is blocked.
+
+If this policy setting is not configured or is disabled, computers are allowed to connect simultaneously to both domain and non-domain networks.
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2012, Windows 8 or Windows RT</q3:Supported>
+          <q3:Category>Network/Windows Connection Manager</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow Windows to automatically connect to suggested open hotspots, to networks shared by contacts, and to hotspots offering paid services</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting determines whether users can enable the following WLAN settings: "Connect to suggested open hotspots," "Connect to networks shared by my contacts," and "Enable paid services".
+
+"Connect to suggested open hotspots" enables Windows to automatically connect users to open hotspots it knows about by crowdsourcing networks that other people using Windows have connected to.
+
+"Connect to networks shared by my contacts" enables Windows to automatically connect to networks that the user's contacts have shared with them, and enables users on this device to share networks with their contacts.
+
+"Enable paid services" enables Windows to temporarily connect to open hotspots to determine if paid services are available.
+
+If this policy setting is disabled, both "Connect to suggested open hotspots," "Connect to networks shared by my contacts," and "Enable paid services" will be turned off and users on this device will be prevented from enabling them.
+
+If this policy setting is not configured or is enabled, users can choose to enable or disable either "Connect to suggested open hotspots"  or "Connect to networks shared by my contacts".
+      </q3:Explain>
+          <q3:Supported>At least Windows 10</q3:Supported>
+          <q3:Category>Network/WLAN Service/WLAN Settings</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Include command line in process creation events</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting determines what information is logged in security audit events when a new process has been created.
+
+This setting only applies when the Audit Process Creation policy is enabled. If you enable this policy setting the command line information for every process will be logged in plain text in the security event log as part of the Audit Process Creation event 4688, "a new process has been created," on the workstations and servers on which this policy setting is applied.
+
+If you disable or do not configure this policy setting, the process's command line information will not be included in Audit Process Creation events.
+
+Default: Not configured
+
+Note: When this policy setting is enabled, any user with access to read the security events will be able to read the command line arguments for any successfully created process. Command line arguments can contain sensitive or private information such as passwords or user data.
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2012 R2, Windows 8.1 or Windows RT 8.1</q3:Supported>
+          <q3:Category>System/Audit Process Creation</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Remote host allows delegation of non-exportable credentials</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Remote host allows delegation of non-exportable credentials
+
+When using credential delegation, devices provide an exportable version of credentials to the remote host. This exposes users to the risk of credential theft from attackers on the remote host.
+
+If you enable this policy setting, the host supports Restricted Admin or Remote Credential Guard mode.
+
+If you disable or do not configure this policy setting, Restricted Administration and Remote Credential Guard mode are not supported. User will always need to pass their credentials to the host.</q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10 Version 1703</q3:Supported>
+          <q3:Category>System/Credentials Delegation</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn On Virtualization Based Security</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Specifies whether Virtualization Based Security is enabled.
+
+Virtualization Based Security uses the Windows Hypervisor to provide support for security services. Virtualization Based Security requires Secure Boot, and can optionally be enabled with the use of DMA Protections. DMA protections require hardware support and will only be enabled on correctly configured devices.
+
+Virtualization Based Protection of Code Integrity
+
+This setting enables virtualization based protection of Kernel Mode Code Integrity. When this is enabled, kernel mode memory protections are enforced and the Code Integrity validation path is protected by the Virtualization Based Security feature.
+
+The "Disabled" option turns off Virtualization Based Protection of Code Integrity remotely if it was previously turned on with the "Enabled without lock" option.
+
+The "Enabled with UEFI lock" option ensures that Virtualization Based Protection of Code Integrity cannot be disabled remotely. In order to disable the feature, you must set the Group Policy to "Disabled" as well as remove the security functionality from each computer, with a physically present user, in order to clear configuration persisted in UEFI.
+
+The "Enabled without lock" option allows Virtualization Based Protection of Code Integrity to be disabled remotely by using Group Policy.
+
+The "Not Configured" option leaves the policy setting undefined. Group Policy does not write the policy setting to the registry, and so it has no impact on computers or users. If there is a current setting in the registry it will not be modified.
+
+The "Require UEFI Memory Attributes Table" option will only enable Virtualization Based Protection of Code Integrity on devices with UEFI firmware support for the Memory Attributes Table. Devices without the UEFI Memory Attributes Table may have firmware that is incompatible with Virtualization Based Protection of Code Integrity which in some cases can lead to crashes or data loss or incompatibility with certain plug-in cards. If not setting this option the targeted devices should be tested to ensure compatibility.
+
+Warning: All drivers on the system must be compatible with this feature or the system may crash. Ensure that this policy setting is only deployed to computers which are known to be compatible.
+
+Credential Guard
+
+This setting lets users turn on Credential Guard with virtualization-based security to help protect credentials.
+
+The "Disabled" option turns off Credential Guard remotely if it was previously turned on with the "Enabled without lock" option.
+
+The "Enabled with UEFI lock" option ensures that Credential Guard cannot be disabled remotely. In order to disable the feature, you must set the Group Policy to "Disabled" as well as remove the security functionality from each computer, with a physically present user, in order to clear configuration persisted in UEFI.
+
+The "Enabled without lock" option allows Credential Guard to be disabled remotely by using Group Policy. The devices that use this setting must be running at least Windows 10 (Version 1511).
+
+The "Not Configured" option leaves the policy setting undefined. Group Policy does not write the policy setting to the registry, and so it has no impact on computers or users. If there is a current setting in the registry it will not be modified.
+
+Secure Launch
+
+This setting sets the configuration of Secure Launch to secure the boot chain.
+
+The "Not Configured" setting is the default, and allows configuration of the feature by Administrative users.
+
+The "Enabled" option turns on Secure Launch on supported hardware.
+
+The "Disabled" option turns off Secure Launch, regardless of hardware support.
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>System/Device Guard</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Select Platform Security Level:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Secure Boot</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:DropDownList>
+            <q3:Name>Virtualization Based Protection of Code Integrity:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Enabled with UEFI lock</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:CheckBox>
+            <q3:Name>Require UEFI Memory Attributes Table</q3:Name>
+            <q3:State>Disabled</q3:State>
+          </q3:CheckBox>
+          <q3:DropDownList>
+            <q3:Name>Credential Guard Configuration:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Enabled with UEFI lock</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:DropDownList>
+            <q3:Name>Secure Launch Configuration:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Not Configured</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Boot-Start Driver Initialization Policy</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting allows you to specify which boot-start drivers are initialized based on a classification determined by an Early Launch Antimalware boot-start driver. The Early Launch Antimalware boot-start driver can return the following classifications for each boot-start driver:
+-  Good: The driver has been signed and has not been tampered with.
+-  Bad: The driver has been identified as malware. It is recommended that you do not allow known bad drivers to be initialized.
+-  Bad, but required for boot: The driver has been identified as malware, but the computer cannot successfully boot without loading this driver.
+-  Unknown: This driver has not been attested to by your malware detection application and has not been classified by the Early Launch Antimalware boot-start driver.
+
+If you enable this policy setting you will be able to choose which boot-start drivers to initialize the next time the computer is started.
+
+If you disable or do not configure this policy setting, the boot start drivers determined to be Good, Unknown or Bad but Boot Critical are initialized and the initialization of drivers determined to be Bad is skipped.
+
+If your malware detection application does not include an Early Launch Antimalware boot-start driver or if your Early Launch Antimalware boot-start driver has been disabled, this setting has no effect and all boot-start drivers are initialized.
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2012, Windows 8 or Windows RT</q3:Supported>
+          <q3:Category>System/Early Launch Antimalware</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Choose the boot-start drivers that can be initialized:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Good, unknown and bad but critical</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Configure registry policy processing</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting determines when registry policies are updated.
+
+This policy setting affects all policies in the Administrative Templates folder and any other policies that store values in the registry. It overrides customized settings that the program implementing a registry policy set when it was installed.
+
+If you enable this policy setting, you can use the check boxes provided to change the options. If you disable or do not configure this policy setting, it has no effect on the system.
+
+The "Do not apply during periodic background processing" option prevents the system from updating affected policies in the background while the computer is in use. When background updates are disabled, policy changes will not take effect until the next user logon or system restart.
+
+The "Process even if the Group Policy objects have not changed" option updates and reapplies the policies even if the policies have not changed. Many policy implementations specify that they are updated only when changed. However, you might want to update unchanged policies, such as reapplying a desired policy setting in case a user has changed it.</q3:Explain>
+          <q3:Supported>At least Windows 2000</q3:Supported>
+          <q3:Category>System/Group Policy</q3:Category>
+          <q3:CheckBox>
+            <q3:Name>Do not apply during periodic background processing</q3:Name>
+            <q3:State>Disabled</q3:State>
+          </q3:CheckBox>
+          <q3:CheckBox>
+            <q3:Name>Process even if the Group Policy objects have not changed</q3:Name>
+            <q3:State>Enabled</q3:State>
+          </q3:CheckBox>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off downloading of print drivers over HTTP</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies whether to allow this client to download print driver packages over HTTP.
+
+To set up HTTP printing, non-inbox drivers need to be downloaded over HTTP.
+
+Note: This policy setting does not prevent the client from printing to printers on the Intranet or the Internet over HTTP.  It only prohibits downloading drivers that are not already installed locally.
+
+If you enable this policy setting, print drivers cannot be downloaded over HTTP.
+
+If you disable or do not configure this policy setting, users can download print drivers over HTTP.</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems with SP1 or Windows XP Professional with SP2</q3:Supported>
+          <q3:Category>System/Internet Communication Management/Internet Communication settings</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off Internet download for Web publishing and online ordering wizards</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies whether Windows should download a list of providers for the web publishing and online ordering wizards.
+
+These wizards allow users to select from a list of companies that provide services such as online storage and photographic printing. By default, Windows displays providers downloaded from a Windows website in addition to providers specified in the registry.
+
+If you enable this policy setting, Windows does not download providers, and only the service providers that are cached in the local registry are displayed.
+
+If you disable or do not configure this policy setting, a list of providers are downloaded when the user uses the web publishing or online ordering wizards.
+
+See the documentation for the web publishing and online ordering wizards for more information, including details on specifying service providers in the registry.</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems or Windows XP Professional with SP2</q3:Supported>
+          <q3:Category>System/Internet Communication Management/Internet Communication settings</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off printing over HTTP</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies whether to allow printing over HTTP from this client.
+
+Printing over HTTP allows a client to print to printers on the intranet as well as the Internet.
+
+Note: This policy setting affects the client side of Internet printing only. It does not prevent this computer from acting as an Internet Printing server and making its shared printers available via HTTP.
+
+If you enable this policy setting, it prevents this client from printing to Internet printers over HTTP.
+
+If you disable or do not configure this policy setting, users can choose to print to Internet printers over HTTP.
+
+Also, see the "Web-based printing" policy setting in Computer Configuration/Administrative Templates/Printers.</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems with SP1 or Windows XP Professional with SP2</q3:Supported>
+          <q3:Category>System/Internet Communication Management/Internet Communication settings</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Support device authentication using certificate</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Support for device authentication using certificate will require connectivity to a DC in the device account domain which supports certificate authentication for computer accounts.
+
+This policy setting allows you to set support for Kerberos to attempt authentication using the certificate for the device to the domain.
+
+If you enable this policy setting, the devices credentials will be selected based on the following options:
+
+Automatic: Device will attempt to authenticate using its certificate. If the DC does not support computer account authentication using certificates then authentication with password will be attempted.
+
+Force: Device will always authenticate using its certificate. If a DC cannot be found which support computer account authentication using certificates then authentication will fail.
+
+If you disable this policy setting, certificates will never be used.
+If you do not configure this policy setting, Automatic will be used.
+</q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>System/Kerberos</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Device authentication behavior using certificate:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Automatic</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Enumeration policy for external devices incompatible with Kernel DMA Protection</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Enumeration policy for external DMA-capable devices incompatible with DMA remapping. This policy only takes effect when Kernel DMA Protection is enabled and supported by the system. Note: this policy does not apply to 1394, PCMCIA or ExpressCard devices.</q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>System/Kernel DMA Protection</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Enumeration policy</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Block all</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Password Settings</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Configures password parameters
+
+Password complexity: which characters are used when generating a new password
+  Default: Large letters + small letters + numbers + special characters
+
+Password length
+  Minimum: 8 characters
+  Maximum: 64 characters
+  Default: 14 characters
+
+Password age in days
+  Minimum: 1 day (7 days when backup directory is configured to be Azure AD)
+  Maximum: 365 days
+  Default: 30 days
+
+See https://go.microsoft.com/fwlink/?linkid=2188435 for more information.
+      </q3:Explain>
+          <q3:Supported>At least Microsoft Windows 10 or later</q3:Supported>
+          <q3:Category>System/LAPS</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Password Complexity</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Large letters + small letters + numbers + specials</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:Numeric>
+            <q3:Name>Password Length</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>14</q3:Value>
+          </q3:Numeric>
+          <q3:Numeric>
+            <q3:Name>Password Age (Days)</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>60</q3:Value>
+          </q3:Numeric>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Do not display network selection UI</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting allows you to control whether anyone can interact with available networks UI on the logon screen.
+
+If you enable this policy setting, the PC's network connectivity state cannot be changed without signing into Windows.
+
+If you disable or don't configure this policy setting, any user can disconnect the PC from the network or can connect the PC to other available networks without signing into Windows.</q3:Explain>
+          <q3:Supported>At least Windows Server 2012, Windows 8 or Windows RT</q3:Supported>
+          <q3:Category>System/Logon</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Enumerate local users on domain-joined computers</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows local users to be enumerated on domain-joined computers.
+
+If you enable this policy setting, Logon UI will enumerate all local users on domain-joined computers.
+
+If you disable or do not configure this policy setting, the Logon UI will not enumerate local users on domain-joined computers.</q3:Explain>
+          <q3:Supported>At least Windows Server 2012, Windows 8 or Windows RT</q3:Supported>
+          <q3:Category>System/Logon</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn on convenience PIN sign-in</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows you to control whether a domain user can sign in using a convenience PIN.
+
+If you enable this policy setting, a domain user can set up and sign in with a convenience PIN.
+
+If you disable or don't configure this policy setting, a domain user can't set up and use a convenience PIN.
+
+Note: The user's domain password will be cached in the system vault when using this feature.
+
+To configure Windows Hello for Business, use the Administrative Template policies under Windows Hello for Business.</q3:Explain>
+          <q3:Supported>At least Windows Server 2012, Windows 8 or Windows RT</q3:Supported>
+          <q3:Category>System/Logon</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Minimum PIN length</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Minimum PIN length configures the minimum number of characters required for the PIN.  The lowest number you can configure for this policy setting is 4.  The largest number you can configure must be less than the number configured in the Maximum PIN length policy setting or the number 127, whichever is the lowest.
+
+If you configure this policy setting, the PIN length must be greater than or equal to this number.
+
+If you disable or do not configure this policy setting, the PIN length must be greater than or equal to 4.
+
+NOTE: If the above specified conditions for the minimum PIN length are not met, default values will be used for both the maximum and minimum PIN lengths.
+        </q3:Explain>
+          <q3:Supported>At least Windows 10</q3:Supported>
+          <q3:Category>System/PIN Complexity</q3:Category>
+          <q3:Numeric>
+            <q3:Name>Minimum PIN length</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>6</q3:Value>
+          </q3:Numeric>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Require a password when a computer wakes (on battery)</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies whether or not the user is prompted for a password when the system resumes from sleep.
+
+If you enable or do not configure this policy setting, the user is prompted for a password when the system resumes from sleep.
+
+If you disable this policy setting, the user is not prompted for a password when the system resumes from sleep.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>System/Power Management/Sleep Settings</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Require a password when a computer wakes (plugged in)</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies whether or not the user is prompted for a password when the system resumes from sleep.
+
+If you enable or do not configure this policy setting, the user is prompted for a password when the system resumes from sleep.
+
+If you disable this policy setting, the user is not prompted for a password when the system resumes from sleep.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>System/Power Management/Sleep Settings</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Configure Solicited Remote Assistance</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows you to turn on or turn off Solicited (Ask for) Remote Assistance on this computer.
+
+If you enable this policy setting, users on this computer can use email or file transfer to ask someone for help. Also, users can use instant messaging programs to allow connections to this computer, and you can configure additional Remote Assistance settings.
+
+If you disable this policy setting, users on this computer cannot use email or file transfer to ask someone for help. Also, users cannot use instant messaging programs to allow connections to this computer.
+
+If you do not configure this policy setting, users can turn on or turn off Solicited (Ask for) Remote Assistance themselves in System Properties in Control Panel. Users can also configure Remote Assistance settings.
+
+If you enable this policy setting, you have two ways to allow helpers to provide Remote Assistance: "Allow helpers to only view the computer" or "Allow helpers to remotely control the computer."
+
+The "Maximum ticket time" policy setting sets a limit on the amount of time that a Remote Assistance invitation created by using email or file transfer can remain open.
+
+The "Select the method for sending email invitations" setting specifies which email standard to use to send Remote Assistance invitations. Depending on your email program, you can use either the Mailto standard (the invitation recipient connects through an Internet link) or the SMAPI (Simple MAPI) standard (the invitation is attached to your email message). This policy setting is not available in Windows Vista since SMAPI is the only method supported.
+
+If you enable this policy setting you should also enable appropriate firewall exceptions to allow Remote Assistance communications.</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems or Windows XP Professional</q3:Supported>
+          <q3:Category>System/Remote Assistance</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Restrict Unauthenticated RPC clients</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting controls how the RPC server runtime handles unauthenticated RPC clients connecting to RPC servers.
+
+This policy setting impacts all RPC applications.  In a domain environment this policy setting should be used with caution as it can impact a wide range of functionality including group policy processing itself.  Reverting a change to this policy setting can require manual intervention on each affected machine.  This policy setting should never be applied to a domain controller.
+
+If you disable this policy setting, the RPC server runtime uses the value of "Authenticated" on Windows Client, and the value of "None" on Windows Server versions that support this policy setting.
+
+If you do not configure this policy setting, it remains disabled.  The RPC server runtime will behave as though it was enabled with the value of "Authenticated" used for Windows Client and the value of "None" used for Server SKUs that support this policy setting.
+
+If you enable this policy setting, it directs the RPC server runtime to restrict unauthenticated RPC clients connecting to RPC servers running on a machine. A client will be considered an authenticated client if it uses a named pipe to communicate with the server or if it uses RPC Security. RPC Interfaces that have specifically requested to be accessible by unauthenticated clients may be exempt from this restriction, depending on the selected value for this policy setting.
+
+--  "None" allows all RPC clients to connect to RPC Servers running on the machine on which the policy setting is applied.
+
+--  "Authenticated" allows only authenticated RPC Clients (per the definition above) to connect to RPC Servers running on the machine on which the policy setting is applied. Exemptions are granted to interfaces that have requested them.
+
+--  "Authenticated without exceptions" allows only authenticated RPC Clients (per the definition above) to connect to RPC Servers running on the machine on which the policy setting is applied.  No exceptions are allowed.
+
+Note: This policy setting will not be applied until the system is rebooted.</q3:Explain>
+          <q3:Supported>At least Windows XP Professional with SP2</q3:Supported>
+          <q3:Category>System/Remote Procedure Call</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>RPC Runtime Unauthenticated Client Restriction to Apply:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Authenticated</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Let Windows apps activate with voice while the system is locked</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>
+This policy setting specifies whether Windows apps can be activated by voice while the system is locked.
+
+If you choose the "User is in control" option, employees in your organization can decide whether users can interact with applications using speech while the system is locked by using Settings &gt; Privacy on the device.
+
+If you choose the "Force Allow" option, users can interact with applications using speech while the system is locked and employees in your organization cannot change it.
+
+If you choose the "Force Deny" option, users cannot interact with applications using speech while the system is locked and employees in your organization cannot change it.
+
+If you disable or do not configure this policy setting, employees in your organization can decide whether users can interact with applications using speech while the system is locked by using Settings &gt; Privacy on the device.
+
+This policy is applied to Windows apps and Cortana. It takes precedence of the “Allow Cortana above lock” policy. This policy is applicable only when “Allow voice activation” policy is configured to allow applications to be activated with voice.
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>Windows Components/App Privacy</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Default for all apps:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Force Deny</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow Microsoft accounts to be optional</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting lets you control whether Microsoft accounts are optional for Windows Store apps that require an account to sign in. This policy only affects Windows Store apps that support it.
+
+If you enable this policy setting, Windows Store apps that typically require a Microsoft account to sign in will allow users to sign in with an enterprise account instead.
+
+If you disable or do not configure this policy setting, users will need to sign in with a Microsoft account.</q3:Explain>
+          <q3:Supported>At least Windows Server 2012 R2, Windows 8.1 or Windows RT 8.1</q3:Supported>
+          <q3:Category>Windows Components/App runtime</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off Inventory Collector</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting controls the state of the Inventory Collector.
+
+The Inventory Collector inventories applications, files, devices, and drivers on the system and sends the information to Microsoft.  This information is used to help diagnose compatibility problems.
+
+If you enable this policy setting, the Inventory Collector will be turned off and data will not be sent to Microsoft. Collection of installation data through the Program Compatibility Assistant is also disabled.
+
+If you disable or do not configure this policy setting, the Inventory Collector will be turned on.
+
+Note: This policy setting has no effect if the Customer Experience Improvement Program is turned off. The Inventory Collector will be off.</q3:Explain>
+          <q3:Supported>At least Windows Server 2008 R2 or Windows 7</q3:Supported>
+          <q3:Category>Windows Components/Application Compatibility</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Disallow Autoplay for non-volume devices</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting disallows AutoPlay for MTP devices like cameras or phones.
+
+          If you enable this policy setting, AutoPlay is not allowed for MTP devices like cameras or phones.
+
+          If you disable or do not configure this policy setting, AutoPlay is enabled for non-volume devices.</q3:Explain>
+          <q3:Supported>At least Windows Server 2008 R2 or Windows 7</q3:Supported>
+          <q3:Category>Windows Components/AutoPlay Policies</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Set the default behavior for AutoRun</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting sets the default behavior for Autorun commands.
+
+          Autorun commands are generally stored in autorun.inf files. They often launch the installation program or other routines.
+
+          Prior to Windows Vista, when media containing an autorun command is inserted, the system will automatically execute the program without user intervention.
+
+          This creates a major security concern as code may be executed without user's knowledge. The default behavior starting with Windows Vista is to prompt the user whether autorun command is to be run. The autorun command is represented as a handler in the Autoplay dialog.
+
+          If you enable this policy setting, an Administrator can change the default Windows Vista or later behavior for autorun to:
+
+          a) Completely disable autorun commands, or
+          b) Revert back to pre-Windows Vista behavior of automatically executing the autorun command.
+
+          If you disable or not configure this policy setting, Windows Vista or later will prompt the user whether autorun command is to be run.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/AutoPlay Policies</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Default AutoRun Behavior</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Do not execute any autorun commands</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off Autoplay</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting allows you to turn off the Autoplay feature.
+
+          Autoplay begins reading from a drive as soon as you insert media in the drive. As a result, the setup file of programs and the music on audio media start immediately.
+
+          Prior to Windows XP SP2, Autoplay is disabled by default on removable drives, such as the floppy disk drive (but not the CD-ROM drive), and on network drives.
+
+          Starting with Windows XP SP2, Autoplay is enabled for removable drives as well, including Zip drives and some USB mass storage devices.
+
+          If you enable this policy setting, Autoplay is disabled on CD-ROM and removable media drives, or disabled on all drives.
+
+          This policy setting disables Autoplay on additional types of drives. You cannot use this setting to enable Autoplay on drives on which it is disabled by default.
+
+          If you disable or do not configure this policy setting, AutoPlay is enabled.
+
+          Note: This policy setting appears in both the Computer Configuration and User Configuration folders. If the policy settings conflict, the policy setting in Computer Configuration takes precedence over the policy setting in User Configuration.</q3:Explain>
+          <q3:Supported>At least Windows 2000</q3:Supported>
+          <q3:Category>Windows Components/AutoPlay Policies</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Turn off Autoplay on:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>All drives</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Configure enhanced anti-spoofing</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting determines whether enhanced anti-spoofing is required for Windows Hello face authentication.
+
+If you enable this setting, Windows requires all users on managed devices to use enhanced anti-spoofing for Windows Hello face authentication. This disables Windows Hello face authentication on devices that do not support enhanced anti-spoofing.
+
+If you disable or don't configure this setting, Windows doesn't require enhanced anti-spoofing for Windows Hello face authentication.
+
+Note that enhanced anti-spoofing for Windows Hello face authentication is not required on unmanaged devices.
+</q3:Explain>
+          <q3:Supported>At least Windows Server 2016 or Windows 10</q3:Supported>
+          <q3:Category>Windows Components/Biometrics/Facial Features</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Configure minimum PIN length for startup</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>
+          This policy setting allows you to configure a minimum length for a Trusted Platform Module (TPM) startup PIN. This policy setting is applied when you turn on BitLocker. The startup PIN must have a minimum length of 4 digits and can have a maximum length of 20 digits.
+
+          If you enable this policy setting, you can require a minimum number of digits to be used when setting the startup PIN.
+
+          If you disable or do not configure this policy setting, users can configure a startup PIN of any length between 6 and 20 digits.
+
+          NOTE: If minimum PIN length is set below 6 digits, Windows will attempt to update the TPM 2.0 lockout period to be greater than the default when a PIN is changed. If successful, Windows will only reset the TPM lockout period back to default if the TPM is reset.
+
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2008 R2 or Windows 7</q3:Supported>
+          <q3:Category>Windows Components/BitLocker Drive Encryption/Operating System Drives</q3:Category>
+          <q3:Numeric>
+            <q3:Name>Minimum characters:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>6</q3:Value>
+          </q3:Numeric>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Require additional authentication at startup</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting allows you to configure whether BitLocker requires additional authentication each time the computer starts and whether you are using BitLocker with or without a Trusted Platform Module (TPM). This policy setting is applied when you turn on BitLocker.
+
+Note: Only one of the additional authentication options can be required at startup, otherwise a policy error occurs.
+
+If you want to use BitLocker on a computer without a TPM, select the "Allow BitLocker without a compatible TPM" check box. In this mode either a password or a USB drive is required for start-up. When using a startup key, the key information used to encrypt the drive is stored on the USB drive, creating a USB key. When the USB key is inserted the access to the drive is authenticated and the drive is accessible. If the USB key is lost or unavailable or if you have forgotten the password then you will need to use one of the BitLocker recovery options to access the drive.
+
+On a computer with a compatible TPM, four types of authentication methods can be used at startup to provide added protection for encrypted data. When the computer starts, it can use only the TPM for authentication, or it can also require insertion of a USB flash drive containing a startup key, the entry of a 6-digit to 20-digit personal identification number (PIN), or both.
+
+If you enable this policy setting, users can configure advanced startup options in the BitLocker setup wizard.
+
+If you disable or do not configure this policy setting, users can configure only basic options on computers with a TPM.
+
+Note: If you want to require the use of a startup PIN and a USB flash drive, you must configure BitLocker settings using the command-line tool manage-bde instead of the BitLocker Drive Encryption setup wizard.
+
+</q3:Explain>
+          <q3:Supported>At least Windows Server 2008 R2 or Windows 7</q3:Supported>
+          <q3:Category>Windows Components/BitLocker Drive Encryption/Operating System Drives</q3:Category>
+          <q3:CheckBox>
+            <q3:Name>Allow BitLocker without a compatible TPM (requires a password or a startup key on a USB flash drive)</q3:Name>
+            <q3:State>Enabled</q3:State>
+          </q3:CheckBox>
+          <q3:Text>
+            <q3:Name>Settings for computers with a TPM:</q3:Name>
+          </q3:Text>
+          <q3:DropDownList>
+            <q3:Name>Configure TPM startup:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Allow TPM</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:DropDownList>
+            <q3:Name>Configure TPM startup PIN:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Require startup PIN with TPM</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:DropDownList>
+            <q3:Name>Configure TPM startup key:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Allow startup key with TPM</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:DropDownList>
+            <q3:Name>Configure TPM startup key and PIN:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Allow startup key and PIN with TPM</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:Text>
+            <q3:Name />
+          </q3:Text>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off Microsoft consumer experiences</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting turns off experiences that help consumers make the most of their devices and Microsoft account.
+
+If you enable this policy setting, users will no longer see personalized recommendations from Microsoft and notifications about their Microsoft account.
+
+If you disable or do not configure this policy setting, users may see suggestions from Microsoft and notifications about their Microsoft account.
+
+Note: This setting only applies to Enterprise and Education SKUs.</q3:Explain>
+          <q3:Supported>At least Windows 10</q3:Supported>
+          <q3:Category>Windows Components/Cloud Content</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Enumerate administrator accounts on elevation</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting controls whether administrator accounts are displayed when a user attempts to elevate a running application. By default, administrator accounts are not displayed when the user attempts to elevate a running application.
+
+If you enable this policy setting, all local administrator accounts on the PC will be displayed so the user can choose one and enter the correct password.
+
+If you disable this policy setting, users will always be required to type a user name and password to elevate.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Credential User Interface</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow Diagnostic Data</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>By configuring this policy setting you can adjust what diagnostic data is collected from Windows. This policy setting also restricts the user from increasing the amount of diagnostic data collection via the Settings app. The diagnostic data collected under this policy impacts the operating system and apps that are considered part of Windows and does not apply to any additional apps installed by your organization.
+
+    - Diagnostic data off (not recommended). Using this value, no diagnostic data is sent from the device. This value is only supported on Enterprise, Education, and Server editions.
+    - Send required diagnostic data. This is the minimum diagnostic data necessary to keep Windows secure, up to date, and performing as expected. Using this value disables the "Optional diagnostic data" control in the Settings app.
+    - Send optional diagnostic data. Additional diagnostic data is collected that helps us to detect, diagnose and fix issues, as well as make product improvements. Required diagnostic data will always be included when you choose to send optional diagnostic data.  Optional diagnostic data can also include diagnostic log files and crash dumps. Use the "Limit Dump Collection" and the "Limit Diagnostic Log Collection" policies for more granular control of what optional diagnostic data is sent.
+
+If you disable or do not configure this policy setting, the device will send required diagnostic data and the end user can choose whether to send optional diagnostic data from the Settings app.
+
+Note:
+The "Configure diagnostic data opt-in settings user interface" group policy can be used to prevent end users from changing their data collection settings.
+      </q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>Windows Components/Data Collection and Preview Builds</q3:Category>
+          <q3:DropDownList>
+            <q3:Name />
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Send required diagnostic data</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Download Mode</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Specifies the download method that Delivery Optimization can use in downloads of Windows Updates, Apps and App updates.
+
+The following list shows the supported values:
+
+0 = HTTP only, no peering.
+
+1 = HTTP blended with peering behind the same NAT.
+
+2 = HTTP blended with peering across a private group. Peering occurs on devices in the same Active Directory Site (if exist) or the same domain by default. When this option is selected, peering will cross NATs. To create a custom group use Group ID in combination with Mode 2.
+
+3 = HTTP blended with Internet Peering.
+
+99 = Simple download mode with no peering. Delivery Optimization downloads using HTTP only and does not attempt to contact the Delivery Optimization cloud services.</q3:Explain>
+          <q3:Supported>At least Windows Server 2016, Windows 10</q3:Supported>
+          <q3:Category>Windows Components/Delivery Optimization</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Download Mode:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Group (2)</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Specify the maximum log file size (KB)</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies the maximum size of the log file in kilobytes.
+
+If you enable this policy setting, you can configure the maximum log file size to be between 1 megabyte (1024 kilobytes) and 2 terabytes (2147483647 kilobytes), in kilobyte increments.
+
+If you disable or do not configure this policy setting, the maximum size of the log file will be set to the locally configured value. This value can be changed by the local administrator using the Log Properties dialog, and it defaults to 1 megabyte.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Event Log Service/Application</q3:Category>
+          <q3:Numeric>
+            <q3:Name>Maximum Log Size (KB)</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>32768</q3:Value>
+          </q3:Numeric>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Specify the maximum log file size (KB)</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies the maximum size of the log file in kilobytes.
+
+If you enable this policy setting, you can configure the maximum log file size to be between 20 megabytes (20480 kilobytes) and 2 terabytes (2147483647 kilobytes), in kilobyte increments.
+
+If you disable or do not configure this policy setting, the maximum size of the log file will be set to the locally configured value. This value can be changed by the local administrator using the Log Properties dialog, and it defaults to 20 megabytes.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Event Log Service/Security</q3:Category>
+          <q3:Numeric>
+            <q3:Name>Maximum Log Size (KB)</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>1024000</q3:Value>
+          </q3:Numeric>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Specify the maximum log file size (KB)</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies the maximum size of the log file in kilobytes.
+
+If you enable this policy setting, you can configure the maximum log file size to be between 1 megabyte (1024 kilobytes) and 2 terabytes (2147483647 kilobytes), in kilobyte increments.
+
+If you disable or do not configure this policy setting, the maximum size of the log file will be set to the locally configured value. This value can be changed by the local administrator using the Log Properties dialog, and it defaults to 1 megabyte.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Event Log Service/System</q3:Category>
+          <q3:Numeric>
+            <q3:Name>Maximum Log Size (KB)</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>32768</q3:Value>
+          </q3:Numeric>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off Data Execution Prevention for Explorer</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>Disabling data execution prevention can allow certain legacy plug-in applications to function without terminating Explorer.</q3:Explain>
+          <q3:Supported>At least Windows Server 2008 R2 or Windows 7</q3:Supported>
+          <q3:Category>Windows Components/File Explorer</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off heap termination on corruption</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>Disabling heap termination on corruption can allow certain legacy plug-in applications to function without terminating Explorer immediately, although Explorer may still terminate unexpectedly later.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/File Explorer</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn off shell protocol protected mode</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows you to configure the amount of functionality that the shell protocol can have. When using the full functionality of this protocol, applications can open folders and launch files. The protected mode reduces the functionality of this protocol allowing applications to only open a limited set of folders. Applications are not able to open files with this protocol when it is in the protected mode. It is recommended to leave this protocol in the protected mode to increase the security of Windows.
+
+If you enable this policy setting the protocol is fully enabled, allowing the opening of folders and files.
+
+If you disable this policy setting the protocol is in the protected mode, allowing applications to only open a limited set of folders.
+
+If you do not configure this policy setting the protocol is in the protected mode, allowing applications to only open a limited set of folders.</q3:Explain>
+          <q3:Supported>At least Windows XP Professional with SP2</q3:Supported>
+          <q3:Category>Windows Components/File Explorer</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Disable Internet Explorer 11 as a standalone browser</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy lets you restrict launching of Internet Explorer as a standalone browser.
+
+If you enable this policy, it:
+- Prevents Internet Explorer 11 from launching as a standalone browser.
+- Restricts Internet Explorer's usage to Microsoft Edge's native 'Internet Explorer mode'.
+- Redirects all attempts at launching Internet Explorer 11 to Microsoft Edge Stable Channel browser.
+- Overrides any other policies that redirect to Internet Explorer 11.
+
+If you disable, or don’t configure this policy, all sites are opened using the current active browser settings. Note: Microsoft Edge Stable Channel must be installed for this policy to take effect.</q3:Explain>
+          <q3:Supported>At least Internet Explorer 11.0</q3:Supported>
+          <q3:Category>Windows Components/Internet Explorer</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Notify that Internet Explorer 11 browser is disabled</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Never</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Do not allow passwords to be saved</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Controls whether passwords can be saved on this computer from Remote Desktop Connection.
+
+If you enable this setting the password saving checkbox in Remote Desktop Connection will be disabled and users will no longer be able to save passwords. When a user opens an RDP file using Remote Desktop Connection and saves his settings, any password that previously existed in the RDP file will be deleted.
+
+If you disable this setting or leave it not configured, the user will be able to save passwords using Remote Desktop Connection.</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems with SP1 or Windows XP Professional with SP2</q3:Supported>
+          <q3:Category>Windows Components/Remote Desktop Services/Remote Desktop Connection Client</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Do not allow drive redirection</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies whether to prevent the mapping of client drives in a Remote Desktop Services session (drive redirection).
+
+By default, an RD Session Host server maps client drives automatically upon connection. Mapped drives appear in the session folder tree in File Explorer or Computer in the format &lt;driveletter&gt; on &lt;computername&gt;. You can use this policy setting to override this behavior.
+
+If you enable this policy setting, client drive redirection is not allowed in Remote Desktop Services sessions, and Clipboard file copy redirection is not allowed on computers running Windows Server 2003, Windows 8, and Windows XP.
+
+If you disable this policy setting, client drive redirection is always allowed. In addition, Clipboard file copy redirection is always allowed if Clipboard redirection is allowed.
+
+If you do not configure this policy setting, client drive redirection and Clipboard file copy redirection are not specified at the Group Policy level.
+</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems or Windows XP Professional</q3:Supported>
+          <q3:Category>Windows Components/Remote Desktop Services/Remote Desktop Session Host/Device and Resource Redirection</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Always prompt for password upon connection</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting specifies whether Remote Desktop Services always prompts the client for a password upon connection.
+
+You can use this setting to enforce a password prompt for users logging on to Remote Desktop Services, even if they already provided the password in the Remote Desktop Connection client.
+
+By default, Remote Desktop Services allows users to automatically log on by entering a password in the Remote Desktop Connection client.
+
+If you enable this policy setting, users cannot automatically log on to Remote Desktop Services by supplying their passwords in the Remote Desktop Connection client. They are prompted for a password to log on.
+
+If you disable this policy setting, users can always log on to Remote Desktop Services automatically by supplying their passwords in the Remote Desktop Connection client.
+
+If you do not configure this policy setting, automatic logon is not specified at the Group Policy level.
+</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems or Windows XP Professional</q3:Supported>
+          <q3:Category>Windows Components/Remote Desktop Services/Remote Desktop Session Host/Security</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Require secure RPC communication</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Specifies whether a Remote Desktop Session Host server requires secure RPC communication with all clients or allows unsecured communication.
+
+You can use this setting to strengthen the security of RPC communication with clients by allowing only authenticated and encrypted requests.
+
+If the status is set to Enabled, Remote Desktop Services accepts requests from RPC clients that support secure requests, and does not allow unsecured communication with untrusted clients.
+
+If the status is set to Disabled, Remote Desktop Services always requests security for all RPC traffic. However, unsecured communication is allowed for RPC clients that do not respond to the request.
+
+If the status is set to Not Configured, unsecured communication is allowed.
+
+Note: The RPC interface is used for administering and configuring Remote Desktop Services.</q3:Explain>
+          <q3:Supported>At least Windows Server 2003</q3:Supported>
+          <q3:Category>Windows Components/Remote Desktop Services/Remote Desktop Session Host/Security</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Set client connection encryption level</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Specifies whether to require the use of a specific encryption level to secure communications between client computers and RD Session Host servers during Remote Desktop Protocol (RDP) connections. This policy only applies when you are using native RDP encryption. However, native RDP encryption (as opposed to SSL encryption) is not recommended. This policy does not apply to SSL encryption.
+
+If you enable this policy setting, all communications between clients and RD Session Host servers during remote connections must use the encryption method specified in this setting. By default, the encryption level is set to High. The following encryption methods are available:
+
+* High: The High setting encrypts data sent from the client to the server and from the server to the client by using strong 128-bit encryption. Use this encryption level in environments that contain only 128-bit clients (for example, clients that run Remote Desktop Connection). Clients that do not support this encryption level cannot connect to RD Session Host servers.
+
+* Client Compatible: The Client Compatible setting encrypts data sent between the client and the server at the maximum key strength supported by the client. Use this encryption level in environments that include clients that do not support 128-bit encryption.
+
+* Low: The Low setting encrypts only data sent from the client to the server by using 56-bit encryption.
+
+If you disable or do not configure this setting, the encryption level to be used for remote connections to RD Session Host servers is not enforced through Group Policy.
+
+Important
+
+FIPS compliance can be configured through the System cryptography. Use FIPS compliant algorithms for encryption, hashing, and signing settings in Group Policy (under Computer Configuration\Windows Settings\Security Settings\Local Policies\Security Options.) The FIPS compliant setting encrypts and decrypts data sent from the client to the server and from the server to the client, with the Federal Information Processing Standard (FIPS) 140 encryption algorithms, by using Microsoft cryptographic modules. Use this encryption level when communications between clients and RD Session Host servers requires the highest level of encryption.
+</q3:Explain>
+          <q3:Supported>At least Windows Server 2003 operating systems or Windows XP Professional</q3:Supported>
+          <q3:Category>Windows Components/Remote Desktop Services/Remote Desktop Session Host/Security</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Encryption Level</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>High Level</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+          <q3:Text>
+            <q3:Name>Choose the encryption level from the drop-down list.</q3:Name>
+          </q3:Text>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Prevent downloading of enclosures</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting prevents the user from having enclosures (file attachments) downloaded from a feed to the user's computer.
+
+If you enable this policy setting, the user cannot set the Feed Sync Engine to download an enclosure through the Feed property page. A developer cannot change the download setting through the Feed APIs.
+
+If you disable or do not configure this policy setting, the user can set the Feed Sync Engine to download an enclosure through the Feed property page. A developer can change the download setting through the Feed APIs.</q3:Explain>
+          <q3:Supported>At least Internet Explorer 7.0</q3:Supported>
+          <q3:Category>Windows Components/RSS Feeds</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn on Basic feed authentication over HTTP</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows users to have their feeds authenticated through the Basic authentication scheme over an unencrypted HTTP connection.
+
+If you enable this policy setting, the Windows RSS Platform authenticates feeds to servers by using the Basic authentication scheme in combination with a less secure HTTP connection.
+
+If you disable or do not configure this policy setting, the Windows RSS Platform does not authenticate feeds to servers by using the Basic authentication scheme in combination with a less secure HTTP connection.
+
+A developer cannot change this policy setting through the Feed APIs.</q3:Explain>
+          <q3:Supported>At least Internet Explorer 8.0</q3:Supported>
+          <q3:Category>Windows Components/RSS Feeds</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow indexing of encrypted files</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows encrypted items to be indexed. If you enable this policy setting, indexing  will attempt to decrypt and index the content (access restrictions will still apply). If you disable this policy setting, the search service components (including non-Microsoft components) are expected not to index encrypted items or encrypted stores. This policy setting is not configured by default. If you do not configure this policy setting, the local setting, configured through Control Panel, will be used. By default, the Control Panel setting is set to not index encrypted content.
+
+When this setting is enabled or disabled, the index is rebuilt completely.
+
+Full volume encryption (such as BitLocker Drive Encryption or a non-Microsoft solution) must be used for the location of the index to maintain security for encrypted files.</q3:Explain>
+          <q3:Supported>Microsoft Windows Vista, or any version of Windows with Windows Search 4.0 or later</q3:Supported>
+          <q3:Category>Windows Components/Search</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Configure Windows Defender SmartScreen</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy allows you to turn Windows Defender SmartScreen on or off.  SmartScreen helps protect PCs by warning users before running potentially malicious programs downloaded from the Internet.  This warning is presented as an interstitial dialog shown before running an app that has been downloaded from the Internet and is unrecognized or known to be malicious.  No dialog is shown for apps that do not appear to be suspicious.
+
+Some information is sent to Microsoft about files and programs run on PCs with this feature enabled.
+
+If you enable this policy, SmartScreen will be turned on for all users.  Its behavior can be controlled by the following options:
+
+• Warn and prevent bypass
+• Warn
+
+If you enable this policy with the "Warn and prevent bypass" option, SmartScreen's dialogs will not present the user with the option to disregard the warning and run the app.  SmartScreen will continue to show the warning on subsequent attempts to run the app.
+
+If you enable this policy with the "Warn" option, SmartScreen's dialogs will warn the user that the app appears suspicious, but will permit the user to disregard the warning and run the app anyway.  SmartScreen will not warn the user again for that app if the user tells SmartScreen to run the app.
+
+If you disable this policy, SmartScreen will be turned off for all users.  Users will not be warned if they try to run suspicious apps from the Internet.
+
+If you do not configure this policy, SmartScreen will be enabled by default, but users may change their settings.</q3:Explain>
+          <q3:Supported>At least Windows Server 2012, Windows 8 or Windows RT</q3:Supported>
+          <q3:Category>Windows Components/Windows Defender SmartScreen/Explorer</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Pick one of the following settings:</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>
+              <q3:Name>Warn and prevent bypass</q3:Name>
+            </q3:Value>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Use a hardware security device</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>A Trusted Platform Module (TPM) provides additional security benefits over software because data protected by it cannot be used on other devices.
+
+If you enable this policy setting, Windows Hello for Business provisioning only occurs on devices with usable 1.2 or 2.0 TPMs. You can optionally exclude security devices, which prevents Windows Hello for Business provisioning from using those devices.
+
+If you disable or do not configure this policy setting, the TPM is still preferred, but all devices may provision Windows Hello for Business using software if the TPM is non-functional or unavailable.
+        </q3:Explain>
+          <q3:Supported>At least Windows 10</q3:Supported>
+          <q3:Category>Windows Components/Windows Hello for Business</q3:Category>
+          <q3:Text>
+            <q3:Name>Do not use the following security devices:</q3:Name>
+          </q3:Text>
+          <q3:CheckBox>
+            <q3:Name>TPM 1.2</q3:Name>
+            <q3:State>Disabled</q3:State>
+          </q3:CheckBox>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow Windows Ink Workspace</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>Allow Windows Ink Workspace</q3:Explain>
+          <q3:Supported>At least Windows 10 Redstone</q3:Supported>
+          <q3:Category>Windows Components/Windows Ink Workspace</q3:Category>
+          <q3:DropDownList>
+            <q3:Name>Choose one of the following actions</q3:Name>
+            <q3:State>NotConfigured</q3:State>
+          </q3:DropDownList>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow user control over installs</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting permits users to change installation options that typically are available only to system administrators.
+
+If you enable this policy setting, some of the security features of Windows Installer are bypassed. It permits installations to complete that otherwise would be halted due to a security violation.
+
+If you disable or do not configure this policy setting, the security features of Windows Installer prevent users from changing installation options typically reserved for system administrators, such as specifying the directory to which files are installed.
+
+If Windows Installer detects that an installation package has permitted the user to change a protected option, it stops the installation and displays a message. These security features operate only when the installation program is running in a privileged security context in which it has access to directories denied to the user.
+
+This policy setting is designed for less restrictive environments. It can be used to circumvent errors in an installation program that prevents software from being installed.</q3:Explain>
+          <q3:Supported>At least Windows 2000</q3:Supported>
+          <q3:Category>Windows Components/Windows Installer</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Always install with elevated privileges</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting directs Windows Installer to use elevated permissions when it installs any program on the system.
+
+If you enable this policy setting, privileges are extended to all programs. These privileges are usually reserved for programs that have been assigned to the user (offered on the desktop), assigned to the computer (installed automatically), or made available in Add or Remove Programs in Control Panel. This profile setting lets users install programs that require access to directories that the user might not have permission to view or change, including directories on highly restricted computers.
+
+If you disable or do not configure this policy setting, the system applies the current user's permissions when it installs programs that a system administrator does not distribute or offer.
+
+Note: This policy setting appears both in the Computer Configuration and User Configuration folders. To make this policy setting effective, you must enable it in both folders.
+
+Caution: Skilled users can take advantage of the permissions this policy setting grants to change their privileges and gain permanent access to restricted files and folders. Note that the User Configuration version of this policy setting is not guaranteed to be secure.</q3:Explain>
+          <q3:Supported>At least Windows 2000</q3:Supported>
+          <q3:Category>Windows Components/Windows Installer</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Prevent Internet Explorer security prompt for Windows Installer scripts</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows Web-based programs to install software on the computer without notifying the user.
+
+If you disable or do not configure this policy setting, by default, when a script hosted by an Internet browser tries to install a program on the system, the system warns users and allows them to select or refuse the installation.
+
+If you enable this policy setting, the warning is suppressed and allows the installation to proceed.
+
+This policy setting is designed for enterprises that use Web-based tools to distribute programs to their employees. However, because this policy setting can pose a security risk, it should be applied cautiously.</q3:Explain>
+          <q3:Supported>At least Windows 2000</q3:Supported>
+          <q3:Category>Windows Components/Windows Installer</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Sign-in and lock last interactive user automatically after a restart</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting controls whether a device will automatically sign in and lock the last interactive user after the system restarts or after a shutdown and cold boot.
+
+This only occurs if the last interactive user didn’t sign out before the restart or shutdown.​
+
+If the device is joined to Active Directory or Azure Active Directory, this policy only applies to Windows Update restarts. Otherwise, this will apply to both Windows Update restarts and user-initiated restarts and shutdowns.​
+
+If you don’t configure this policy setting, it is enabled by default. When the policy is enabled, the user is automatically signed in and the session is automatically locked with all lock screen apps configured for that user after the device boots.​
+
+After enabling this policy, you can configure its settings through the ConfigAutomaticRestartSignOn policy, which configures the mode of automatically signing in and locking the last interactive user after a restart or cold boot​.
+
+If you disable this policy setting, the device does not configure automatic sign in. The user’s lock screen apps are not restarted after the system restarts.</q3:Explain>
+          <q3:Supported>At least Windows 10 Version 1903</q3:Supported>
+          <q3:Category>Windows Components/Windows Logon Options</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn on PowerShell Script Block Logging</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>
+        This policy setting enables logging of all PowerShell script input to the Microsoft-Windows-PowerShell/Operational event log. If you enable this policy setting,
+        Windows PowerShell will log the processing of commands, script blocks, functions, and scripts - whether invoked interactively, or through automation.
+
+        If you disable this policy setting, logging of PowerShell script input is disabled.
+
+        If you enable the Script Block Invocation Logging, PowerShell additionally logs events when invocation of a command, script block, function, or script
+        starts or stops. Enabling Invocation Logging generates a high volume of event logs.
+
+        Note: This policy setting exists under both Computer Configuration and User Configuration in the Group Policy Editor. The Computer Configuration policy setting takes precedence over the User Configuration policy setting.
+      </q3:Explain>
+          <q3:Supported>At least Microsoft Windows 7 or Windows Server 2008 family</q3:Supported>
+          <q3:Category>Windows Components/Windows PowerShell</q3:Category>
+          <q3:CheckBox>
+            <q3:Name>Log script block invocation start / stop events:</q3:Name>
+            <q3:State>Disabled</q3:State>
+          </q3:CheckBox>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Turn on PowerShell Transcription</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>
+        This policy setting lets you capture the input and output of Windows PowerShell commands into text-based transcripts.
+
+        If you enable this policy setting, Windows PowerShell will enable transcripting for Windows PowerShell, the Windows PowerShell ISE, and any other
+        applications that leverage the Windows PowerShell engine. By default, Windows PowerShell will record transcript output to each users' My Documents
+        directory, with a file name that includes 'PowerShell_transcript', along with the computer name and time started. Enabling this policy is equivalent
+        to calling the Start-Transcript cmdlet on each Windows PowerShell session.
+
+        If you disable this policy setting, transcripting of PowerShell-based applications is disabled by default, although transcripting can still be enabled
+        through the Start-Transcript cmdlet.
+
+        If you use the OutputDirectory setting to enable transcript logging to a shared location, be sure to limit access to that directory to prevent users
+        from viewing the transcripts of other users or computers.
+
+        Note: This policy setting exists under both Computer Configuration and User Configuration in the Group Policy Editor. The Computer Configuration policy setting takes precedence over the User Configuration policy setting.
+      </q3:Explain>
+          <q3:Supported>At least Microsoft Windows 7 or Windows Server 2008 family</q3:Supported>
+          <q3:Category>Windows Components/Windows PowerShell</q3:Category>
+          <q3:EditText>
+            <q3:Name>Transcript output directory</q3:Name>
+            <q3:State>Enabled</q3:State>
+            <q3:Value>C:\ProgramData\PS_Transcript</q3:Value>
+          </q3:EditText>
+          <q3:CheckBox>
+            <q3:Name>Include invocation headers:</q3:Name>
+            <q3:State>Disabled</q3:State>
+          </q3:CheckBox>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow Basic authentication</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows you to manage whether the Windows Remote Management (WinRM) client uses Basic authentication.
+
+If you enable this policy setting, the WinRM client uses Basic authentication. If WinRM is configured to use HTTP transport, the user name and password are sent over the network as clear text.
+
+If you disable or do not configure this policy setting, the WinRM client does not use Basic authentication.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Windows Remote Management (WinRM)/WinRM Client</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow unencrypted traffic</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows you to manage whether the Windows Remote Management (WinRM) client sends and receives unencrypted messages over the network.
+
+If you enable this policy setting, the WinRM client sends and receives unencrypted messages over the network.
+
+If you disable or do not configure this policy setting, the WinRM client sends or receives only encrypted messages over the network.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Windows Remote Management (WinRM)/WinRM Client</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Disallow Digest authentication</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting allows you to manage whether the Windows Remote Management (WinRM) client uses Digest authentication.
+
+If you enable this policy setting, the WinRM client does not use Digest authentication.
+
+If you disable or do not configure this policy setting, the WinRM client uses Digest authentication.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Windows Remote Management (WinRM)/WinRM Client</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow Basic authentication</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows you to manage whether the Windows Remote Management (WinRM) service accepts Basic authentication from a remote client.
+
+        If you enable this policy setting, the WinRM service accepts Basic authentication from a remote client.
+
+        If you disable or do not configure this policy setting, the WinRM service does not accept Basic authentication from a remote client.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Windows Remote Management (WinRM)/WinRM Service</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Allow unencrypted traffic</q3:Name>
+          <q3:State>Disabled</q3:State>
+          <q3:Explain>This policy setting allows you to manage whether the Windows Remote Management (WinRM) service sends and receives unencrypted messages over the network.
+
+If you enable this policy setting, the WinRM client sends and receives unencrypted messages over the network.
+
+If you disable or do not configure this policy setting, the WinRM client sends or receives only encrypted messages over the network.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Windows Remote Management (WinRM)/WinRM Service</q3:Category>
+        </q3:Policy>
+        <q3:Policy>
+          <q3:Name>Disallow WinRM from storing RunAs credentials</q3:Name>
+          <q3:State>Enabled</q3:State>
+          <q3:Explain>This policy setting allows you to manage whether the Windows Remote Management (WinRM) service will not allow RunAs credentials to be stored for any plug-ins.
+
+If you enable this policy setting, the WinRM service will not allow the RunAsUser or RunAsPassword configuration values to be set for any plug-ins.  If a plug-in has already set the RunAsUser and RunAsPassword configuration values, the RunAsPassword configuration value will be erased from the credential store on this computer.
+
+If you disable or do not configure this policy setting, the WinRM service will allow the RunAsUser and RunAsPassword configuration values to be set for plug-ins and the RunAsPassword value will be stored securely.
+
+If you enable and then disable this policy setting,any values that were previously configured for RunAsPassword will need to be reset.</q3:Explain>
+          <q3:Supported>At least Windows Vista</q3:Supported>
+          <q3:Category>Windows Components/Windows Remote Management (WinRM)/WinRM Service</q3:Category>
+        </q3:Policy>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SOFTWARE\Classes\batfile\shell\runasuser</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>SuppressionPolicy</q3:Name>
+            <q3:Number>4096</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SOFTWARE\Classes\cmdfile\shell\runasuser</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>SuppressionPolicy</q3:Name>
+            <q3:Number>4096</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SOFTWARE\Classes\exefile\shell\runasuser</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>SuppressionPolicy</q3:Name>
+            <q3:Number>4096</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SOFTWARE\Classes\mscfile\shell\runasuser</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>SuppressionPolicy</q3:Name>
+            <q3:Number>4096</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>NoStartBanner</q3:Name>
+            <q3:Number>1</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>LocalAccountTokenFilterPolicy</q3:Name>
+            <q3:Number>0</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SOFTWARE\Policies\Microsoft\Windows\GameDVR</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>AllowGameDVR</q3:Name>
+            <q3:Number>0</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>UseLogonCredential</q3:Name>
+            <q3:Number>0</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Control\Session Manager\kernel</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>DisableExceptionChainValidation</q3:Name>
+            <q3:Number>0</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>SMB1</q3:Name>
+            <q3:Number>0</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Services\MrxSmb10</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>Start</q3:Name>
+            <q3:Number>4</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Services\Netbt\Parameters</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>NoNameReleaseOnDemand</q3:Name>
+            <q3:Number>1</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>DisableIPSourceRouting</q3:Name>
+            <q3:Number>2</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>EnableICMPRedirect</q3:Name>
+            <q3:Number>0</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:RegistrySetting>
+          <q3:KeyPath>SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters</q3:KeyPath>
+          <q3:AdmSetting>false</q3:AdmSetting>
+          <q3:Value>
+            <q3:Name>DisableIPSourceRouting</q3:Name>
+            <q3:Number>2</q3:Number>
+          </q3:Value>
+        </q3:RegistrySetting>
+        <q3:Blocked>false</q3:Blocked>
+      </Extension>
+      <Name>Registry</Name>
+    </ExtensionData>
+  </Computer>
+  <User>
+    <VersionDirectory>1</VersionDirectory>
+    <VersionSysvol>1</VersionSysvol>
+    <Enabled>false</Enabled>
+  </User>
+</GPO>
