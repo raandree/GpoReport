@@ -30,8 +30,37 @@ function ConvertTo-GpoObject {
     [PSCustomObject]$result
 }
 
+function xx {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true, ParameterSetName = 'XmlElement')]
+        [System.Xml.XmlElement]
+        $XmlElement,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'ObjectArray')]
+        [object[]]
+        $Objects
+    )
+
+    if ($pscmdlet.ParameterSetName -eq 'ObjectArray') {
+        foreach ($XmlElement in $Objects) {
+            xx -XmlElement $XmlElement
+        }
+    }
+    else {
+        foreach ($entry in $XmlElement) {
+            $data = @{}
+            $properties = $entry | Get-Member -MemberType Property 
+            foreach ($property in $properties) {
+                $data.Add($property.Name, $entry.($property.Name))
+            }
+            [PSCustomObject]$data
+        }
+    }
+}
+
 $searchValue = ''
-$xmlPath = 'D:\Git\GpoReport\reports\t2.xml'
+$xmlPath = 'D:\Git\GpoReport\reports\AllSettings1.xml'
 $xml = [xml](Get-Content $xmlPath)
 $propertiesToSkip = 'Explain'
 
@@ -69,29 +98,72 @@ foreach ($nsNode in $xmlNameSpaceNodes) {
 
 $elements = @()
 $elements += foreach ($extension in $xml.GPO.Computer.ExtensionData) {
-    $extension.Extension.ChildNodes
-}
-$elements += foreach ($extension in $xml.GPO.User.ExtensionData) {
-    $extension.Extension.ChildNodes
+    $extensionType = $extension.Extension.type.Split(':')[1]
+
+    switch ($extensionType) {
+        'RegistrySettings' {
+            foreach ($policy in $extension.Extension.Policy) {
+                [PSCustomObject]@{
+                    Name      = $policy.Name
+                    State     = $policy.State
+                    Supported = $policy.Supported
+                    Category  = $policy.Category
+                }
+            }
+        }
+        'FoldersSettings' {
+            Write-Host "Processing 'FoldersSettings' extension, found $($nodes.Count) folders."
+            [PSCustomObject]@{
+                FolderSettings = $extension.Extension.ChildNodes[0].Folder
+            }
+        }
+        'SecuritySettings' {
+            Write-Host "Processing 'SecuritySettings' extension, found $($nodes.Count) security settings."
+
+            foreach ($accountPolicy in $extension.Extension.Account) {
+                $data = @{}
+                $properties = $accountPolicy | Get-Member -MemberType Property 
+                foreach ($property in $properties) {
+                    $data.Add($property.Name, $accountPolicy.($property.Name))
+                }
+                [PSCustomObject]$data
+            }
+
+            foreach ($accountPolicy in $extension.Extension.Audit) {
+                $data = @{}
+                $properties = $accountPolicy | Get-Member -MemberType Property 
+                foreach ($property in $properties) {
+                    $data.Add($property.Name, $accountPolicy.($property.Name))
+                }
+                [PSCustomObject]$data
+            }
+
+            [PSCustomObject]@{
+                SecuritySettings = [PSCustomObject]@{
+                    UserRightsAssignment = $extension.Extension.UserRightsAssignment
+                    SecurityOptions      = $extension.Extension.SecurityOptions
+                    Audit                = $extension.Extension.Audit
+                }
+            }
+        }
+    }
 }
 
-if ($searchValue) {
-    $elements = $elements | Where-Object { $_.OuterXml -like "*$searchValue*" }
-}
 
 #$possibleParentNodeTypes = 'Policy', 'UserRightsAssignment', 'SecurityOptions'
 Write-Host "Found $($elements.Count) elements containing '$searchValue':" -ForegroundColor Green
 foreach ($element in $elements) {
+    if ($searchValue -and $element.OuterXml -notlike "*$searchValue*") {
+        continue
+    }
     Write-Host "- $element"
-
-    $elementTypeName = $element.psobject.TypeNames[0].Split('#')[-1]
 
     $result = [ordered]@{}
     foreach ($property in ($element | Get-Member -MemberType Property)) {
         if ($propertiesToSkip -contains $property.Name) {
             continue
         }
-        
+
         if ($property.Definition -like '*[[]]*') {
             
             foreach ($item in $element.($property.Name)) {
