@@ -33,11 +33,11 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Position = 0)]
-    [string]$Path,
+    [Parameter(Position = 0, Mandatory = $true)]
+    [string]$FilePath,
     
-    [Parameter(Position = 1)]
-    [string]$OutputPath,
+    [Parameter(Position = 1, Mandatory = $true)]
+    [string]$OutputFilePath,
     
     [Parameter()]
     [string]$AttributeName = "ItemId",
@@ -49,18 +49,10 @@ param(
     [string[]]$ExcludeElements = @()
 )
 
-# If no path specified, use default
-if ([string]::IsNullOrWhiteSpace($Path)) {
-    $scriptDir = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
-    $Path = Join-Path -Path $scriptDir -ChildPath "1.xml"
-}
+$FilePath = Resolve-Path -Path $FilePath -ErrorAction Stop
 
-# Resolve full path
-$xmlFilePath = Resolve-Path -Path $Path -ErrorAction SilentlyContinue
-
-# Check if the file exists
-if (-not $xmlFilePath) {
-    throw "XML file not found: $Path"
+if (-not (Test-Path -Path $FilePath)) {
+    throw "The specified file does not exist: $FilePath"
 }
 
 # Function to add ItemId recursively to all elements
@@ -108,17 +100,17 @@ function Add-ItemIdRecursively {
 # Main script execution
 try {
     # Read the XML file
-    Write-Verbose "Reading XML file: $xmlFilePath"
+    Write-Verbose "Reading XML file: $FilePath"
     $xmlDocument = New-Object System.Xml.XmlDocument
     
     # Preserve formatting
     $xmlDocument.PreserveWhitespace = $true
     
     try {
-        $xmlDocument.Load($xmlFilePath)
+        $xmlDocument.Load($FilePath)
     }
     catch {
-        throw "Invalid XML format in file '$xmlFilePath': $_"
+        throw "Invalid XML format in file '$FilePath': $_"
     }
     
     # Count elements before processing
@@ -129,28 +121,7 @@ try {
     Write-Verbose "Adding '$AttributeName' to all elements..."
     Add-ItemIdRecursively -Node $xmlDocument.DocumentElement -AttributeName $AttributeName -Force $Force.IsPresent -ExcludeElements $ExcludeElements
     
-    # Determine output path
-    if ([string]::IsNullOrWhiteSpace($OutputPath)) {
-        # If no output path specified, overwrite the original file
-        $outputFilePath = $xmlFilePath
-        
-        # Create backup of original file
-        $backupPath = "$xmlFilePath.bak"
-        Copy-Item -Path $xmlFilePath -Destination $backupPath -Force
-        Write-Verbose "Created backup at: $backupPath"
-        Write-Host "Backup saved: $backupPath" -ForegroundColor Yellow
-    }
-    else {
-        # Use the specified output path
-        $outputFilePath = $OutputPath
-        
-        # Create output directory if it doesn't exist
-        $outputDir = Split-Path -Path $outputFilePath -Parent
-        if ($outputDir -and -not (Test-Path -Path $outputDir)) {
-            New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
-            Write-Verbose "Created output directory: $outputDir"
-        }
-    }
+    $OutputFilePath = [System.IO.Path]::GetFullPath($OutputFilePath, $PWD)
     
     # Save the updated XML to the output file
     Write-Verbose "Saving updated XML to: $outputFilePath"
