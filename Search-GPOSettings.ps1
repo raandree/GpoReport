@@ -151,52 +151,36 @@ function Get-CategoryPath {
     $currentNode = $Node
     $searchDepth = 0
     
-    Write-Verbose "Starting category search for node: $($Node.LocalName) with value: $($Node.InnerText)"
-    
     # Look for the main category structure in the PowerShell XML format
-    while ($null -ne $currentNode -and $searchDepth -lt 50) {
+    while ($null -ne $currentNode -and $searchDepth -lt 30) {
         if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
-            Write-Verbose "Checking node: $($currentNode.LocalName) at depth $searchDepth"
             
             # Look for En (Entry) elements that contain category keys
             if ($currentNode.LocalName -eq "En") {
                 $keyElement = $currentNode.SelectSingleNode("./S[@N='Key']")
                 if ($keyElement) {
                     $pathElements += $keyElement.InnerText
-                    Write-Verbose "Found En category key: $($keyElement.InnerText)"
-                } else {
-                    # Also try looking for direct child S elements with N='Key'
-                    foreach ($child in $currentNode.ChildNodes) {
-                        if ($child.LocalName -eq "S" -and $child.HasAttribute("N") -and $child.GetAttribute("N") -eq "Key") {
-                            $pathElements += $child.InnerText
-                            Write-Verbose "Found En category key (direct child): $($child.InnerText)"
-                            break
-                        }
-                    }
                 }
-            }
-            
-            # Look for Key elements that indicate main categories (direct children)
-            $keyElement = $currentNode.SelectSingleNode("./S[@N='Key']")
-            if ($keyElement) {
-                $pathElements += $keyElement.InnerText
-                Write-Verbose "Found direct key element: $($keyElement.InnerText)"
             }
             
             # Look for Props sections that might contain category information
             if ($currentNode.LocalName -eq "Props") {
+                # Look for policy category
                 $categoryElement = $currentNode.SelectSingleNode("./S[@N='PolicyCategory']")
                 if ($categoryElement) {
                     $pathElements += $categoryElement.InnerText
-                    Write-Verbose "Found PolicyCategory: $($categoryElement.InnerText)"
                 }
+            }
+            
+            # Look for Key elements that indicate main categories
+            $keyElement = $currentNode.SelectSingleNode("./S[@N='Key']")
+            if ($keyElement) {
+                $pathElements += $keyElement.InnerText
             }
         }
         $currentNode = $currentNode.ParentNode
         $searchDepth++
     }
-    
-    Write-Verbose "Found path elements: $($pathElements -join ', ')"
     
     # Remove duplicates and reverse to get path from root to current
     $pathElements = $pathElements | Select-Object -Unique
@@ -206,19 +190,15 @@ function Get-CategoryPath {
     
     # Add setting context if available
     $settingContext = Get-SettingContext -Node $Node
-    if ($settingContext -and ($pathElements.Count -eq 0 -or $settingContext -ne $pathElements[-1])) {
+    if ($settingContext) {
         $pathElements += $settingContext
-        Write-Verbose "Added setting context: $settingContext"
     }
     
-    $result = if ($pathElements.Count -gt 0) { 
-        ($pathElements -join " > ") 
+    if ($pathElements.Count -gt 0) { 
+        return ($pathElements -join " > ") 
     } else { 
-        "Unknown" 
+        return "Unknown" 
     }
-    
-    Write-Verbose "Final category path: $result"
-    return $result
 }
 
 # Get setting context (like policy names)
