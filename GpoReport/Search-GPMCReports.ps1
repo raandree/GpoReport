@@ -174,7 +174,7 @@ function Get-SecuritySubcategory {
                         }
                         return "Account Policies"
                     }
-                    # Check if this is a child of an Account node
+                    # Check if this is a child of other Security setting types
                     "Name" {
                         if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Account") {
                             $typeNode = $currentNode.ParentNode.SelectSingleNode(".//*[local-name()='Type']")
@@ -187,6 +187,48 @@ function Get-SecuritySubcategory {
                                 }
                             }
                             return "Account Policies"
+                        }
+                        # Check if this Name is inside a Display element under SecurityOptions
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Display") {
+                            if ($currentNode.ParentNode.ParentNode -and $currentNode.ParentNode.ParentNode.LocalName -eq "SecurityOptions") {
+                                # Check for Security Options subcategories based on display name
+                                $displayName = $currentNode.InnerText
+                                if ($displayName -like "Devices:*") {
+                                    return "Local Policies > Security Options > Devices"
+                                } elseif ($displayName -like "*SPN target name*") {
+                                    # Special case for Server SPN settings - categorize as "Other"
+                                    return "Local Policies > Security Options > Other"
+                                } elseif ($displayName -like "*network client:*" -or $displayName -like "*network server:*") {
+                                    return "Local Policies > Security Options > Network"
+                                } elseif ($displayName -like "Network*") {
+                                    return "Local Policies > Security Options > Network"
+                                } elseif ($displayName -like "Interactive logon:*") {
+                                    return "Local Policies > Security Options > Interactive Logon"
+                                } elseif ($displayName -like "User Account Control:*") {
+                                    return "Local Policies > Security Options > User Account Control"
+                                } elseif ($displayName -like "System cryptography:*") {
+                                    return "Local Policies > Security Options > System Cryptography"
+                                } else {
+                                    # Default to "Other" for unmatched Security Options
+                                    return "Local Policies > Security Options > Other"
+                                }
+                            }
+                        }
+                    }
+                    "KeyName" {
+                        # KeyName is a child of SecurityOptions
+                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "SecurityOptions") {
+                            return "Local Policies > Security Options"
+                        }
+                    }
+                    "Path" {
+                        # Path element can be a child of Registry or File
+                        if ($currentNode.ParentNode) {
+                            if ($currentNode.ParentNode.LocalName -eq "Registry") {
+                                return "Registry"
+                            } elseif ($currentNode.ParentNode.LocalName -eq "File") {
+                                return "File System"
+                            }
                         }
                     }
                     "Audit" {
@@ -290,7 +332,13 @@ function Get-GPMCCategoryPath {
                             } else {
                                 $pathElements += "Security Settings"
                             }
-                        } else {
+                        } 
+                        # For Registry extension, add Administrative Templates prefix to category
+                        elseif ($extensionName -eq "Registry" -and $pathElements.Count -gt 0) {
+                            # Category was already found from q3:Category element, add Administrative Templates prefix
+                            $pathElements[0] = "Administrative Templates > $($pathElements[0])"
+                        }
+                        else {
                             # Only add extension name if we don't already have a more specific category
                             if ($pathElements.Count -eq 0) {
                                 $pathElements += $extensionName
@@ -323,9 +371,12 @@ function Get-GPMCCategoryPath {
         [Array]::Reverse($pathElements)
     }
     
-    # Add specific setting context if available
+    # Add specific setting context if available, but not for Security extension settings
+    # that already have proper subcategorization
     $settingContext = Get-GPMCSettingContext -Node $Node
-    if ($settingContext -and ($pathElements.Count -eq 0 -or $settingContext -ne $pathElements[-1])) {
+    $hasSecuritySubcategory = ($pathElements.Count -gt 0 -and $pathElements[0] -like "Security Settings > *")
+    
+    if ($settingContext -and -not $hasSecuritySubcategory -and ($pathElements.Count -eq 0 -or $settingContext -ne $pathElements[-1])) {
         $pathElements += $settingContext
         Write-Verbose "Added setting context: $settingContext"
     }
