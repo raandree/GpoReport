@@ -198,6 +198,9 @@ function Get-SecuritySubcategory {
                                 } elseif ($displayName -like "*SPN target name*") {
                                     # Special case for Server SPN settings - categorize as "Other"
                                     return "Local Policies > Security Options > Other"
+                                } elseif ($displayName -like "Domain controller:*") {
+                                    # Special case for Domain Controller settings
+                                    return "Local Policies > Security Options > Domain Controller"
                                 } elseif ($displayName -like "*network client:*" -or $displayName -like "*network server:*") {
                                     return "Local Policies > Security Options > Network"
                                 } elseif ($displayName -like "Network*") {
@@ -271,6 +274,82 @@ function Get-SecuritySubcategory {
     return $null
 }
 
+# Get specific audit subcategory based on the subcategory name
+function Get-AuditSubcategory {
+    param($Node)
+    
+    $currentNode = $Node
+    $searchDepth = 0
+    
+    # Look up the hierarchy to find the audit setting type
+    while ($null -ne $currentNode -and $searchDepth -lt 10) {
+        if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
+            # Check for Auditing extension namespace
+            if ($currentNode.NamespaceURI -eq "http://www.microsoft.com/GroupPolicy/Settings/Auditing") {
+                switch ($currentNode.LocalName) {
+                    "SubcategoryName" {
+                        # Determine subcategory based on the audit subcategory name
+                        $subcategoryName = $currentNode.InnerText
+                        if ($subcategoryName -like "*Kerberos*") {
+                            return "Account Logon"
+                        } elseif ($subcategoryName -like "*Directory Service*") {
+                            return "DS Access"
+                        } elseif ($subcategoryName -like "*Logon*" -or $subcategoryName -like "*Account Logon*") {
+                            return "Account Logon"
+                        } elseif ($subcategoryName -like "*Object Access*") {
+                            return "Object Access"
+                        } elseif ($subcategoryName -like "*Policy Change*") {
+                            return "Policy Change"
+                        } elseif ($subcategoryName -like "*Privilege Use*") {
+                            return "Privilege Use"
+                        } elseif ($subcategoryName -like "*Process*") {
+                            return "Detailed Tracking"
+                        } elseif ($subcategoryName -like "*System*") {
+                            return "System"
+                        } else {
+                            return "Advanced Audit Configuration"
+                        }
+                    }
+                    "AuditSetting" {
+                        # Look for SubcategoryName within AuditSetting
+                        $subcategoryNode = $currentNode.SelectSingleNode(".//*[local-name()='SubcategoryName']")
+                        if ($subcategoryNode) {
+                            $subcategoryName = $subcategoryNode.InnerText
+                            if ($subcategoryName -like "*Kerberos*") {
+                                return "Account Logon"
+                            } elseif ($subcategoryName -like "*Directory Service*") {
+                                return "DS Access"
+                            } elseif ($subcategoryName -like "*Logon*" -or $subcategoryName -like "*Account Logon*") {
+                                return "Account Logon"
+                            } elseif ($subcategoryName -like "*Object Access*") {
+                                return "Object Access"
+                            } elseif ($subcategoryName -like "*Policy Change*") {
+                                return "Policy Change"
+                            } elseif ($subcategoryName -like "*Privilege Use*") {
+                                return "Privilege Use"
+                            } elseif ($subcategoryName -like "*Process*") {
+                                return "Detailed Tracking"
+                            } elseif ($subcategoryName -like "*System*") {
+                                return "System"
+                            } else {
+                                return "Advanced Audit Configuration"
+                            }
+                        }
+                        return "Advanced Audit Configuration"
+                    }
+                    default {
+                        return "Advanced Audit Configuration"
+                    }
+                }
+            }
+        }
+        $currentNode = $currentNode.ParentNode
+        $searchDepth++
+    }
+    
+    return $null
+}
+
 # Get the category/extension name for a matched node
 function Get-GPMCCategoryPath {
     param($Node, $XmlDocument)
@@ -333,6 +412,17 @@ function Get-GPMCCategoryPath {
                                 $pathElements += "Security Settings"
                             }
                         } 
+                        # For Advanced Audit Configuration extension, provide specific categorization
+                        elseif ($extensionName -eq "Advanced Audit Configuration" -and $pathElements.Count -eq 0) {
+                            Write-Verbose "Calling Get-AuditSubcategory for Advanced Audit Configuration extension"
+                            $auditCategory = Get-AuditSubcategory -Node $Node
+                            Write-Verbose "Audit subcategory result: '$auditCategory'"
+                            if ($auditCategory) {
+                                $pathElements += "Security Settings > Advanced Audit Configuration > $auditCategory"
+                            } else {
+                                $pathElements += "Security Settings > Advanced Audit Configuration"
+                            }
+                        }
                         # For Registry extension, add Administrative Templates prefix to category
                         elseif ($extensionName -eq "Registry" -and $pathElements.Count -gt 0) {
                             # Category was already found from q3:Category element, add Administrative Templates prefix
