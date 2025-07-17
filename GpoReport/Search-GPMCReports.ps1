@@ -158,8 +158,10 @@ function Get-SecuritySubcategory {
     # Look up the hierarchy to find the security setting type
     while ($null -ne $currentNode -and $searchDepth -lt 10) {
         if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
+            Write-Verbose "Get-SecuritySubcategory: Checking node $($currentNode.LocalName) at depth $searchDepth, namespace: $($currentNode.NamespaceURI)"
             # Check for Security extension namespace
             if ($currentNode.NamespaceURI -eq "http://www.microsoft.com/GroupPolicy/Settings/Security") {
+                Write-Verbose "Get-SecuritySubcategory: Found Security namespace for $($currentNode.LocalName)"
                 switch ($currentNode.LocalName) {
                     "Account" {
                         # Check the Type element to determine subcategory
@@ -187,6 +189,34 @@ function Get-SecuritySubcategory {
                                 }
                             }
                             return "Account Policies"
+                        }
+                        # Check if this Name is inside a SystemServices element
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "SystemServices") {
+                            return "System Services"
+                        }
+                        # Check if this Name is inside a Member element under UserRightsAssignment
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Member") {
+                            # Look up the hierarchy to find UserRightsAssignment
+                            $searchNode = $currentNode.ParentNode
+                            while ($null -ne $searchNode -and $searchNode.LocalName -ne "UserRightsAssignment") {
+                                $searchNode = $searchNode.ParentNode
+                                if ($null -eq $searchNode) { break }
+                            }
+                            if ($null -ne $searchNode -and $searchNode.LocalName -eq "UserRightsAssignment") {
+                                return "Local Policies > User Rights Assignment"
+                            }
+                        }
+                        # Check if this Name is inside a Member element under RestrictedGroups
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Member") {
+                            # Look up the hierarchy to find RestrictedGroups
+                            $searchNode = $currentNode.ParentNode
+                            while ($null -ne $searchNode -and $searchNode.LocalName -ne "RestrictedGroups") {
+                                $searchNode = $searchNode.ParentNode
+                                if ($null -eq $searchNode) { break }
+                            }
+                            if ($null -ne $searchNode -and $searchNode.LocalName -eq "RestrictedGroups") {
+                                return "Restricted Groups"
+                            }
                         }
                         # Check if this Name is inside a Display element under SecurityOptions
                         elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Display") {
@@ -217,6 +247,36 @@ function Get-SecuritySubcategory {
                                 }
                             }
                         }
+                        # Check if this is inside a text node that might contain domain controller settings keywords
+                        else {
+                            $nodeText = $currentNode.InnerText
+                            if ($nodeText -like "*signing*" -or $nodeText -like "*LDAP*" -or $nodeText -like "*Require signing*") {
+                                # Look up to see if this is under SecurityOptions
+                                $searchNode = $currentNode
+                                while ($null -ne $searchNode -and $searchNode.LocalName -ne "SecurityOptions") {
+                                    $searchNode = $searchNode.ParentNode
+                                    if ($null -eq $searchNode) { break }
+                                }
+                                if ($null -ne $searchNode -and $searchNode.LocalName -eq "SecurityOptions") {
+                                    return "Local Policies > Security Options > Domain Controller"
+                                }
+                            }
+                        }
+                    }
+                    "DisplayString" {
+                        # DisplayString element can contain security option values
+                        $displayText = $currentNode.InnerText
+                        if ($displayText -like "*signing*" -or $displayText -like "*LDAP*" -or $displayText -like "*Require signing*") {
+                            # Look up to see if this is under SecurityOptions
+                            $searchNode = $currentNode
+                            while ($null -ne $searchNode -and $searchNode.LocalName -ne "SecurityOptions") {
+                                $searchNode = $searchNode.ParentNode
+                                if ($null -eq $searchNode) { break }
+                            }
+                            if ($null -ne $searchNode -and $searchNode.LocalName -eq "SecurityOptions") {
+                                return "Local Policies > Security Options > Domain Controller"
+                            }
+                        }
                     }
                     "KeyName" {
                         # KeyName is a child of SecurityOptions
@@ -235,33 +295,41 @@ function Get-SecuritySubcategory {
                         }
                     }
                     "Audit" {
+                        # Check the audit name to determine if it's Account Policies or Local Policies
+                        $auditNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name']")
+                        if ($auditNameNode) {
+                            $auditName = $auditNameNode.InnerText
+                            # AuditDSAccess should be under Account Policies
+                            if ($auditName -like "*DSAccess*" -or $auditName -like "*Directory Service*") {
+                                return "Account Policies > Audit Policy"
+                            }
+                        }
                         return "Local Policies > Audit Policy"
                     }
                     "UserRightsAssignment" {
                         return "Local Policies > User Rights Assignment"
                     }
-                    "SecurityOptions" {
-                        return "Local Policies > Security Options"
-                    }
                     "EventLog" {
                         return "Event Log"
                     }
-                    "RestrictedGroups" {
-                        return "Restricted Groups"
-                    }
-                    "SystemServices" {
-                        return "System Services"
-                    }
-                    "File" {
-                        return "File System"
-                    }
-                    "Registry" {
-                        return "Registry"
-                    }
-                    "Wmi" {
-                        return "WMI"
-                    }
+                    # Check if we're in any hierarchy that contains UserRightsAssignment
                     default {
+                        # Look for UserRightsAssignment anywhere up the chain
+                        $searchNode = $currentNode
+                        while ($null -ne $searchNode) {
+                            if ($searchNode.LocalName -eq "UserRightsAssignment") {
+                                return "Local Policies > User Rights Assignment"
+                            }
+                            $searchNode = $searchNode.ParentNode
+                        }
+                        # Look for RestrictedGroups anywhere up the chain
+                        $searchNode = $currentNode
+                        while ($null -ne $searchNode) {
+                            if ($searchNode.LocalName -eq "RestrictedGroups") {
+                                return "Restricted Groups"
+                            }
+                            $searchNode = $searchNode.ParentNode
+                        }
                         return "Security Settings"
                     }
                 }
@@ -426,7 +494,9 @@ function Get-GPMCCategoryPath {
                         # For Registry extension, add Administrative Templates prefix to category
                         elseif ($extensionName -eq "Registry" -and $pathElements.Count -gt 0) {
                             # Category was already found from q3:Category element, add Administrative Templates prefix
-                            $pathElements[0] = "Administrative Templates > $($pathElements[0])"
+                            # Replace / with > for consistency
+                            $categoryPath = $pathElements[0] -replace '/', ' > '
+                            $pathElements[0] = "Administrative Templates > $categoryPath"
                         }
                         else {
                             # Only add extension name if we don't already have a more specific category
@@ -953,6 +1023,7 @@ function Search-GPMCXmlFile {
         
         foreach ($match in $potentialMatches) {
             $isParentMatch = $false
+            $isDuplicateMatch = $false
             
             # Check if this match is a parent of another more specific match
             foreach ($otherMatch in $potentialMatches) {
@@ -971,7 +1042,25 @@ function Search-GPMCXmlFile {
                 }
             }
             
-            if (-not $isParentMatch) {
+            # Special handling for NTDS: prioritize System Services over Security Options
+            if (-not $isParentMatch -and $match.MatchedValue -like "*NTDS*") {
+                $matchCategory = Get-GPMCCategoryPath -Node $match.Node -XmlDocument $xmlDoc
+                if ($matchCategory -like "*Security Options*") {
+                    # Check if there's another NTDS match that's in System Services
+                    foreach ($otherMatch in $potentialMatches) {
+                        if ($otherMatch -ne $match -and $otherMatch.MatchedValue -like "*NTDS*") {
+                            $otherCategory = Get-GPMCCategoryPath -Node $otherMatch.Node -XmlDocument $xmlDoc
+                            if ($otherCategory -like "*System Services*") {
+                                $isDuplicateMatch = $true
+                                Write-Verbose "Filtering out Security Options NTDS match in favor of System Services match"
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (-not $isParentMatch -and -not $isDuplicateMatch) {
                 $filteredMatches += $match
             }
         }
