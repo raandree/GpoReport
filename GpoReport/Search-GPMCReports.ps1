@@ -96,7 +96,7 @@ function ConvertTo-RegexPattern {
 
 # Extract GPO information from the root GPO element
 function Get-GPMCGpoInfo {
-    param($XmlDocument)
+    param($XmlDocument, $SourceFilePath = $null)
     
     $gpoInfo = @{
         DisplayName = "Unknown"
@@ -107,10 +107,21 @@ function Get-GPMCGpoInfo {
     }
     
     try {
-        # Simple fallback: use filename if we can't extract from XML
-        $gpoInfo.DisplayName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $XmlDocument.BaseURI -Leaf))
+        # Use source file path for display name fallback if provided
+        if ($SourceFilePath) {
+            $gpoInfo.DisplayName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $SourceFilePath -Leaf))
+        }
+        elseif ($XmlDocument.BaseURI) {
+            $gpoInfo.DisplayName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $XmlDocument.BaseURI -Leaf))
+        }
         
-        # Try to get the actual GPO name from XML (this may not work due to namespace issues)
+        # Try to get the actual GPO name from XML structure
+        $nameElement = $XmlDocument.SelectSingleNode("//*[local-name()='Name' and not(*)]")
+        if ($nameElement -and $nameElement.ParentNode.LocalName -eq "GPO") {
+            $gpoInfo.DisplayName = $nameElement.InnerText
+        }
+        
+        # Try alternative structure for name
         $nElements = $XmlDocument.SelectNodes("//*[local-name()='n']")
         foreach ($elem in $nElements) {
             if ($elem.ParentNode -and $elem.ParentNode.LocalName -eq "GPO") {
@@ -280,6 +291,12 @@ function Get-SecuritySubcategory {
                     }
                     "KeyName" {
                         # KeyName is a child of SecurityOptions
+                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "SecurityOptions") {
+                            return "Local Policies > Security Options"
+                        }
+                    }
+                    "SystemAccessPolicyName" {
+                        # SystemAccessPolicyName is a child of SecurityOptions
                         if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "SecurityOptions") {
                             return "Local Policies > Security Options"
                         }
@@ -949,12 +966,23 @@ function Search-GPMCXmlFile {
     try {
         Write-Verbose "Processing file: $FilePath"
         
-        # Load XML document
+        # Load XML document with encoding handling
         $xmlDoc = New-Object System.Xml.XmlDocument
-        $xmlDoc.Load($FilePath)
+        try {
+            # First try to load directly
+            $xmlDoc.Load($FilePath)
+        }
+        catch {
+            Write-Verbose "Direct load failed, trying with encoding fix: $($_.Exception.Message)"
+            # If direct load fails, read content and fix encoding declaration
+            $content = Get-Content -Path $FilePath -Raw -Encoding UTF8
+            # Fix common encoding declaration issues
+            $content = $content -replace 'encoding="utf-16"', 'encoding="utf-8"'
+            $xmlDoc.LoadXml($content)
+        }
         
         # Get GPO information once for the entire file
-        $gpoInfo = Get-GPMCGpoInfo -XmlDocument $xmlDoc
+        $gpoInfo = Get-GPMCGpoInfo -XmlDocument $xmlDoc -SourceFilePath $FilePath
         
         # Get all nodes (both text nodes and elements with attributes) for searching
         $searchNodes = $xmlDoc.SelectNodes("//*")
