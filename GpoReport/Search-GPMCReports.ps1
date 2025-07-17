@@ -158,6 +158,26 @@ function Get-GPMCCategoryPath {
     
     Write-Verbose "Starting category search for node: $($Node.LocalName)"
     
+    # First, look for specific policy category in the current hierarchy
+    $tempNode = $Node
+    while ($null -ne $tempNode -and $searchDepth -lt 15) {
+        if ($tempNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
+            # Look for q3:Category element (for Registry extension policies)
+            $categoryNode = $tempNode.SelectSingleNode(".//*[local-name()='Category']")
+            if ($categoryNode -and -not [string]::IsNullOrWhiteSpace($categoryNode.InnerText)) {
+                $pathElements += $categoryNode.InnerText
+                Write-Verbose "Found Policy category: $($categoryNode.InnerText)"
+                break
+            }
+        }
+        $tempNode = $tempNode.ParentNode
+        $searchDepth++
+    }
+    
+    # Reset for extension search
+    $currentNode = $Node
+    $searchDepth = 0
+    
     # Look up the hierarchy to find the ExtensionData container
     while ($null -ne $currentNode -and $searchDepth -lt 20) {
         if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
@@ -169,7 +189,10 @@ function Get-GPMCCategoryPath {
                 # Check all child nodes since namespaces can be tricky
                 foreach ($child in $currentNode.ChildNodes) {
                     if (($child.LocalName -eq "n" -or $child.LocalName -eq "Name") -and -not [string]::IsNullOrWhiteSpace($child.InnerText)) {
-                        $pathElements += $child.InnerText
+                        # Only add extension name if we don't already have a more specific category
+                        if ($pathElements.Count -eq 0) {
+                            $pathElements += $child.InnerText
+                        }
                         Write-Verbose "Found ExtensionData category: $($child.InnerText)"
                         break
                     }
@@ -304,13 +327,14 @@ function Get-GPMCSettingDetails {
         Value = $null
         Action = $null
         Type = $null
+        Context = $null
     }
     
     $currentNode = $Node
     $searchDepth = 0
     
     # Look for setting properties in the current node and nearby context
-    while ($null -ne $currentNode -and $searchDepth -lt 10) {
+    while ($null -ne $currentNode -and $searchDepth -lt 15) {
         if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
             
             # Check current node attributes
@@ -334,6 +358,103 @@ function Get-GPMCSettingDetails {
             }
             if ($attributes.ContainsKey("type") -and $null -eq $details.Type) {
                 $details.Type = $attributes["type"]
+            }
+            
+            # Check for specific element types to determine context
+            switch ($currentNode.LocalName) {
+                "Policy" {
+                    # Look for Policy Name
+                    $policyNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
+                    if ($policyNameNode -and $details.Name -eq "Unknown") {
+                        $details.Name = $policyNameNode.InnerText
+                    }
+                    
+                    # Look for Policy State
+                    $policyStateNode = $currentNode.SelectSingleNode(".//*[local-name()='State'][1]")
+                    if ($policyStateNode -and $details.State -eq "Unknown") {
+                        $details.State = $policyStateNode.InnerText
+                    }
+                    
+                    $details.Context = "Group Policy Setting"
+                }
+                "DropDownList" {
+                    # Get dropdown name and selected value
+                    $dropdownNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
+                    if ($dropdownNameNode -and $details.Name -eq "Unknown") {
+                        $details.Name = $dropdownNameNode.InnerText
+                    }
+                    
+                    $dropdownStateNode = $currentNode.SelectSingleNode(".//*[local-name()='State'][1]")
+                    if ($dropdownStateNode -and $details.State -eq "Unknown") {
+                        $details.State = $dropdownStateNode.InnerText
+                    }
+                    
+                    # Get selected value
+                    $valueNode = $currentNode.SelectSingleNode(".//*[local-name()='Value']//*[local-name()='Name'][1]")
+                    if ($valueNode -and $null -eq $details.Value) {
+                        $details.Value = $valueNode.InnerText
+                    }
+                    
+                    $details.Context = "Policy Option"
+                }
+                "CheckBox" {
+                    $checkboxNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
+                    if ($checkboxNameNode -and $details.Name -eq "Unknown") {
+                        $details.Name = $checkboxNameNode.InnerText
+                    }
+                    
+                    $checkboxStateNode = $currentNode.SelectSingleNode(".//*[local-name()='State'][1]")
+                    if ($checkboxStateNode -and $details.State -eq "Unknown") {
+                        $details.State = $checkboxStateNode.InnerText
+                    }
+                    
+                    $details.Context = "Policy Checkbox"
+                }
+                "Text" {
+                    $textNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
+                    if ($textNameNode -and $details.Name -eq "Unknown") {
+                        $details.Name = $textNameNode.InnerText
+                    }
+                    $details.Context = "Policy Text Input"
+                }
+                "Explain" {
+                    $details.Context = "Policy Explanation"
+                }
+                "NTService" { 
+                    $serviceName = $currentNode.GetAttribute("name")
+                    if ($serviceName -and $details.Name -eq "Unknown") { 
+                        $details.Name = "Service: $serviceName" 
+                    }
+                    $details.Context = "Windows Service"
+                }
+                "Task" { 
+                    $taskName = $currentNode.GetAttribute("name")
+                    if ($taskName -and $details.Name -eq "Unknown") { 
+                        $details.Name = "Scheduled Task: $taskName" 
+                    }
+                    $details.Context = "Scheduled Task"
+                }
+                "EnvironmentVariable" { 
+                    $varName = $currentNode.GetAttribute("name")
+                    if ($varName -and $details.Name -eq "Unknown") { 
+                        $details.Name = "Environment Variable: $varName" 
+                    }
+                    $details.Context = "Environment Variable"
+                }
+                "File" { 
+                    $fileName = $currentNode.GetAttribute("name")
+                    if ($fileName -and $details.Name -eq "Unknown") { 
+                        $details.Name = "File: $fileName" 
+                    }
+                    $details.Context = "File Setting"
+                }
+                "Registry" { 
+                    $regName = $currentNode.GetAttribute("name")
+                    if ($regName -and $details.Name -eq "Unknown") { 
+                        $details.Name = "Registry: $regName" 
+                    }
+                    $details.Context = "Registry Setting"
+                }
             }
             
             # Look for Properties child element with additional details
@@ -363,7 +484,7 @@ function Get-GPMCSettingDetails {
             }
             
             # Stop if we found meaningful information
-            if ($details.Name -ne "Unknown" -and $details.State -ne "Unknown") { 
+            if ($details.Name -ne "Unknown" -and $details.State -ne "Unknown" -and $details.Context) { 
                 break 
             }
         }
@@ -401,20 +522,30 @@ function Search-GPMCXmlFile {
         $searchNodes = $xmlDoc.SelectNodes("//*")
         Write-Verbose "Searching through $($searchNodes.Count) nodes..."
         
+        # First pass: collect all potential matches
+        $potentialMatches = @()
+        
         foreach ($node in $searchNodes) {
-            if ($MaxResults -gt 0 -and $resultCount -ge $MaxResults) {
-                break
-            }
-            
             # Check inner text content
             $textContent = $node.InnerText
             $matchFound = $false
             $matchedValue = $null
             $matchType = $null
             
-            # Check text content
+            # Check text content (only for leaf nodes or nodes with short text to avoid duplicates)
             if (-not [string]::IsNullOrWhiteSpace($textContent) -and $textContent.Length -ge 2) {
-                if ($textContent -match $RegexPattern) {
+                # Skip nodes that contain child nodes with text (to avoid duplicates)
+                $hasTextChildren = $false
+                foreach ($child in $node.ChildNodes) {
+                    if ($child.NodeType -eq [System.Xml.XmlNodeType]::Element -and 
+                        -not [string]::IsNullOrWhiteSpace($child.InnerText) -and
+                        $child.InnerText -match $RegexPattern) {
+                        $hasTextChildren = $true
+                        break
+                    }
+                }
+                
+                if (-not $hasTextChildren -and $textContent -match $RegexPattern) {
                     $matchFound = $true
                     $matchedValue = $textContent.Trim()
                     $matchType = "Text Content"
@@ -438,44 +569,91 @@ function Search-GPMCXmlFile {
             }
             
             if ($matchFound) {
-                Write-Verbose "Match found in $matchType`: $matchedValue"
-                
-                # Get category path
-                $categoryPath = Get-GPMCCategoryPath -Node $node -XmlDocument $xmlDoc
-                
-                # Get setting details
-                $settingDetails = Get-GPMCSettingDetails -Node $node
-                
-                # Create result object
-                $result = [PSCustomObject]@{
-                    MatchedText = $matchedValue
+                $potentialMatches += @{
+                    Node = $node
+                    MatchedValue = $matchedValue
                     MatchType = $matchType
-                    GPO = [PSCustomObject]@{
-                        DisplayName = $gpoInfo.DisplayName
-                        DomainName = $gpoInfo.DomainName
-                        GUID = $gpoInfo.GUID
-                        CreatedTime = $gpoInfo.CreatedTime
-                        ModifiedTime = $gpoInfo.ModifiedTime
-                    }
-                    CategoryPath = if ($categoryPath) { $categoryPath } else { "Unknown" }
-                    Setting = [PSCustomObject]@{
-                        Name = $settingDetails.Name
-                        State = $settingDetails.State
-                        Value = $settingDetails.Value
-                        Action = $settingDetails.Action
-                        Type = $settingDetails.Type
-                    }
-                    SourceFile = $FilePath
-                    XPath = $node.OuterXml.Substring(0, [Math]::Min(300, $node.OuterXml.Length)) + "..."
+                    TextLength = $textContent.Length
                 }
-                
-                $results += $result
-                $resultCount++
-                
-                # Show progress for large searches
-                if ($resultCount % 10 -eq 0) {
-                    Write-Verbose "Found $resultCount matches so far..."
+            }
+        }
+        
+        Write-Verbose "Found $($potentialMatches.Count) potential matches, filtering duplicates..."
+        
+        # Second pass: filter out duplicate/parent matches
+        $filteredMatches = @()
+        
+        foreach ($match in $potentialMatches) {
+            $isParentMatch = $false
+            
+            # Check if this match is a parent of another more specific match
+            foreach ($otherMatch in $potentialMatches) {
+                if ($match -ne $otherMatch -and $match.TextLength -gt $otherMatch.TextLength) {
+                    # Check if the other match's node is a descendant of this match's node
+                    $tempNode = $otherMatch.Node
+                    while ($null -ne $tempNode) {
+                        if ($tempNode -eq $match.Node) {
+                            $isParentMatch = $true
+                            Write-Verbose "Filtering out parent match: $($match.MatchedValue.Substring(0, [Math]::Min(50, $match.MatchedValue.Length)))..."
+                            break
+                        }
+                        $tempNode = $tempNode.ParentNode
+                    }
+                    if ($isParentMatch) { break }
                 }
+            }
+            
+            if (-not $isParentMatch) {
+                $filteredMatches += $match
+            }
+        }
+        
+        Write-Verbose "After filtering: $($filteredMatches.Count) unique matches"
+        
+        # Third pass: create result objects
+        foreach ($match in $filteredMatches) {
+            if ($MaxResults -gt 0 -and $resultCount -ge $MaxResults) {
+                break
+            }
+            
+            Write-Verbose "Processing match: $($match.MatchType): $($match.MatchedValue.Substring(0, [Math]::Min(50, $match.MatchedValue.Length)))..."
+            
+            # Get category path
+            $categoryPath = Get-GPMCCategoryPath -Node $match.Node -XmlDocument $xmlDoc
+            
+            # Get setting details
+            $settingDetails = Get-GPMCSettingDetails -Node $match.Node
+            
+            # Create result object
+            $result = [PSCustomObject]@{
+                MatchedText = $match.MatchedValue
+                MatchType = $match.MatchType
+                GPO = [PSCustomObject]@{
+                    DisplayName = $gpoInfo.DisplayName
+                    DomainName = $gpoInfo.DomainName
+                    GUID = $gpoInfo.GUID
+                    CreatedTime = $gpoInfo.CreatedTime
+                    ModifiedTime = $gpoInfo.ModifiedTime
+                }
+                CategoryPath = if ($categoryPath) { $categoryPath } else { "Unknown" }
+                Setting = [PSCustomObject]@{
+                    Name = $settingDetails.Name
+                    State = $settingDetails.State
+                    Value = $settingDetails.Value
+                    Action = $settingDetails.Action
+                    Type = $settingDetails.Type
+                    Context = $settingDetails.Context
+                }
+                SourceFile = $FilePath
+                XPath = $match.Node.OuterXml.Substring(0, [Math]::Min(300, $match.Node.OuterXml.Length)) + "..."
+            }
+            
+            $results += $result
+            $resultCount++
+            
+            # Show progress for large searches
+            if ($resultCount % 10 -eq 0) {
+                Write-Verbose "Created $resultCount result objects so far..."
             }
         }
     }
@@ -580,6 +758,9 @@ try {
         }
         if ($result.Setting.Type) {
             Write-Host "  Type: $($result.Setting.Type)" -ForegroundColor White
+        }
+        if ($result.Setting.Context) {
+            Write-Host "  Context: $($result.Setting.Context)" -ForegroundColor White
         }
         
         if ($result.CategoryPath -ne "Unknown") {
