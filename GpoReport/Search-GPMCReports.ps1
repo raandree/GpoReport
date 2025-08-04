@@ -686,6 +686,7 @@ function Get-GPMCSettingDetails {
         Action = $null
         Type = $null
         Context = $null
+        Comment = $null
     }
     
     $currentNode = $Node
@@ -731,6 +732,12 @@ function Get-GPMCSettingDetails {
                     $policyStateNode = $currentNode.SelectSingleNode(".//*[local-name()='State'][1]")
                     if ($policyStateNode -and $details.State -eq "Unknown") {
                         $details.State = $policyStateNode.InnerText
+                    }
+                    
+                    # Look for Policy Comment
+                    $policyCommentNode = $currentNode.SelectSingleNode(".//*[local-name()='Comment'][1]")
+                    if ($policyCommentNode -and [string]::IsNullOrWhiteSpace($details.Comment)) {
+                        $details.Comment = $policyCommentNode.InnerText
                     }
                     
                     $details.Context = "Group Policy Setting"
@@ -1153,6 +1160,7 @@ function Search-GPMCXmlFile {
                 }
                 Section = $gpoSection
                 CategoryPath = if ($categoryPath) { $categoryPath } else { "Unknown" }
+                Comment = $settingDetails.Comment
                 Setting = [PSCustomObject]@{
                     Name = $settingDetails.Name
                     State = $settingDetails.State
@@ -1279,6 +1287,9 @@ try {
         }
         if ($result.Setting.Context) {
             Write-Host "  Context: $($result.Setting.Context)" -ForegroundColor White
+        }
+        if ($result.Comment) {
+            Write-Host "  Comment: $($result.Comment)" -ForegroundColor Yellow
         }
         
         if ($result.CategoryPath -ne "Unknown") {

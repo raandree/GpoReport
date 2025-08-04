@@ -1,16 +1,25 @@
 # Progress: What Works and What's Left
 
-## Current Status: PRODUCTION READY WITH SECTION DETECTION ✅
+## Current Status: PRODUCTION READY WITH COMMENT EXTRACTION ✅
 
-### Latest Enhancement: Computer/User Section Detection (COMPLETED ✅)
+### Latest Enhancement: Comment Extraction (COMPLETED ✅)
 
-**Section Detection Enhancement**:
+**Comment Extraction Enhancement**:
+- ✅ **XML Comment Detection**: Automatically extracts `<q4:Comment>` and `<q6:Comment>` elements from policies
+- ✅ **Setting Object Extension**: Added Comment property to Setting objects in all search results
+- ✅ **Display Integration**: Comments displayed in human-readable output with yellow highlighting
+- ✅ **Multi-Section Support**: Works for both Computer and User section policies
+- ✅ **Comprehensive Testing**: 7 new tests validate comment extraction across different policy types
+- ✅ **Graceful Handling**: Policies without comments show null Comment property without errors
+- ✅ **Search Capability**: Comments can be searched directly using wildcard patterns
+- ✅ **Test Suite**: All 43 tests passing with 100% success rate
+
+**Previous Enhancement: Computer/User Section Detection (COMPLETED ✅)**:
 - ✅ **Get-GPOSection Function**: XML hierarchy traversal (up to 20 levels) to identify Computer/User parent elements
 - ✅ **Result Object Enhancement**: All search results now include Section property (Computer/User)
 - ✅ **Display Integration**: Section information prominently displayed in formatted output
 - ✅ **Comprehensive Testing**: 6 new tests validate section detection across different GPO setting types
 - ✅ **Validation Results**: Computer and User section detection working correctly
-- ✅ **Test Suite**: All 36 tests passing with 100% success rate
 
 ### Creative Extensions Added (NEW ✨)
 

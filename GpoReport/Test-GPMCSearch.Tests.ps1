@@ -444,4 +444,111 @@ Describe "Search-GPMCReports.ps1 GPO Section Detection" {
             }
         }
     }
+    
+    Context "Comment Extraction" {
+        
+        It "Should extract comments from Computer section policies with comments" {
+            $searchTerm = "Cipher suite order"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the Cipher suite order setting"
+            
+            # Find the result that matches the policy name (not the explanation text)
+            $policyResult = $results | Where-Object { $_.Setting.Name -eq "Cipher suite order" -and $_.MatchedText -eq "Cipher suite order" }
+            $policyResult | Should -Not -BeNullOrEmpty -Because "Should find the policy result with matching name"
+            
+            $policyResult.Comment | Should -Be "Comment for Cipher Suite" -Because "Should extract the comment from the policy"
+            $policyResult.Section | Should -Be "Computer" -Because "Should be in Computer section"
+        }
+        
+        It "Should extract comments from Computer section ActiveX policies" {
+            $searchTerm = "Establish ActiveX installation policy for sites in Trusted zones"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the ActiveX installation policy"
+            
+            # Find the result that matches the policy name (not the explanation text)
+            $policyResult = $results | Where-Object { 
+                $_.Setting.Name -eq "Establish ActiveX installation policy for sites in Trusted zones" -and 
+                $_.MatchedText -eq "Establish ActiveX installation policy for sites in Trusted zones" 
+            }
+            $policyResult | Should -Not -BeNullOrEmpty -Because "Should find the ActiveX policy result"
+            
+            $policyResult.Comment | Should -Be "Comment for ActiveX installation policy" -Because "Should extract the ActiveX comment"
+            $policyResult.Section | Should -Be "Computer" -Because "Should be in Computer section"
+        }
+        
+        It "Should extract comments from User section policies with comments" {
+            $searchTerm = "Download missing COM components"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the COM components setting"
+            
+            $policyResult = $results | Where-Object { 
+                $_.Setting.Name -eq "Download missing COM components" -and 
+                $_.MatchedText -eq "Download missing COM components" 
+            }
+            $policyResult | Should -Not -BeNullOrEmpty -Because "Should find the COM components policy result"
+            
+            $policyResult.Comment | Should -Be "Comment for Cipher Suite" -Because "Should extract the comment from User section policy"
+            $policyResult.Section | Should -Be "User" -Because "Should be in User section"
+        }
+        
+        It "Should extract comments from User section command prompt policies" {
+            $searchTerm = "Prevent access to the command prompt"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the command prompt setting"
+            
+            $policyResult = $results | Where-Object { 
+                $_.Setting.Name -eq "Prevent access to the command prompt" -and 
+                $_.MatchedText -eq "Prevent access to the command prompt" 
+            }
+            $policyResult | Should -Not -BeNullOrEmpty -Because "Should find the command prompt policy result"
+            
+            $policyResult.Comment | Should -Be "Comment for Cipher Suite" -Because "Should extract the comment from User section policy"
+            $policyResult.Section | Should -Be "User" -Because "Should be in User section"
+        }
+        
+        It "Should include Comment property in result object for all results" {
+            $searchTerm = "*password*"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find password-related settings"
+            
+            foreach ($result in $results) {
+                $result.Setting | Should -Not -BeNullOrEmpty -Because "Each result should have a Setting object"
+                $result.PSObject.Properties.Name | Should -Contain "Comment" -Because "Result object should have Comment property at top level"
+            }
+        }
+        
+        It "Should handle policies without comments gracefully" {
+            # Search for a policy that doesn't have a comment
+            $searchTerm = "PasswordHistorySize"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the password history setting"
+            
+            foreach ($result in $results) {
+                $result.Setting | Should -Not -BeNullOrEmpty -Because "Each result should have a Setting object"
+                $result.PSObject.Properties.Name | Should -Contain "Comment" -Because "Result object should have Comment property at top level even when null"
+                # Comment should be null for policies without comments
+                if ($null -ne $result.Comment) {
+                    $result.Comment | Should -BeOfType [string] -Because "Comment should be string when present"
+                }
+            }
+        }
+        
+        It "Should search for comment text directly" {
+            $searchTerm = "*Comment for Cipher Suite*"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the comment text"
+            
+            # Should find multiple results since this comment appears in multiple policies
+            $commentMatches = $results | Where-Object { $_.MatchedText -like "*Comment for Cipher Suite*" }
+            $commentMatches | Should -Not -BeNullOrEmpty -Because "Should find matches for the comment text"
+            $commentMatches.Count | Should -BeGreaterThan 0 -Because "Should find at least one comment match"
+        }
+    }
 }

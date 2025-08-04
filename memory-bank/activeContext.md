@@ -1,25 +1,27 @@
-# Active Context: Current P**Primary Script**: `Search-GPMCReports.ps1` (1,302 lines)
+# Active Context: Current State
 
-- Handles GPMC-generated XML reports (primary use case)
-- Full namespace support for Microsoft Group Policy settings  
-- Advanced category detection for Security Settings, Admin Templates, Audit Configuration
-- **NEW**: Computer/User section detection with Get-GPOSection function
-- Robust encoding handling and error recovery
-- Multi-file processing with directory recursion State
+## Current Focus: Production-Ready GPO Search System with Comment Extraction ✅
 
-## Current Focus: Production-Ready GPO Search System with Section Detection ✅
+### Project Status: **PRODUCTION READY WITH COMMENT EXTRACTION ✅**
 
-### Project Status: **PRODUCTION READY WITH ENHANCEMENTS ✅**
-
-The GPO Report Search System has achieved full functionality with all core requirements met and validated. Both search scripts are production-ready with comprehensive testing and documentation. The latest enhancement adds Computer/User section detection to all search results.
+The GPO Report Search System has achieved full functionality with all core requirements met and validated. Both search scripts are production-ready with comprehensive testing and documentation. The latest enhancement adds comment extraction from policy XML elements to all search results.
 
 ### Most Recent Achievements
 
-**Section Detection Enhancement** (Just Completed):
+**Comment Extraction Enhancement** (Just Completed):
+- ✅ **XML Comment Detection**: Automatically extracts `<q4:Comment>` and `<q6:Comment>` elements from policies
+- ✅ **Setting Object Extension**: Added Comment property to Setting objects in all search results  
+- ✅ **Display Integration**: Comments displayed in human-readable output with yellow highlighting
+- ✅ **Multi-Section Support**: Works for both Computer and User section policies
+- ✅ **Comprehensive Testing**: 7 new tests validate comment extraction across different policy types
+- ✅ **Graceful Handling**: Policies without comments show null Comment property without errors
+- ✅ **Search Capability**: Comments can be searched directly using wildcard patterns
+- ✅ **Test Suite**: All 43 tests passing with 100% success rate
+
+**Section Detection Enhancement** (Previous Achievement):
 - ✅ **Computer/User Section Detection**: All search results now include section information
 - ✅ **Get-GPOSection Function**: Implemented XML hierarchy traversal (up to 20 levels)
 - ✅ **Enhanced Output Format**: Section property integrated into all result objects
-- ✅ **Comprehensive Testing**: 6 new tests added, all 36 tests passing (100% success rate)
 - ✅ **User Section Validation**: Confirmed detection for "Download missing COM components" and "Prevent access to the command prompt"
 - ✅ **Computer Section Validation**: Confirmed detection across Security Settings, Admin Templates, and Advanced Audit Configuration
 
