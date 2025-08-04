@@ -647,6 +647,34 @@ function Get-GPMCSettingContext {
     return $null
 }
 
+# Get GPO section (Computer or User) from a node
+function Get-GPOSection {
+    param($Node)
+    
+    $currentNode = $Node
+    $searchDepth = 0
+    
+    # Traverse up the hierarchy to find Computer or User section
+    while ($null -ne $currentNode -and $searchDepth -lt 20) {
+        if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
+            Write-Verbose "Get-GPOSection: Checking node $($currentNode.LocalName) at depth $searchDepth"
+            
+            if ($currentNode.LocalName -eq "Computer") {
+                Write-Verbose "Get-GPOSection: Found Computer section"
+                return "Computer"
+            } elseif ($currentNode.LocalName -eq "User") {
+                Write-Verbose "Get-GPOSection: Found User section"
+                return "User"
+            }
+        }
+        $currentNode = $currentNode.ParentNode
+        $searchDepth++
+    }
+    
+    Write-Verbose "Get-GPOSection: No Computer or User section found after $searchDepth levels"
+    return "Unknown"
+}
+
 # Get setting details from the matched node and its context
 function Get-GPMCSettingDetails {
     param($Node)
@@ -1109,6 +1137,9 @@ function Search-GPMCXmlFile {
             # Get setting details
             $settingDetails = Get-GPMCSettingDetails -Node $match.Node
             
+            # Get GPO section (Computer or User)
+            $gpoSection = Get-GPOSection -Node $match.Node
+            
             # Create result object
             $result = [PSCustomObject]@{
                 MatchedText = $match.MatchedValue
@@ -1120,6 +1151,7 @@ function Search-GPMCXmlFile {
                     CreatedTime = $gpoInfo.CreatedTime
                     ModifiedTime = $gpoInfo.ModifiedTime
                 }
+                Section = $gpoSection
                 CategoryPath = if ($categoryPath) { $categoryPath } else { "Unknown" }
                 Setting = [PSCustomObject]@{
                     Name = $settingDetails.Name
@@ -1225,6 +1257,7 @@ try {
         Write-Host "  Display Name: $($result.GPO.DisplayName)" -ForegroundColor White
         Write-Host "  Domain: $($result.GPO.DomainName)" -ForegroundColor White
         Write-Host "  GUID: $($result.GPO.GUID)" -ForegroundColor White
+        Write-Host "  Section: $($result.Section)" -ForegroundColor White
         if ($result.GPO.CreatedTime) {
             Write-Host "  Created: $($result.GPO.CreatedTime)" -ForegroundColor White
         }

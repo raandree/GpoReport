@@ -1,14 +1,29 @@
-# Active Context: Current Project State
+# Active Context: Current P**Primary Script**: `Search-GPMCReports.ps1` (1,302 lines)
 
-## Current Focus: Production-Ready GPO Search System
+- Handles GPMC-generated XML reports (primary use case)
+- Full namespace support for Microsoft Group Policy settings  
+- Advanced category detection for Security Settings, Admin Templates, Audit Configuration
+- **NEW**: Computer/User section detection with Get-GPOSection function
+- Robust encoding handling and error recovery
+- Multi-file processing with directory recursion State
 
-### Project Status: **PRODUCTION READY ✅**
+## Current Focus: Production-Ready GPO Search System with Section Detection ✅
 
-The GPO Report Search System has achieved full functionality with all core requirements met and validated. Both search scripts are production-ready with comprehensive testing and documentation.
+### Project Status: **PRODUCTION READY WITH ENHANCEMENTS ✅**
+
+The GPO Report Search System has achieved full functionality with all core requirements met and validated. Both search scripts are production-ready with comprehensive testing and documentation. The latest enhancement adds Computer/User section detection to all search results.
 
 ### Most Recent Achievements
 
-**Phase 6 Completion** (Current State):
+**Section Detection Enhancement** (Just Completed):
+- ✅ **Computer/User Section Detection**: All search results now include section information
+- ✅ **Get-GPOSection Function**: Implemented XML hierarchy traversal (up to 20 levels)
+- ✅ **Enhanced Output Format**: Section property integrated into all result objects
+- ✅ **Comprehensive Testing**: 6 new tests added, all 36 tests passing (100% success rate)
+- ✅ **User Section Validation**: Confirmed detection for "Download missing COM components" and "Prevent access to the command prompt"
+- ✅ **Computer Section Validation**: Confirmed detection across Security Settings, Admin Templates, and Advanced Audit Configuration
+
+**Phase 6 Completion** (Previous Achievement):
 - ✅ **Real-World XML Testing**: Validated scripts against diverse production GPO files
 - ✅ **Edge Case Resolution**: Fixed encoding issues, member name extraction, restricted groups
 - ✅ **100% Test Pass Rate**: All 25+ mapping table requirements validated

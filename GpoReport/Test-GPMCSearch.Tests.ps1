@@ -366,3 +366,82 @@ Describe "Search-GPMCReports.ps1 Overall Validation Summary" {
         $successRate | Should -BeGreaterThan 60 -Because "Category mapping should have at least 60% accuracy"
     }
 }
+
+Describe "Search-GPMCReports.ps1 GPO Section Detection" {
+    
+    Context "Computer Section Settings" {
+        
+        It "Should correctly identify Computer section for Security Settings" {
+            $searchTerm = "PasswordHistorySize"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the password policy setting"
+            $firstResult = if ($results -is [array]) { $results[0] } else { $results }
+            $firstResult.Section | Should -Be "Computer" -Because "Security Settings should be in Computer section"
+        }
+        
+        It "Should correctly identify Computer section for LDAP server signing" {
+            $searchTerm = "LDAP server signing requirements"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the LDAP server setting"
+            $firstResult = if ($results -is [array]) { $results[0] } else { $results }
+            $firstResult.Section | Should -Be "Computer" -Because "Security Options should be in Computer section"
+        }
+        
+        It "Should correctly identify Computer section for Administrative Templates" {
+            $searchTerm = "Turn off notifications network usage"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the notifications setting"
+            $firstResult = if ($results -is [array]) { $results[0] } else { $results }
+            $firstResult.Section | Should -Be "Computer" -Because "Computer Administrative Templates should be in Computer section"
+        }
+        
+        It "Should correctly identify Computer section for Advanced Audit Configuration" {
+            $searchTerm = "Audit Kerberos Service Ticket Operations"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the audit setting"
+            $firstResult = if ($results -is [array]) { $results[0] } else { $results }
+            $firstResult.Section | Should -Be "Computer" -Because "Advanced Audit Configuration should be in Computer section"
+        }
+    }
+    
+    Context "User Section Settings" {
+        
+        It "Should correctly identify User section for 'Download missing COM components'" {
+            $searchTerm = "Download missing COM components"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the COM components setting"
+            $firstResult = if ($results -is [array]) { $results[0] } else { $results }
+            $firstResult.Section | Should -Be "User" -Because "User Administrative Templates should be in User section"
+        }
+        
+        It "Should correctly identify User section for 'Prevent access to the command prompt'" {
+            $searchTerm = "Prevent access to the command prompt"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find the command prompt setting"
+            $firstResult = if ($results -is [array]) { $results[0] } else { $results }
+            $firstResult.Section | Should -Be "User" -Because "Command prompt restriction should be in User section"
+        }
+    }
+    
+    Context "Section Property Availability" {
+        
+        It "Should include Section property in all search results" {
+            $searchTerm = "*password*"
+            $results = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should find password-related settings"
+            
+            foreach ($result in $results) {
+                $result | Should -Not -BeNullOrEmpty -Because "Each result should exist"
+                $result.PSObject.Properties.Name | Should -Contain "Section" -Because "Each result should have a Section property"
+                $result.Section | Should -BeIn @("Computer", "User", "Unknown") -Because "Section should be Computer, User, or Unknown"
+            }
+        }
+    }
+}
