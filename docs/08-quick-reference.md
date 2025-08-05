@@ -4,7 +4,11 @@
 
 ### Basic Syntax
 ```powershell
+# File-based search
 .\Search-GPMCReports.ps1 -Path <FilePath> -SearchString <Pattern> [Options]
+
+# XML string array search (✨ NEW)
+.\Search-GPMCReports.ps1 -XmlContent <String[]> -SearchString <Pattern> [Options]
 ```
 
 ### Common Usage Patterns
@@ -24,6 +28,23 @@
 .\Search-GPMCReports.ps1 -Path "MyGPO.xml" -SearchString "security" -MaxResults 5
 ```
 
+#### XML String Array Search (✨ NEW)
+```powershell
+# Search XML content from memory
+$xmlContent = Get-Content "MyGPO.xml" -Raw
+.\Search-GPMCReports.ps1 -XmlContent @($xmlContent) -SearchString "password"
+
+# Search multiple XML strings
+$xml1 = Get-Content "GPO1.xml" -Raw
+$xml2 = Get-Content "GPO2.xml" -Raw
+.\Search-GPMCReports.ps1 -XmlContent @($xml1, $xml2) -SearchString "audit"
+
+# Pipeline integration
+Get-Content "*.xml" -Raw | ForEach-Object { 
+    .\Search-GPMCReports.ps1 -XmlContent @($_) -SearchString "security" 
+}
+```
+
 #### Multiple File Search
 ```powershell
 # Search all XML files in directory
@@ -34,6 +55,42 @@
 
 # Search with verbose output
 .\Search-GPMCReports.ps1 -Path "*.xml" -SearchString "security" -Verbose
+```
+
+## Enhanced Capabilities Quick Reference (✨ NEW)
+
+### GUI Interface
+```powershell
+# Launch interactive GUI
+.\Start-GPOSearchGUI.ps1
+# Features: drag-drop, real-time search, export integration
+```
+
+### Professional Export
+```powershell
+# Export in all formats (JSON, CSV, HTML, XML)
+$results | .\Export-SearchResults.ps1 -OutputPath "report" -Format All
+```
+
+### Compliance Analysis
+```powershell
+# CIS compliance check
+.\Search-GPOCompliance.ps1 -Path "*.xml" -Framework CIS
+
+# Custom security patterns
+.\Search-GPOCompliance.ps1 -Path "*.xml" -CustomPatterns @("*password*", "*audit*")
+```
+
+### High-Performance Caching
+```powershell
+# Enable caching for large environments
+.\Search-GPOCached.ps1 -Path "*.xml" -SearchString "*password*" -UseCache -ParallelProcessing
+```
+
+### AI-Powered Insights
+```powershell
+# Generate security insights
+.\Get-GPOInsights.ps1 -Path "*.xml" -Focus Security -IncludeRecommendations
 ```
 
 ### Search Pattern Cheat Sheet
@@ -52,12 +109,15 @@
 | Parameter | Type | Description | Example |
 |-----------|------|-------------|---------|
 | `-Path` | String/Array | File(s) to search | `"MyGPO.xml"` |
+| `-XmlContent` | String[] | XML content as string array | `@($xmlContent)` |
 | `-SearchString` | String | Pattern to find | `"*password*"` |
 | `-CaseSensitive` | Switch | Case-sensitive search | `-CaseSensitive` |
 | `-MaxResults` | Int | Limit result count | `-MaxResults 10` |
 | `-Verbose` | Switch | Detailed output | `-Verbose` |
 
-### Output Object Properties
+*Note: Either `-Path` or `-XmlContent` is required (parameter sets)*
+
+### Output Object Properties (Enhanced ✨)
 
 Each result object contains:
 ```powershell
@@ -66,8 +126,11 @@ CategoryPath    # Where the setting was found
 ElementType     # XML element type (Attribute/Text)
 GPOName         # Name of the Group Policy Object
 GPOGuid         # Unique identifier of the GPO
+Section         # Computer or User section (✨ NEW)
+Comment         # Policy comment if available (✨ NEW)
 XPath           # XML path to the element
 Context         # Surrounding text/attributes
+SourceFile      # Original file path (if file-based search)
 ```
 
 ### Example Output Interpretation

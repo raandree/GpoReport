@@ -16,6 +16,23 @@
 .\Search-GPMCReports.ps1 -Path "MyGPO.xml" -SearchString "SeTakeOwnershipPrivilege"
 ```
 
+#### Search XML Content Directly (✨ NEW)
+```powershell
+# Search XML content from memory without file operations
+$xmlContent = Get-Content "MyGPO.xml" -Raw
+.\Search-GPMCReports.ps1 -XmlContent @($xmlContent) -SearchString "*password*"
+
+# Search multiple XML strings
+$xml1 = Get-Content "GPO1.xml" -Raw
+$xml2 = Get-Content "GPO2.xml" -Raw
+.\Search-GPMCReports.ps1 -XmlContent @($xml1, $xml2) -SearchString "*audit*"
+
+# Pipeline support for XML content
+Get-Content "*.xml" -Raw | ForEach-Object { 
+    .\Search-GPMCReports.ps1 -XmlContent @($_) -SearchString "security" 
+}
+```
+
 #### Search Multiple Files
 ```powershell
 # Search all XML files in current directory
@@ -28,18 +45,75 @@
 .\Search-GPMCReports.ps1 -Path @("GPO1.xml", "GPO2.xml") -SearchString "MaxTicketAge"
 ```
 
+## Enhanced Capabilities Quick Start
+
+### GUI Interface (✨ NEW)
+```powershell
+# Launch interactive GUI
+.\Start-GPOSearchGUI.ps1
+
+# Features:
+# - Drag-drop XML files
+# - Real-time search filtering
+# - Export results directly
+# - Visual result browsing
+```
+
+### Professional Reporting (✨ NEW)
+```powershell
+# Export search results in multiple formats
+$results = .\Search-GPMCReports.ps1 -Path "*.xml" -SearchString "*security*"
+.\Export-SearchResults.ps1 -Results $results -OutputPath "security-audit" -Format All
+
+# Generate HTML report with metadata
+$results | .\Export-SearchResults.ps1 -OutputPath "report" -Format HTML -IncludeMetadata
+```
+
+### Compliance Analysis (✨ NEW)
+```powershell
+# Run CIS compliance check
+.\Search-GPOCompliance.ps1 -Path "*.xml" -Framework CIS
+
+# NIST security assessment
+.\Search-GPOCompliance.ps1 -Path "*.xml" -Framework NIST -ExportResults
+
+# Custom compliance patterns
+.\Search-GPOCompliance.ps1 -Path "*.xml" -CustomPatterns @("*password*", "*audit*", "*security*")
+```
+
+### High-Performance Caching (✨ NEW)
+```powershell
+# Enable caching for large environments
+.\Search-GPOCached.ps1 -Path "C:\GPO-Reports" -SearchString "*password*" -EnableCache
+
+# Parallel processing for speed
+.\Search-GPOCached.ps1 -Path "*.xml" -SearchString "*audit*" -MaxConcurrency 8
+```
+
+### AI-Powered Insights (✨ NEW)
+```powershell
+# Generate security insights and recommendations
+.\Get-GPOInsights.ps1 -Path "*.xml"
+
+# Focus on specific security areas
+.\Get-GPOInsights.ps1 -Path "*.xml" -Focus Security -IncludeRecommendations
+```
+
 ## Command-Line Parameters
 
 ### Search-GPMCReports.ps1 Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `-Path` | String/Array | Yes | File path, directory, or array of paths to search |
+| `-Path` | String/Array | Yes* | File path, directory, or array of paths to search |
+| `-XmlContent` | String[] | Yes* | XML content as string array (alternative to Path) |
 | `-SearchString` | String | Yes | Search pattern (supports wildcards) |
 | `-CaseSensitive` | Switch | No | Perform case-sensitive search (default: case-insensitive) |
 | `-IncludeAllMatches` | Switch | No | Include all matches, not just meaningful content |
 | `-MaxResults` | Int | No | Maximum number of results to return (0 = unlimited) |
 | `-Recurse` | Switch | No | Search recursively through subdirectories |
+
+*Either `-Path` or `-XmlContent` is required (parameter sets)
 
 ### Search-GPOSettings.ps1 Parameters
 
