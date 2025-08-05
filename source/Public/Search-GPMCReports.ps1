@@ -106,9 +106,9 @@ function Search-GPMCReports {
         Write-Verbose "Starting GPMC report search with pattern: $SearchString"
         
         # Handle empty search string gracefully
-        if ([string]::IsNullOrWhiteSpace($SearchString)) {
+        $script:shouldSkipProcessing = [string]::IsNullOrWhiteSpace($SearchString)
+        if ($script:shouldSkipProcessing) {
             Write-Warning "Search string is empty or whitespace-only"
-            return @()
         }
         
         $results = @()
@@ -117,6 +117,11 @@ function Search-GPMCReports {
     }
 
     process {
+        # Skip processing if empty search string
+        if ($script:shouldSkipProcessing) {
+            return
+        }
+        
         try {
             if ($PSCmdlet.ParameterSetName -eq 'FilePath') {
                 # Process file path
@@ -215,6 +220,11 @@ function Search-GPMCReports {
     }
 
     end {
+        # Return empty array if we skipped processing due to empty search string
+        if ($script:shouldSkipProcessing) {
+            return @()
+        }
+        
         Write-Verbose "Search completed. Processed $processedFiles files, found $totalMatches total matches, returning $($results.Count) results."
         return $results
     }
