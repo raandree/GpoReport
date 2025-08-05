@@ -199,14 +199,60 @@ Output Generation
 
 ## Extension Points
 
+### Customer Feedback-Driven Improvements (August 2025)
+
+**Category Detection Enhancement Areas**:
+
+```powershell
+# Current limitation: Generic categorization needs precision
+# Files/Folders: "Settings > Windows Settings" → Need specific subcategory
+# Registry: "Registry Setting" → Need registry-specific detection
+
+# Required function enhancements:
+function Get-GPMCCategoryPath {
+    # Add: Files/Folders preference subcategorization
+    # Add: Registry setting type detection (HKLM vs HKCU, etc.)
+    # Add: Startup script vs file preference distinction
+    # Add: GPO permissions/delegation detection
+}
+
+function Get-GPMCSettingContext {
+    # Add: Script type detection (startup/shutdown/logon/logoff)
+    # Add: Permission/delegation context recognition
+    # Add: Policy vs Preference distinction logic
+}
+```
+
+**Search Algorithm Enhancements**:
+
+```powershell
+# Current: Search only in text content and attribute values
+# Required: Include XML element names in search scope
+
+function Search-GPMCXmlContent {
+    # Add: Element name searching (e.g., "RestrictedGroups" element name)
+    # Add: Policies vs Preferences path differentiation
+    # Improve: Unicode/encoding handling for international characters
+}
+```
+
+**Internationalization Support**:
+
+```powershell
+# Current gap: German umlauts in scheduled tasks need validation
+# Required: Enhanced encoding handling for non-ASCII characters
+# Test cases needed: ä, ö, ü, ß in task names and other settings
+```
+
 ### Pluggable Category Detection
 The category detection system is designed for extensibility:
 
 ```powershell
 # Future category detectors can be added:
-# - Get-PreferencesSubcategory for GP Preferences
-# - Get-RegistrySubcategory for Registry-specific detection
+# - Get-PreferencesSubcategory for GP Preferences (HIGH PRIORITY)
+# - Get-RegistrySubcategory for Registry-specific detection (HIGH PRIORITY) 
 # - Get-SoftwareSubcategory for Software Installation
+# - Get-PermissionsSubcategory for GPO delegation settings (HIGH PRIORITY)
 ```
 
 ### Output Format Extensions

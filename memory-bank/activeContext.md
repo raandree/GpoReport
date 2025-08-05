@@ -165,6 +165,26 @@ Currently creating comprehensive Memory Bank to document project state:
 
 ## Project Insights
 
+### Customer Feedback - Improvement Requests (August 2025)
+
+**High Priority Issues**:
+- ✅ **File/Folder Path Precision**: Category paths for Files/Folders need more precision (currently shows "Settings > Windows Settings" instead of specific subcategory)
+- ✅ **Registry Path Precision**: Category paths for Registry entries need more precision (currently shows "Settings > Windows Settings" instead of specific registry categorization)
+- ✅ **German Umlauts in Scheduled Tasks**: Need to test and ensure proper handling of German special characters (ä, ö, ü, ß) in scheduled task names
+- ✅ **Startup Scripts Classification**: Startup scripts are currently being classified as "Files" instead of proper script categorization
+- ✅ **GPO Permissions Recognition**: GPO permissions found in search results are marked as "unknown" instead of being properly identified as access control/permissions
+
+**Medium Priority Issues**:
+- 🔄 **Policies vs Preferences Distinction**: Distinguish between Group Policy Policies and Group Policy Preferences in category path output
+- 🔄 **Field Name Search Enhancement**: Extend search capability to include XML field/element names (e.g., "Restricted Groups") not just values
+
+**Technical Analysis Required**:
+- Files/Folders: Review `Get-GPMCCategoryPath` for Group Policy Preferences > Files/Folders detection
+- Registry: Improve registry setting subcategorization beyond generic "Registry Setting"  
+- Scripts: Identify startup/shutdown script elements vs regular file preferences
+- Permissions: Add detection for GPO access control lists and delegation settings
+- Umlauts: Test XML encoding handling with German special characters
+
 ### What Works Exceptionally Well
 
 **Namespace-Aware Processing**: The decision to properly handle XML namespaces was crucial
