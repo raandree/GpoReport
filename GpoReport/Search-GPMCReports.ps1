@@ -13,6 +13,9 @@
 .PARAMETER Path
     The path to the GPMC XML report file to search. Can also be a directory to search all XML files within it.
 
+.PARAMETER XmlContent
+    Array of XML content strings to search through instead of reading from files.
+
 .PARAMETER SearchString
     The search string to look for. Supports wildcards (*).
 
@@ -43,11 +46,21 @@
 .EXAMPLE
     .\Search-GPMCReports.ps1 -Path ".\AllSettings1.xml" -SearchString "*audit*" -MaxResults 10
     Returns up to 10 matches for settings containing "audit".
+
+.EXAMPLE
+    $xmlContent = Get-Content ".\AllSettings1.xml" -Raw
+    .\Search-GPMCReports.ps1 -XmlContent $xmlContent -SearchString "*cipher*"
+    Searches for settings containing "cipher" in the XML content provided as a string.
+
+.EXAMPLE
+    $xmlArray = @((Get-Content ".\File1.xml" -Raw), (Get-Content ".\File2.xml" -Raw))
+    .\Search-GPMCReports.ps1 -XmlContent $xmlArray -SearchString "*password*"
+    Searches for settings containing "password" in multiple XML content strings.
 #>
 
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'FilePath')]
 param(
-    [Parameter(Mandatory = $true, Position = 0)]
+    [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'FilePath')]
     [ValidateScript({
         if (-not (Test-Path $_)) {
             throw "Path not found: $_"
@@ -62,6 +75,10 @@ param(
     })]
     [string]$Path,
     
+    [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'XmlContent')]
+    [ValidateNotNullOrEmpty()]
+    [string[]]$XmlContent,
+    
     [Parameter(Mandatory = $true, Position = 1)]
     [string]$SearchString,
     
@@ -74,7 +91,7 @@ param(
     [Parameter()]
     [int]$MaxResults = 0,
     
-    [Parameter()]
+    [Parameter(ParameterSetName = 'FilePath')]
     [switch]$Recurse
 )
 
@@ -991,36 +1008,21 @@ function Get-GPMCSettingDetails {
     return $details
 }
 
-# Process a single XML file
-function Search-GPMCXmlFile {
-    param($FilePath, $RegexPattern, $IncludeAllMatches, $MaxResults)
+# Process XML content (from string or file)
+function Search-GPMCXmlContent {
+    param($XmlDocument, $RegexPattern, $IncludeAllMatches, $MaxResults, $SourceIdentifier = "Unknown")
     
     $results = @()
     $resultCount = 0
     
     try {
-        Write-Verbose "Processing file: $FilePath"
+        Write-Verbose "Processing XML content: $SourceIdentifier"
         
-        # Load XML document with encoding handling
-        $xmlDoc = New-Object System.Xml.XmlDocument
-        try {
-            # First try to load directly
-            $xmlDoc.Load($FilePath)
-        }
-        catch {
-            Write-Verbose "Direct load failed, trying with encoding fix: $($_.Exception.Message)"
-            # If direct load fails, read content and fix encoding declaration
-            $content = Get-Content -Path $FilePath -Raw -Encoding UTF8
-            # Fix common encoding declaration issues
-            $content = $content -replace 'encoding="utf-16"', 'encoding="utf-8"'
-            $xmlDoc.LoadXml($content)
-        }
-        
-        # Get GPO information once for the entire file
-        $gpoInfo = Get-GPMCGpoInfo -XmlDocument $xmlDoc -SourceFilePath $FilePath
+        # Get GPO information once for the entire XML content
+        $gpoInfo = Get-GPMCGpoInfo -XmlDocument $XmlDocument -SourceFilePath $SourceIdentifier
         
         # Get all nodes (both text nodes and elements with attributes) for searching
-        $searchNodes = $xmlDoc.SelectNodes("//*")
+        $searchNodes = $XmlDocument.SelectNodes("//*")
         Write-Verbose "Searching through $($searchNodes.Count) nodes..."
         
         # First pass: collect all potential matches
@@ -1039,8 +1041,8 @@ function Search-GPMCXmlFile {
                 $hasTextChildren = $false
                 foreach ($child in $node.ChildNodes) {
                     if ($child.NodeType -eq [System.Xml.XmlNodeType]::Element -and 
-                        -not [string]::IsNullOrWhiteSpace($child.InnerText) -and
-                        $child.InnerText -match $RegexPattern) {
+                        -not [string]::IsNullOrWhiteSpace($child.InnerText) -and 
+                        $child.InnerText.Trim() -ne $textContent.Trim()) {
                         $hasTextChildren = $true
                         break
                     }
@@ -1057,14 +1059,10 @@ function Search-GPMCXmlFile {
             if (-not $matchFound -or $IncludeAllMatches) {
                 foreach ($attr in $node.Attributes) {
                     if ($attr.Value -match $RegexPattern) {
-                        if (-not $matchFound) {
-                            $matchFound = $true
-                            $matchedValue = $attr.Value
-                            $matchType = "Attribute: $($attr.Name)"
-                        } elseif ($IncludeAllMatches) {
-                            # Handle multiple matches in same node if including all
-                            Write-Verbose "Additional attribute match found: $($attr.Name) = $($attr.Value)"
-                        }
+                        $matchFound = $true
+                        $matchedValue = $attr.Value
+                        $matchType = "Attribute: $($attr.Name)"
+                        break
                     }
                 }
             }
@@ -1091,31 +1089,42 @@ function Search-GPMCXmlFile {
             # Check if this match is a parent of another more specific match
             foreach ($otherMatch in $potentialMatches) {
                 if ($match -ne $otherMatch -and $match.TextLength -gt $otherMatch.TextLength) {
-                    # Check if the other match's node is a descendant of this match's node
-                    $tempNode = $otherMatch.Node
-                    while ($null -ne $tempNode) {
-                        if ($tempNode -eq $match.Node) {
-                            $isParentMatch = $true
-                            Write-Verbose "Filtering out parent match: $($match.MatchedValue.Substring(0, [Math]::Min(50, $match.MatchedValue.Length)))..."
-                            break
+                    # Check if the other match's text is contained within this match's text
+                    if ($match.MatchedValue -like "*$($otherMatch.MatchedValue)*") {
+                        # But prefer Name elements over Type elements
+                        $matchNodeName = $match.Node.LocalName
+                        $otherNodeName = $otherMatch.Node.LocalName
+                        
+                        # If the longer match is a Name element and shorter is Type, keep the Name
+                        if ($matchNodeName -eq "Name" -and $otherNodeName -eq "Type") {
+                            # Don't mark as parent, keep the Name element
+                            continue
                         }
-                        $tempNode = $tempNode.ParentNode
+                        
+                        $isParentMatch = $true
+                        break
                     }
-                    if ($isParentMatch) { break }
+                }
+                
+                # Check for exact duplicates but prefer non-attribute matches
+                if ($match -ne $otherMatch -and $match.MatchedValue -eq $otherMatch.MatchedValue) {
+                    if ($match.MatchType -like "Attribute:*" -and $otherMatch.MatchType -eq "Text Content") {
+                        $isDuplicateMatch = $true
+                        break
+                    }
                 }
             }
             
             # Special handling for NTDS: prioritize System Services over Security Options
             if (-not $isParentMatch -and $match.MatchedValue -like "*NTDS*") {
-                $matchCategory = Get-GPMCCategoryPath -Node $match.Node -XmlDocument $xmlDoc
+                $matchCategory = Get-GPMCCategoryPath -Node $match.Node -XmlDocument $XmlDocument
                 if ($matchCategory -like "*Security Options*") {
-                    # Check if there's another NTDS match that's in System Services
+                    # Check if there's a System Services match for the same value
                     foreach ($otherMatch in $potentialMatches) {
-                        if ($otherMatch -ne $match -and $otherMatch.MatchedValue -like "*NTDS*") {
-                            $otherCategory = Get-GPMCCategoryPath -Node $otherMatch.Node -XmlDocument $xmlDoc
+                        if ($otherMatch.MatchedValue -eq $match.MatchedValue) {
+                            $otherCategory = Get-GPMCCategoryPath -Node $otherMatch.Node -XmlDocument $XmlDocument
                             if ($otherCategory -like "*System Services*") {
                                 $isDuplicateMatch = $true
-                                Write-Verbose "Filtering out Security Options NTDS match in favor of System Services match"
                                 break
                             }
                         }
@@ -1139,7 +1148,7 @@ function Search-GPMCXmlFile {
             Write-Verbose "Processing match: $($match.MatchType): $($match.MatchedValue.Substring(0, [Math]::Min(50, $match.MatchedValue.Length)))..."
             
             # Get category path
-            $categoryPath = Get-GPMCCategoryPath -Node $match.Node -XmlDocument $xmlDoc
+            $categoryPath = Get-GPMCCategoryPath -Node $match.Node -XmlDocument $XmlDocument
             
             # Get setting details
             $settingDetails = Get-GPMCSettingDetails -Node $match.Node
@@ -1169,7 +1178,7 @@ function Search-GPMCXmlFile {
                     Type = $settingDetails.Type
                     Context = $settingDetails.Context
                 }
-                SourceFile = $FilePath
+                SourceFile = $SourceIdentifier
                 XPath = $match.Node.OuterXml.Substring(0, [Math]::Min(300, $match.Node.OuterXml.Length)) + "..."
             }
             
@@ -1178,15 +1187,75 @@ function Search-GPMCXmlFile {
             
             # Show progress for large searches
             if ($resultCount % 10 -eq 0) {
-                Write-Verbose "Created $resultCount result objects so far..."
+                Write-Progress -Activity "Searching XML content" -Status "Found $resultCount matches" -PercentComplete -1
             }
         }
     }
     catch {
-        Write-Warning "Error processing file '$FilePath': $($_.Exception.Message)"
+        Write-Warning "Error processing XML content '$SourceIdentifier': $($_.Exception.Message)"
     }
     
     return $results
+}
+
+# Process a single XML file
+function Search-GPMCXmlFile {
+    param($FilePath, $RegexPattern, $IncludeAllMatches, $MaxResults)
+    
+    try {
+        Write-Verbose "Processing file: $FilePath"
+        
+        # Load XML document with encoding handling
+        $xmlDoc = New-Object System.Xml.XmlDocument
+        try {
+            # First try to load directly
+            $xmlDoc.Load($FilePath)
+        }
+        catch {
+            Write-Verbose "Direct load failed, trying with encoding fix: $($_.Exception.Message)"
+            # If direct load fails, read content and fix encoding declaration
+            $content = Get-Content -Path $FilePath -Raw -Encoding UTF8
+            # Fix common encoding declaration issues
+            $content = $content -replace 'encoding="utf-16"', 'encoding="utf-8"'
+            $xmlDoc.LoadXml($content)
+        }
+        
+        # Use the new content processing function
+        return Search-GPMCXmlContent -XmlDocument $xmlDoc -RegexPattern $RegexPattern -IncludeAllMatches $IncludeAllMatches -MaxResults $MaxResults -SourceIdentifier $FilePath
+    }
+    catch {
+        Write-Warning "Error processing file '$FilePath': $($_.Exception.Message)"
+        return @()
+    }
+}
+
+# Process XML content from string
+function Search-GPMCXmlString {
+    param($XmlContentString, $RegexPattern, $IncludeAllMatches, $MaxResults, $SourceIdentifier = "XML String")
+    
+    try {
+        Write-Verbose "Processing XML string content: $SourceIdentifier"
+        
+        # Load XML document from string
+        $xmlDoc = New-Object System.Xml.XmlDocument
+        try {
+            # First try to load directly
+            $xmlDoc.LoadXml($XmlContentString)
+        }
+        catch {
+            Write-Verbose "Direct load failed, trying with encoding fix: $($_.Exception.Message)"
+            # If direct load fails, fix encoding declaration
+            $content = $XmlContentString -replace 'encoding="utf-16"', 'encoding="utf-8"'
+            $xmlDoc.LoadXml($content)
+        }
+        
+        # Use the new content processing function
+        return Search-GPMCXmlContent -XmlDocument $xmlDoc -RegexPattern $RegexPattern -IncludeAllMatches $IncludeAllMatches -MaxResults $MaxResults -SourceIdentifier $SourceIdentifier
+    }
+    catch {
+        Write-Warning "Error processing XML string '$SourceIdentifier': $($_.Exception.Message)"
+        return @()
+    }
 }
 
 try {
@@ -1194,46 +1263,81 @@ try {
     $regexPattern = ConvertTo-RegexPattern -WildcardPattern $SearchString -CaseSensitive $CaseSensitive.IsPresent
     Write-Verbose "Using regex pattern: $regexPattern"
     
-    # Determine if Path is a file or directory
-    $pathItem = Get-Item -Path $Path
-    $xmlFiles = @()
-    
-    if ($pathItem.PSIsContainer) {
-        # Directory - find all XML files
-        $searchParams = @{
-            Path = $Path
-            Filter = "*.xml"
-            File = $true
-        }
-        if ($Recurse) {
-            $searchParams.Recurse = $true
-        }
-        
-        $xmlFiles = Get-ChildItem @searchParams | Select-Object -ExpandProperty FullName
-        
-        if ($xmlFiles.Count -eq 0) {
-            Write-Warning "No XML files found in directory: $Path"
-            return
-        }
-        
-        Write-Host "Found $($xmlFiles.Count) XML files to search" -ForegroundColor Cyan
-    }
-    else {
-        # Single file
-        $xmlFiles = @($pathItem.FullName)
-    }
-    
-    # Search through all files
+    # Search through all content based on parameter set
     $allResults = @()
     
-    foreach ($xmlFile in $xmlFiles) {
-        $fileResults = Search-GPMCXmlFile -FilePath $xmlFile -RegexPattern $regexPattern -IncludeAllMatches $IncludeAllMatches.IsPresent -MaxResults $MaxResults
-        $allResults += $fileResults
+    if ($PSCmdlet.ParameterSetName -eq 'FilePath') {
+        # Handle file/directory path
+        $pathItem = Get-Item -Path $Path
+        $xmlFiles = @()
         
-        if ($MaxResults -gt 0 -and $allResults.Count -ge $MaxResults) {
-            $allResults = $allResults | Select-Object -First $MaxResults
-            break
+        if ($pathItem.PSIsContainer) {
+            # Directory - find all XML files
+            $searchParams = @{
+                Path = $Path
+                Filter = "*.xml"
+                File = $true
+            }
+            if ($Recurse) {
+                $searchParams.Recurse = $true
+            }
+            
+            $xmlFiles = Get-ChildItem @searchParams | Select-Object -ExpandProperty FullName
+            
+            if ($xmlFiles.Count -eq 0) {
+                Write-Warning "No XML files found in directory: $Path"
+                return
+            }
+            
+            Write-Host "Found $($xmlFiles.Count) XML files to search" -ForegroundColor Cyan
         }
+        else {
+            # Single file
+            $xmlFiles = @($pathItem.FullName)
+        }
+        
+        # Search through all files
+        foreach ($xmlFile in $xmlFiles) {
+            $fileResults = Search-GPMCXmlFile -FilePath $xmlFile -RegexPattern $regexPattern -IncludeAllMatches $IncludeAllMatches.IsPresent -MaxResults $MaxResults
+            $allResults += $fileResults
+            
+            if ($MaxResults -gt 0 -and $allResults.Count -ge $MaxResults) {
+                $allResults = $allResults | Select-Object -First $MaxResults
+                break
+            }
+        }
+        
+        # Display source information
+        Write-Host "`n=== GPMC SEARCH RESULTS ===" -ForegroundColor Cyan
+        Write-Host "Search Pattern: $SearchString" -ForegroundColor Yellow
+        if ($xmlFiles.Count -eq 1) {
+            Write-Host "File: $($xmlFiles[0])" -ForegroundColor Yellow
+        } else {
+            Write-Host "Files: $($xmlFiles.Count) XML files searched" -ForegroundColor Yellow
+        }
+    }
+    elseif ($PSCmdlet.ParameterSetName -eq 'XmlContent') {
+        # Handle XML content array
+        Write-Host "Found $($XmlContent.Count) XML content strings to search" -ForegroundColor Cyan
+        
+        # Search through all XML content strings
+        for ($i = 0; $i -lt $XmlContent.Count; $i++) {
+            $xmlString = $XmlContent[$i]
+            $sourceId = "XML Content [$($i + 1)]"
+            
+            $contentResults = Search-GPMCXmlString -XmlContentString $xmlString -RegexPattern $regexPattern -IncludeAllMatches $IncludeAllMatches.IsPresent -MaxResults $MaxResults -SourceIdentifier $sourceId
+            $allResults += $contentResults
+            
+            if ($MaxResults -gt 0 -and $allResults.Count -ge $MaxResults) {
+                $allResults = $allResults | Select-Object -First $MaxResults
+                break
+            }
+        }
+        
+        # Display source information
+        Write-Host "`n=== GPMC SEARCH RESULTS ===" -ForegroundColor Cyan
+        Write-Host "Search Pattern: $SearchString" -ForegroundColor Yellow
+        Write-Host "Source: $($XmlContent.Count) XML content string(s)" -ForegroundColor Yellow
     }
     
     Write-Host "Search completed. Found $($allResults.Count) matches." -ForegroundColor Green
@@ -1241,15 +1345,6 @@ try {
     if ($allResults.Count -eq 0) {
         Write-Warning "No matches found for pattern: $SearchString"
         return
-    }
-    
-    # Display results in a readable format
-    Write-Host "`n=== GPMC SEARCH RESULTS ===" -ForegroundColor Cyan
-    Write-Host "Search Pattern: $SearchString" -ForegroundColor Yellow
-    if ($xmlFiles.Count -eq 1) {
-        Write-Host "File: $($xmlFiles[0])" -ForegroundColor Yellow
-    } else {
-        Write-Host "Files: $($xmlFiles.Count) XML files searched" -ForegroundColor Yellow
     }
     Write-Host ("-" * 80) -ForegroundColor Gray
     
