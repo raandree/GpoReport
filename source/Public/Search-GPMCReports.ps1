@@ -66,6 +66,17 @@ function Search-GPMCReports {
         [string]$Path,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'XmlContent')]
+        [ValidateScript({
+            if ($_ -eq $null -or $_.Count -eq 0) {
+                throw "XmlContent cannot be null or empty array"
+            }
+            foreach ($content in $_) {
+                if ([string]::IsNullOrWhiteSpace($content)) {
+                    throw "XmlContent cannot contain null, empty, or whitespace-only strings"
+                }
+            }
+            return $true
+        })]
         [string[]]$XmlContent,
 
         [Parameter(Mandatory = $true)]
@@ -162,7 +173,7 @@ function Search-GPMCReports {
                     try {
                         $contentResults = Search-GPMCXmlContent -XmlString $XmlContent[$i] -SearchString $SearchString -SourceFile "XMLContent_$($i+1)" -CaseSensitive:$CaseSensitive -IncludeAllMatches:$IncludeAllMatches
                         
-                        if ($contentResults) {
+                        if ($contentResults -and $contentResults.Count -gt 0) {
                             $results += $contentResults
                             $totalMatches += $contentResults.Count
                             Write-Verbose "Found $($contentResults.Count) matches in XML content block $($i + 1)"

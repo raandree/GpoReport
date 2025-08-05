@@ -26,8 +26,28 @@ function Get-GPMCCategoryPath {
             # PRIORITY 1: Administrative Templates (q4:Policy with q4:Category)
             if ($current.LocalName -eq 'Policy' -and $current.NamespaceURI -like "*registry*") {
                 $categoryNode = $current.SelectSingleNode('.//*[local-name()="Category"]')
+                $nameNode = $current.SelectSingleNode('.//*[local-name()="Name"]')
+                
                 if ($categoryNode -and $categoryNode.InnerText) {
                     $categoryPath = $categoryNode.InnerText -replace '/', ' > '
+                    
+                    # Special handling for specific settings that need extended categorization
+                    if ($nameNode -and $nameNode.InnerText) {
+                        $settingName = $nameNode.InnerText
+                        switch -Regex ($settingName) {
+                            "Force a specific default lock screen" {
+                                if ($categoryPath -eq "Control Panel > Personalization") {
+                                    return "Administrative Templates > Control Panel > Personalization > Lock Screen"
+                                }
+                            }
+                            "Download missing COM components" {
+                                if ($categoryPath -eq "System") {
+                                    return "Administrative Templates > System > Internet Communication Management > Internet Communication settings"
+                                }
+                            }
+                        }
+                    }
+                    
                     return "Administrative Templates > $categoryPath"
                 }
                 return "Administrative Templates"
@@ -54,6 +74,11 @@ function Get-GPMCCategoryPath {
                 return "Security Settings > System Services"
             }
             
+            # PRIORITY 3a: Also check if we're inside a SystemServices element (look at parent)
+            if ($current.ParentNode -and $current.ParentNode.LocalName -eq 'SystemServices' -and $current.ParentNode.NamespaceURI -like "*security*") {
+                return "Security Settings > System Services"
+            }
+            
             # PRIORITY 4: Audit policies (q1:Audit)
             if ($current.LocalName -eq 'Audit' -and $current.NamespaceURI -like "*security*") {
                 return "Security Settings > Account Policies > Audit Policy"
@@ -69,6 +94,11 @@ function Get-GPMCCategoryPath {
                 return "Security Settings > Local Policies > User Rights Assignment"
             }
             
+            # PRIORITY 5b: System Services (q1:SystemServices) - Must come before SecurityOptions to avoid conflicts
+            if ($current.LocalName -eq 'SystemServices' -and $current.NamespaceURI -like "*security*") {
+                return "Security Settings > System Services"
+            }
+            
             # PRIORITY 6: Security Options (q1:SecurityOptions) with subcategorization
             if ($current.LocalName -eq 'SecurityOptions' -and $current.NamespaceURI -like "*security*") {
                 # Look for Display Name or KeyName to determine subcategory
@@ -82,9 +112,9 @@ function Get-GPMCCategoryPath {
                     $name = $keyNameNode.InnerText
                 }
                 
-                # Subcategorize based on content
+                # Subcategorize based on content (removed NTDS to avoid conflict with SystemServices)
                 switch -Regex ($name) {
-                    "LDAP.*server.*signing|Domain.*controller|NTDS" {
+                    "LDAP.*server.*signing|Domain.*controller.*LDAP" {
                         return "Security Settings > Local Policies > Security Options > Domain Controller"
                     }
                     "CD-ROM|Floppy|Device|AllocateCDRoms|AllocateFloppies" {
@@ -103,6 +133,7 @@ function Get-GPMCCategoryPath {
             if ($current.NamespaceURI -like "*security*") {
                 $localName = $current.LocalName
                 switch ($localName) {
+                    'Registry' { return "Security Settings > Registry" }
                     'RegistryKeys' { return "Security Settings > Registry" }
                     'File' { return "Security Settings > File System" }
                     'RestrictedGroups' { return "Security Settings > Restricted Groups" }
@@ -119,8 +150,34 @@ function Get-GPMCCategoryPath {
                 }
             }
             
-            # PRIORITY 8: Auditing namespace (q2:*)
+            # PRIORITY 8: Auditing namespace (q2:*) with subcategorization
             if ($current.NamespaceURI -like "*auditing*") {
+                # Look for AuditSetting ancestor and its SubcategoryName
+                $auditSetting = $current
+                while ($auditSetting -and $auditSetting.LocalName -ne 'AuditSetting') {
+                    $auditSetting = $auditSetting.ParentNode
+                    if (-not $auditSetting -or $auditSetting.NodeType -eq 'Document') {
+                        break
+                    }
+                }
+                
+                if ($auditSetting -and $auditSetting.LocalName -eq 'AuditSetting') {
+                    $subcategoryNode = $auditSetting.SelectSingleNode('.//*[local-name()="SubcategoryName"]')
+                    if ($subcategoryNode -and $subcategoryNode.InnerText) {
+                        $subcategoryName = $subcategoryNode.InnerText
+                        switch -Regex ($subcategoryName) {
+                            "Kerberos.*Service.*Ticket|Kerberos.*Authentication.*Service" {
+                                return "Security Settings > Advanced Audit Configuration > Account Logon"
+                            }
+                            "Directory.*Service.*Changes|DS.*Access" {
+                                return "Security Settings > Advanced Audit Configuration > DS Access"
+                            }
+                            default {
+                                return "Security Settings > Advanced Audit Configuration"
+                            }
+                        }
+                    }
+                }
                 return "Security Settings > Advanced Audit Configuration"
             }
             

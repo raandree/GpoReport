@@ -744,7 +744,8 @@ Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTe
             
             $results = Search-GPMCReports -XmlContent $xmlArray -SearchString "PasswordHistory"
             if ($results) {
-                $results.Count | Should -BeGreaterOrEqual 1 -Because "Should process multiple XML strings"
+                $resultCount = if ($results -is [array]) { $results.Count } else { 1 }
+                $resultCount | Should -BeGreaterOrEqual 1 -Because "Should process multiple XML strings"
             }
         }
         

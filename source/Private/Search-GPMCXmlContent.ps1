@@ -57,6 +57,10 @@ function Search-GPMCXmlContent {
         # Search all text nodes
         $textNodes = $xmlDoc.SelectNodes("//text()")
         
+        # Separate exact matches from partial matches to prioritize them
+        $exactMatches = @()
+        $partialMatches = @()
+
         foreach ($node in $textNodes) {
             $text = $node.Value.Trim()
             
@@ -64,7 +68,7 @@ function Search-GPMCXmlContent {
             if ([string]::IsNullOrWhiteSpace($text)) {
                 continue
             }
-            
+
             # Check if text matches the pattern
             if ($regex.IsMatch($text)) {
                 # Get section information
@@ -89,9 +93,19 @@ function Search-GPMCXmlContent {
                     ModifiedTime = $gpoInfo.ModifiedTime
                 }
                 
-                $results += $result
+                # Determine if this is an exact match or partial match
+                # Remove wildcard characters from search string for exact comparison
+                $cleanSearchString = $SearchString -replace '[\*\?]', ''
+                if ($text -eq $cleanSearchString -or ($text -like $SearchString -and $text.Length -eq $cleanSearchString.Length)) {
+                    $exactMatches += $result
+                } else {
+                    $partialMatches += $result
+                }
             }
         }
+        
+        # Return exact matches first, then partial matches
+        $results = $exactMatches + $partialMatches
         
         return $results
     }
