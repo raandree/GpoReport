@@ -1,0 +1,133 @@
+---
+####################################################
+#          ModuleBuilder Configuration             #
+####################################################
+BuiltModuleSubdirectory: module
+CopyPaths:
+  - en-US
+
+prefix: prefix.ps1
+suffix: suffix.ps1
+
+VersionedOutputDirectory: true
+
+####################################################
+#           Setting Sampler PSModulePath           #
+####################################################
+SetPSModulePath:
+  PSModulePath: $ProjectPath\.temp\;$([System.Environment]::GetFolderPath('ProgramFiles'))\WindowsPowerShell\Modules;$([System.Environment]::GetFolderPath('System'))\WindowsPowerShell\v1.0\Modules
+  RemovePersonal: false
+  RemoveProgramFiles: false
+  RemoveWindows: false
+  SetSystemDefault: false
+
+####################################################
+#             Tasks Configuration                  #
+####################################################
+ModuleBuildTasks:
+  Sampler:
+    - '*.build.Sampler.ib.tasks'
+  Sampler.GitHubTasks:
+    - '*.ib.tasks'
+
+TaskHeader: |
+  param($Path)
+  ""
+  "=" * 79
+  Write-Build Cyan "`t`t`t$($Task.Name.replace("_"," ").ToUpper())"
+  Write-Build DarkGray  "$(Get-BuildSynopsis $Task)"
+  "-" * 79
+  Write-Build DarkGray "  $Path"
+  Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
+  ""
+
+####################################################
+#             Build Workflow Configuration         #
+####################################################
+BuildWorkflow:
+  '.':
+    - build
+    - test
+
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
+    - Create_changelog_release_output
+
+  hqrmtest:
+    - DscResource_Tests_Stop_On_Fail
+
+  test:
+    - Pester_Tests_Stop_On_Fail
+    - Convert_Pester_Coverage
+    - Pester_if_Code_Coverage_Under_Threshold
+
+  publish:
+    - Publish_release_to_GitHub
+    - publish_module_to_gallery
+
+####################################################
+#                Pester Configuration              #
+####################################################
+Pester:
+  Configuration:
+    Run:
+      Path:
+        - tests/Unit
+    Output:
+      Verbosity: Detailed
+      StackTraceVerbosity: Full
+      CIFormat: None
+    TestResult:
+      Enabled: true
+      OutputFormat: NUnitXML
+      OutputPath: output/testResults/NUnitXml_TestResults.xml
+    CodeCoverage:
+      Enabled: true
+      OutputFormat: JaCoCo
+      OutputPath: output/testResults/JaCoCo_coverage.xml
+      OutputEncoding: ascii
+      CoveragePercentTarget: 1
+      Path:
+        - source/**/*.ps1
+      ExcludeTests: false
+      RecursePaths: true
+  ExcludeFromCodeCoverage:
+    - Modules
+    - DSCResources
+  Script:
+    - tests/Unit
+  Tag: []
+  ExcludeTag: []
+
+DscTest:
+  ExcludeTag:
+    - "Common Tests - New Error-Level Script Analyzer Rules"
+  Tag: []
+  ExcludeSourceFile:
+    - output
+  ExcludeModuleFile:
+    - Modules
+
+Resolve-Dependency:
+  Gallery: 'PSGallery'
+  AllowPrerelease: false
+  Verbose: false
+
+####################################################
+#              GitHub Configuration                #
+####################################################
+GitHubConfig:
+  GitHubFilesToAdd:
+    - 'CHANGELOG.md'
+  GitHubConfigUserName: raandree
+  GitHubConfigUserEmail: raimund.andree@outlook.com
+  UpdateChangelogOnPrerelease: false
+
+####################################################
+#                Git Configuration                 #
+####################################################
+GitConfig:
+  UserName: raandree
+  UserEmail: raimund.andree@outlook.com
