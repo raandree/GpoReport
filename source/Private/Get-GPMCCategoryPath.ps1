@@ -17,53 +17,134 @@ function Get-GPMCCategoryPath {
     )
     
     try {
-        $pathParts = @()
-        $currentElement = $Element
+        # Walk up the hierarchy to find the right categorization context
+        $current = $Element
+        $maxDepth = 20
+        $depth = 0
         
-        # Walk up the XML tree to build category path
-        while ($currentElement -and $currentElement.ParentNode) {
-            $localName = $currentElement.LocalName
-            
-            # Look for meaningful category indicators
-            switch ($localName) {
-                'Computer' { $pathParts += 'Computer Configuration'; break }
-                'User' { $pathParts += 'User Configuration'; break }
-                'SecuritySettings' { $pathParts += 'Security Settings'; break }
-                'LocalPolicies' { $pathParts += 'Local Policies'; break }
-                'AuditPolicy' { $pathParts += 'Audit Policy'; break }
-                'UserRightsAssignment' { $pathParts += 'User Rights Assignment'; break }
-                'SecurityOptions' { $pathParts += 'Security Options'; break }
-                'AdministrativeTemplates' { $pathParts += 'Administrative Templates'; break }
-                'Preferences' { $pathParts += 'Group Policy Preferences'; break }
-                'Registry' { $pathParts += 'Registry'; break }
-                'Files' { $pathParts += 'Files'; break }
-                'Folders' { $pathParts += 'Folders'; break }
-                'EnvironmentVariables' { $pathParts += 'Environment Variables'; break }
-                'Services' { $pathParts += 'Services'; break }
-                'StartupShutdown' { $pathParts += 'Startup/Shutdown Scripts'; break }
-                'LogonLogoff' { $pathParts += 'Logon/Logoff Scripts'; break }
+        while ($current -and $depth -lt $maxDepth) {
+            # PRIORITY 1: Administrative Templates (q4:Policy with q4:Category)
+            if ($current.LocalName -eq 'Policy' -and $current.NamespaceURI -like "*registry*") {
+                $categoryNode = $current.SelectSingleNode('.//*[local-name()="Category"]')
+                if ($categoryNode -and $categoryNode.InnerText) {
+                    $categoryPath = $categoryNode.InnerText -replace '/', ' > '
+                    return "Administrative Templates > $categoryPath"
+                }
+                return "Administrative Templates"
             }
             
-            # Check for category names in attributes
-            if ($currentElement.HasAttribute('name')) {
-                $name = $currentElement.GetAttribute('name')
-                if ($name -and $name.Trim() -ne '') {
-                    $pathParts += $name
+            # PRIORITY 2: Security Settings - Account Policies (q1:Account with types)
+            if ($current.LocalName -eq 'Account' -and $current.NamespaceURI -like "*security*") {
+                $typeNode = $current.SelectSingleNode('.//*[local-name()="Type"]')
+                if ($typeNode -and $typeNode.InnerText) {
+                    $type = $typeNode.InnerText
+                    switch ($type) {
+                        'Password' { return "Security Settings > Account Policies > Password Policy" }
+                        'Kerberos' { return "Security Settings > Account Policies > Kerberos Policy" }
+                        'Audit' { return "Security Settings > Account Policies > Audit Policy" }
+                        { $_ -like "*Account*" } { return "Security Settings > Account Policies > Account Lockout Policy" }
+                        default { return "Security Settings > Account Policies" }
+                    }
+                }
+                return "Security Settings > Account Policies"
+            }
+            
+            # PRIORITY 3: System Services (q1:SystemServices) - highest priority for Security Settings
+            if ($current.LocalName -eq 'SystemServices' -and $current.NamespaceURI -like "*security*") {
+                return "Security Settings > System Services"
+            }
+            
+            # PRIORITY 4: Audit policies (q1:Audit)
+            if ($current.LocalName -eq 'Audit' -and $current.NamespaceURI -like "*security*") {
+                return "Security Settings > Account Policies > Audit Policy"
+            }
+            
+            # PRIORITY 5: User Rights Assignment (q1:UserRightsAssignment)
+            if ($current.LocalName -eq 'UserRightsAssignment' -and $current.NamespaceURI -like "*security*") {
+                return "Security Settings > Local Policies > User Rights Assignment"
+            }
+            
+            # PRIORITY 5a: User Rights Assignment (q1:Privilege) - legacy support
+            if ($current.LocalName -eq 'Privilege' -and $current.NamespaceURI -like "*security*") {
+                return "Security Settings > Local Policies > User Rights Assignment"
+            }
+            
+            # PRIORITY 6: Security Options (q1:SecurityOptions) with subcategorization
+            if ($current.LocalName -eq 'SecurityOptions' -and $current.NamespaceURI -like "*security*") {
+                # Look for Display Name or KeyName to determine subcategory
+                $displayNameNode = $current.SelectSingleNode('.//*[local-name()="Name"]')
+                $keyNameNode = $current.SelectSingleNode('.//*[local-name()="KeyName"]')
+                
+                $name = ""
+                if ($displayNameNode -and $displayNameNode.InnerText) {
+                    $name = $displayNameNode.InnerText
+                } elseif ($keyNameNode -and $keyNameNode.InnerText) {
+                    $name = $keyNameNode.InnerText
+                }
+                
+                # Subcategorize based on content
+                switch -Regex ($name) {
+                    "LDAP.*server.*signing|Domain.*controller|NTDS" {
+                        return "Security Settings > Local Policies > Security Options > Domain Controller"
+                    }
+                    "CD-ROM|Floppy|Device|AllocateCDRoms|AllocateFloppies" {
+                        return "Security Settings > Local Policies > Security Options > Devices"
+                    }
+                    "SPN|Service.*Principal.*Name|Server.*SPN" {
+                        return "Security Settings > Local Policies > Security Options > Other"
+                    }
+                    default {
+                        return "Security Settings > Local Policies > Security Options"
+                    }
                 }
             }
             
-            $currentElement = $currentElement.ParentNode
+            # PRIORITY 7: Other Security Settings patterns
+            if ($current.NamespaceURI -like "*security*") {
+                $localName = $current.LocalName
+                switch ($localName) {
+                    'RegistryKeys' { return "Security Settings > Registry" }
+                    'File' { return "Security Settings > File System" }
+                    'RestrictedGroups' { return "Security Settings > Restricted Groups" }
+                    'EventLog' { return "Security Settings > Event Log" }
+                    'RegKeys' { 
+                        # Check for Security Options vs other registry settings
+                        $keyNameNode = $current.SelectSingleNode('.//*[local-name()="KeyName"]')
+                        if ($keyNameNode -and $keyNameNode.InnerText -like "*SecurityOptions*") {
+                            return "Security Settings > Local Policies > Security Options"
+                        }
+                        return "Security Settings > Registry"
+                    }
+                    'SecuritySettings' { return "Security Settings" }
+                }
+            }
+            
+            # PRIORITY 8: Auditing namespace (q2:*)
+            if ($current.NamespaceURI -like "*auditing*") {
+                return "Security Settings > Advanced Audit Configuration"
+            }
+            
+            # PRIORITY 9: Check for configuration context
+            $localName = $current.LocalName
+            switch ($localName) {
+                'Computer' { return 'Computer Configuration' }
+                'User' { return 'User Configuration' }
+                'SecuritySettings' { return 'Security Settings' }
+                'Extensions' {
+                    # Check for specific extension types
+                    $xsiType = $current.GetAttribute('xsi:type')
+                    if ($xsiType -and $xsiType -match 'RegistrySettings') {
+                        return "Administrative Templates"
+                    }
+                }
+            }
+            
+            $current = $current.ParentNode
+            $depth++
         }
         
-        # Reverse the array to get correct hierarchy
-        [Array]::Reverse($pathParts)
-        
-        # Build path string
-        if ($pathParts.Count -gt 0) {
-            return ($pathParts -join ' > ')
-        } else {
-            return 'Unknown Category'
-        }
+        # Default fallback
+        return 'Unknown Category'
     }
     catch {
         Write-Verbose "Error building category path: $($_.Exception.Message)"
