@@ -97,7 +97,14 @@ param(
 
 # Convert wildcard pattern to regex
 function ConvertTo-RegexPattern {
-    param([string]$WildcardPattern, [bool]$CaseSensitive = $false)
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$WildcardPattern,
+        
+        [Parameter()]
+        [bool]$CaseSensitive = $false
+    )
     
     # Escape special regex characters except * and ?
     $escaped = [regex]::Escape($WildcardPattern)
@@ -113,7 +120,13 @@ function ConvertTo-RegexPattern {
 
 # Extract GPO information from the root GPO element
 function Get-GPMCGpoInfo {
-    param($XmlDocument, $SourceFilePath = $null)
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$XmlDocument,
+        
+        [Parameter()]
+        [string]$SourceFilePath = $null
+    )
     
     $gpoInfo = @{
         DisplayName = "Unknown"
@@ -178,7 +191,10 @@ function Get-GPMCGpoInfo {
 
 # Get specific security subcategory based on the element type
 function Get-SecuritySubcategory {
-    param($Node)
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlNode]$Node
+    )
     
     $currentNode = $Node
     $searchDepth = 0
@@ -378,7 +394,10 @@ function Get-SecuritySubcategory {
 
 # Get specific audit subcategory based on the subcategory name
 function Get-AuditSubcategory {
-    param($Node)
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlNode]$Node
+    )
     
     $currentNode = $Node
     $searchDepth = 0
@@ -454,7 +473,13 @@ function Get-AuditSubcategory {
 
 # Get the category/extension name for a matched node
 function Get-GPMCCategoryPath {
-    param($Node, $XmlDocument)
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlNode]$Node,
+        
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$XmlDocument
+    )
     
     $pathElements = @()
     $currentNode = $Node
@@ -587,7 +612,10 @@ function Get-GPMCCategoryPath {
 
 # Get specific setting context (like the specific policy/preference type)
 function Get-GPMCSettingContext {
-    param($Node)
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlNode]$Node
+    )
     
     $currentNode = $Node
     $searchDepth = 0
@@ -666,7 +694,10 @@ function Get-GPMCSettingContext {
 
 # Get GPO section (Computer or User) from a node
 function Get-GPOSection {
-    param($Node)
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlNode]$Node
+    )
     
     $currentNode = $Node
     $searchDepth = 0
@@ -694,7 +725,10 @@ function Get-GPOSection {
 
 # Get setting details from the matched node and its context
 function Get-GPMCSettingDetails {
-    param($Node)
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlNode]$Node
+    )
     
     $details = @{
         Name = "Unknown"
@@ -1010,7 +1044,23 @@ function Get-GPMCSettingDetails {
 
 # Process XML content (from string or file)
 function Search-GPMCXmlContent {
-    param($XmlDocument, $RegexPattern, $IncludeAllMatches, $MaxResults, $SourceIdentifier = "Unknown")
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Xml.XmlDocument]$XmlDocument,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$RegexPattern,
+        
+        [Parameter(Mandatory = $true)]
+        [bool]$IncludeAllMatches,
+        
+        [Parameter(Mandatory = $true)]
+        [int]$MaxResults,
+        
+        [Parameter()]
+        [string]$SourceIdentifier = "Unknown"
+    )
     
     $results = @()
     $resultCount = 0
@@ -1200,7 +1250,21 @@ function Search-GPMCXmlContent {
 
 # Process a single XML file
 function Search-GPMCXmlFile {
-    param($FilePath, $RegexPattern, $IncludeAllMatches, $MaxResults)
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateScript({Test-Path $_ -PathType Leaf})]
+        [string]$FilePath,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$RegexPattern,
+        
+        [Parameter(Mandatory = $true)]
+        [bool]$IncludeAllMatches,
+        
+        [Parameter(Mandatory = $true)]
+        [int]$MaxResults
+    )
     
     try {
         Write-Verbose "Processing file: $FilePath"
@@ -1231,7 +1295,24 @@ function Search-GPMCXmlFile {
 
 # Process XML content from string
 function Search-GPMCXmlString {
-    param($XmlContentString, $RegexPattern, $IncludeAllMatches, $MaxResults, $SourceIdentifier = "XML String")
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$XmlContentString,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$RegexPattern,
+        
+        [Parameter(Mandatory = $true)]
+        [bool]$IncludeAllMatches,
+        
+        [Parameter(Mandatory = $true)]
+        [int]$MaxResults,
+        
+        [Parameter()]
+        [string]$SourceIdentifier = "XML String"
+    )
     
     try {
         Write-Verbose "Processing XML string content: $SourceIdentifier"
