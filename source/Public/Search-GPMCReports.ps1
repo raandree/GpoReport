@@ -69,6 +69,7 @@ function Search-GPMCReports {
         [string[]]$XmlContent,
 
         [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
         [string]$SearchString,
 
         [Parameter()]
@@ -143,9 +144,20 @@ function Search-GPMCReports {
             }
             else {
                 # Process XML content directly
+                if ($XmlContent.Count -eq 0) {
+                    Write-Warning "No XML content provided"
+                    return @()
+                }
+                
                 for ($i = 0; $i -lt $XmlContent.Count; $i++) {
                     Write-Verbose "Processing XML content block $($i + 1) of $($XmlContent.Count)"
                     $processedFiles++
+                    
+                    # Skip empty or whitespace-only content for graceful handling
+                    if ([string]::IsNullOrWhiteSpace($XmlContent[$i])) {
+                        Write-Verbose "Skipping empty XML content block $($i + 1)"
+                        continue
+                    }
                     
                     try {
                         $contentResults = Search-GPMCXmlContent -XmlString $XmlContent[$i] -SearchString $SearchString -SourceFile "XMLContent_$($i+1)" -CaseSensitive:$CaseSensitive -IncludeAllMatches:$IncludeAllMatches

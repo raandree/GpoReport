@@ -67,6 +67,12 @@ function Search-GPMCXmlContent {
             
             # Check if text matches the pattern
             if ($regex.IsMatch($text)) {
+                # Get section information
+                $section = Get-GPMCSettingSection -Element $node.ParentNode
+                
+                # Get comment information
+                $comment = Get-GPMCSettingComment -Element $node.ParentNode
+                
                 # Create result object
                 $result = [PSCustomObject]@{
                     GPOName = $gpoInfo.DisplayName
@@ -76,6 +82,8 @@ function Search-GPMCXmlContent {
                     SettingName = Get-GPMCSettingDetails -Element $node.ParentNode | Select-Object -ExpandProperty Name
                     SettingValue = $text
                     Context = Get-GPMCSettingContext -Element $node.ParentNode
+                    Section = $section
+                    Comment = $comment
                     SourceFile = $SourceFile
                     CreatedTime = $gpoInfo.CreatedTime
                     ModifiedTime = $gpoInfo.ModifiedTime
