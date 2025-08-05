@@ -551,4 +551,177 @@ Describe "Search-GPMCReports.ps1 GPO Section Detection" {
             $commentMatches.Count | Should -BeGreaterThan 0 -Because "Should find at least one comment match"
         }
     }
+    
+    Context "XML String Array Input" {
+        
+        BeforeAll {
+            # Load the test XML file content for string array tests
+            $script:TestXmlContent = Get-Content -Path $TestDataPath -Raw
+        }
+        
+        It "Should accept XML content as string array" {
+            $searchTerm = "PasswordHistorySize"
+            
+            # Test with single XML string in array
+            $results = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent) 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should work with XML string array"
+            $results[0].CategoryPath | Should -Be $ExpectedMappings[$searchTerm] -Because "Results should match expected category path"
+            $results[0].SourceFile | Should -Be "XML Content [1]" -Because "Source should indicate XML content string"
+        }
+        
+        It "Should process multiple XML strings in array" {
+            $searchTerm = "MaxTicketAge"
+            
+            # Test with multiple identical XML strings (should find multiple matches)
+            $results = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent, $TestXmlContent) 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Search should work with multiple XML strings"
+            $results.Count | Should -Be 2 -Because "Should find one match per XML string"
+            
+            # Verify source file tracking
+            $results[0].SourceFile | Should -Be "XML Content [1]" -Because "First result should indicate first XML string"
+            $results[1].SourceFile | Should -Be "XML Content [2]" -Because "Second result should indicate second XML string"
+            
+            # Both should have the same category path
+            $results[0].CategoryPath | Should -Be $ExpectedMappings[$searchTerm] -Because "First result should match expected category"
+            $results[1].CategoryPath | Should -Be $ExpectedMappings[$searchTerm] -Because "Second result should match expected category"
+        }
+        
+        It "Should produce identical results between file and string input for '<SearchTerm>'" -TestCases @(
+            @{ SearchTerm = "PasswordHistorySize" }
+            @{ SearchTerm = "MaxTicketAge" }
+            @{ SearchTerm = "AuditDSAccess" }
+            @{ SearchTerm = "SeTakeOwnershipPrivilege" }
+            @{ SearchTerm = "Chile" }
+            @{ SearchTerm = "LDAP server signing requirements" }
+        ) {
+            param($SearchTerm)
+            
+            # Get results from file input
+            $fileResults = & $ScriptPath -SearchString $SearchTerm -Path $TestDataPath 2>$null
+            
+            # Get results from string input
+            $stringResults = & $ScriptPath -SearchString $SearchTerm -XmlContent @($TestXmlContent) 2>$null
+            
+            # Both should return results
+            $fileResults | Should -Not -BeNullOrEmpty -Because "File input should return results"
+            $stringResults | Should -Not -BeNullOrEmpty -Because "String input should return results"
+            
+            # Compare key properties (excluding SourceFile which will differ)
+            $stringResults[0].MatchedText | Should -Be $fileResults[0].MatchedText -Because "Matched text should be identical"
+            $stringResults[0].MatchType | Should -Be $fileResults[0].MatchType -Because "Match type should be identical"
+            $stringResults[0].CategoryPath | Should -Be $fileResults[0].CategoryPath -Because "Category path should be identical"
+            $stringResults[0].Section | Should -Be $fileResults[0].Section -Because "Section should be identical"
+            
+            # GPO information should be identical
+            $stringResults[0].GPO.DisplayName | Should -Be $fileResults[0].GPO.DisplayName -Because "GPO display name should be identical"
+            $stringResults[0].GPO.DomainName | Should -Be $fileResults[0].GPO.DomainName -Because "GPO domain name should be identical"
+            $stringResults[0].GPO.GUID | Should -Be $fileResults[0].GPO.GUID -Because "GPO GUID should be identical"
+            
+            # Setting details should be identical
+            $stringResults[0].Setting.Name | Should -Be $fileResults[0].Setting.Name -Because "Setting name should be identical"
+            $stringResults[0].Setting.State | Should -Be $fileResults[0].Setting.State -Because "Setting state should be identical"
+            $stringResults[0].Setting.Value | Should -Be $fileResults[0].Setting.Value -Because "Setting value should be identical"
+            $stringResults[0].Setting.Context | Should -Be $fileResults[0].Setting.Context -Because "Setting context should be identical"
+        }
+        
+        It "Should handle wildcard patterns with string array input" {
+            $searchTerm = "*password*"
+            
+            # Test wildcard search with string input
+            $results = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent) 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Wildcard search should work with string input"
+            
+            # Should find PasswordHistorySize match specifically
+            $passwordHistoryMatch = $results | Where-Object { $_.MatchedText -like "*PasswordHistorySize*" }
+            $passwordHistoryMatch | Should -Not -BeNullOrEmpty -Because "Should find PasswordHistorySize in wildcard search results"
+            
+            # Verify it has the correct number of matches (same filtering logic should apply)
+            $fileResults = & $ScriptPath -SearchString $searchTerm -Path $TestDataPath 2>$null
+            $results.Count | Should -Be $fileResults.Count -Because "String input should return same number of matches as file input"
+        }
+        
+        It "Should handle empty XML content array gracefully" {
+            $searchTerm = "PasswordHistorySize"
+            
+            # Test with empty array
+            { & $ScriptPath -SearchString $searchTerm -XmlContent @() 2>$null } | Should -Throw -Because "Empty XML content array should be rejected by parameter validation"
+        }
+        
+        It "Should handle invalid XML in string array gracefully" {
+            $searchTerm = "test"
+            $invalidXml = "<invalid><xml>not closed"
+            
+            # Test with invalid XML - should show warning but not crash
+            $results = & $ScriptPath -SearchString $searchTerm -XmlContent @($invalidXml) -WarningAction SilentlyContinue 2>$null
+            
+            # Should return empty results, not crash
+            if ($results) {
+                $results.Count | Should -Be 0 -Because "Invalid XML should return no results"
+            } else {
+                $true | Should -Be $true -Because "Invalid XML handled gracefully (no results returned)"
+            }
+        }
+        
+        It "Should handle comment extraction in string array input" {
+            $searchTerm = "Cipher suite order"
+            
+            # Test comment extraction with string input
+            $results = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent) 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Should find cipher suite policy"
+            $results[0].Comment | Should -Be "Comment for Cipher Suite" -Because "Should extract comment from string input same as file input"
+        }
+        
+        It "Should handle encoding issues in XML string content" {
+            $searchTerm = "PasswordHistorySize"
+            
+            # Simulate XML with UTF-16 declaration but UTF-8 content (common encoding issue)
+            $xmlWithEncodingIssue = $TestXmlContent -replace 'encoding="utf-8"', 'encoding="utf-16"'
+            
+            # Should still work due to encoding fix fallback
+            $results = & $ScriptPath -SearchString $searchTerm -XmlContent @($xmlWithEncodingIssue) 2>$null
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Should handle encoding declaration mismatch"
+            $results[0].CategoryPath | Should -Be $ExpectedMappings[$searchTerm] -Because "Results should still be correct after encoding fix"
+        }
+        
+        It "Should support MaxResults parameter with string array input" {
+            $searchTerm = "*a*"  # Broad search that should find many results
+            
+            # Test MaxResults with string input
+            $allResults = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent) 2>$null
+            $limitedResults = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent) -MaxResults 5 2>$null
+            
+            $allResults.Count | Should -BeGreaterThan 5 -Because "Broad search should find many results"
+            $limitedResults.Count | Should -Be 5 -Because "MaxResults should limit the number of results"
+        }
+        
+        It "Should support CaseSensitive parameter with string array input" {
+            $searchTerm = "passwordhistorysize"  # All lowercase
+            
+            # Test case-insensitive (default)
+            $caseInsensitiveResults = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent) 2>$null
+            
+            # Test case-sensitive
+            $caseSensitiveResults = & $ScriptPath -SearchString $searchTerm -XmlContent @($TestXmlContent) -CaseSensitive 2>$null
+            
+            $caseInsensitiveResults | Should -Not -BeNullOrEmpty -Because "Case-insensitive search should find PasswordHistorySize"
+            if ($caseSensitiveResults) {
+                $caseSensitiveResults.Count | Should -BeLessOrEqual $caseInsensitiveResults.Count -Because "Case-sensitive should find fewer or equal results"
+            } else {
+                $true | Should -Be $true -Because "Case-sensitive search correctly found no matches for all-lowercase term"
+            }
+        }
+        
+        It "Should maintain proper parameter set isolation" {
+            $searchTerm = "PasswordHistorySize"
+            
+            # These should fail due to parameter set conflicts
+            { & $ScriptPath -SearchString $searchTerm -Path $TestDataPath -XmlContent @($TestXmlContent) 2>$null } | 
+                Should -Throw -Because "Cannot specify both Path and XmlContent parameters"
+        }
+    }
 }
