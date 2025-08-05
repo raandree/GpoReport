@@ -25,6 +25,7 @@ function Search-GPMCXmlFile {
         [string]$FilePath,
         
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [string]$SearchString,
         
         [Parameter()]

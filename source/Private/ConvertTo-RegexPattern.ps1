@@ -16,12 +16,18 @@ function ConvertTo-RegexPattern {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
+        [AllowEmptyString()]
         [string]$WildcardPattern,
         
         [Parameter()]
         [bool]$CaseSensitive = $false
     )
+    
+    # Handle empty or whitespace-only patterns
+    if ([string]::IsNullOrWhiteSpace($WildcardPattern)) {
+        # Return a pattern that matches nothing
+        return "(?!.*)"
+    }
     
     # Escape special regex characters except * and ?
     $escaped = [regex]::Escape($WildcardPattern)

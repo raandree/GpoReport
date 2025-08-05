@@ -45,6 +45,11 @@ function Get-GPMCCategoryPath {
                                     return "Administrative Templates > System > Internet Communication Management > Internet Communication settings"
                                 }
                             }
+                            "Configure Windows Defender SmartScreen" {
+                                if ($categoryPath -like "*Windows Defender SmartScreen*") {
+                                    return "Administrative Templates > $categoryPath"
+                                }
+                            }
                         }
                     }
                     

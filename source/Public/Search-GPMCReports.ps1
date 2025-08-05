@@ -66,21 +66,27 @@ function Search-GPMCReports {
         [string]$Path,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'XmlContent')]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
         [ValidateScript({
-            if ($_ -eq $null -or $_.Count -eq 0) {
-                throw "XmlContent cannot be null or empty array"
+            # Allow empty arrays and handle them gracefully in the function
+            if ($null -eq $_) {
+                throw "XmlContent cannot be null"
             }
-            foreach ($content in $_) {
-                if ([string]::IsNullOrWhiteSpace($content)) {
-                    throw "XmlContent cannot contain null, empty, or whitespace-only strings"
-                }
-            }
+            # Allow empty arrays and empty strings to pass validation - we'll handle them in the function logic
             return $true
         })]
         [string[]]$XmlContent,
 
         [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
+        [AllowEmptyString()]
+        [ValidateScript({
+            if ($null -eq $_) {
+                throw "SearchString cannot be null"
+            }
+            # Allow empty strings to pass validation - we'll handle them in the function logic
+            return $true
+        })]
         [string]$SearchString,
 
         [Parameter()]
@@ -98,6 +104,13 @@ function Search-GPMCReports {
 
     begin {
         Write-Verbose "Starting GPMC report search with pattern: $SearchString"
+        
+        # Handle empty search string gracefully
+        if ([string]::IsNullOrWhiteSpace($SearchString)) {
+            Write-Warning "Search string is empty or whitespace-only"
+            return @()
+        }
+        
         $results = @()
         $processedFiles = 0
         $totalMatches = 0
@@ -149,7 +162,9 @@ function Search-GPMCReports {
                         }
                     }
                     catch {
-                        Write-Error "Failed to process file $($file.FullName): $($_.Exception.Message)"
+                        Write-Warning "Failed to process file $($file.FullName): $($_.Exception.Message)"
+                        # Continue processing remaining files even if one fails
+                        continue
                     }
                 }
             }
@@ -186,14 +201,16 @@ function Search-GPMCReports {
                         }
                     }
                     catch {
-                        Write-Error "Failed to process XML content block $($i + 1): $($_.Exception.Message)"
+                        Write-Warning "Failed to process XML content block $($i + 1): $($_.Exception.Message)"
+                        # Continue processing remaining blocks even if one fails
+                        continue
                     }
                 }
             }
         }
         catch {
-            Write-Error "Search operation failed: $($_.Exception.Message)"
-            throw
+            Write-Warning "Search operation failed: $($_.Exception.Message)"
+            return @()  # Return empty array instead of throwing
         }
     }
 

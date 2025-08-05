@@ -28,6 +28,7 @@ function Search-GPMCXmlContent {
         [string]$XmlString,
         
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [string]$SearchString,
         
         [Parameter(Mandatory = $true)]
@@ -42,6 +43,12 @@ function Search-GPMCXmlContent {
     
     try {
         $results = @()
+        
+        # Handle empty or whitespace-only search strings
+        if ([string]::IsNullOrWhiteSpace($SearchString)) {
+            Write-Verbose "Empty search string provided, returning no results"
+            return $results
+        }
         
         # Parse XML
         $xmlDoc = New-Object System.Xml.XmlDocument
