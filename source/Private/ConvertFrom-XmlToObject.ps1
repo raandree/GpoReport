@@ -68,12 +68,12 @@ function ConvertFrom-XmlToObject {
                     # Check if element has child elements or just text
                     $grandChildren = $childElement.ChildNodes | Where-Object { $_.NodeType -eq [System.Xml.XmlNodeType]::Element }
                     
-                    if ($grandChildren) {
-                        # Has child elements - convert recursively
+                    if ($grandChildren -or ($childElement.Attributes -and $childElement.Attributes.Count -gt 0)) {
+                        # Has child elements OR attributes - convert recursively to preserve structure
                         $childObject = ConvertFrom-XmlToObject -XmlElement $childElement -RemoveNamespaces:$RemoveNamespaces
                         $resultObject | Add-Member -NotePropertyName $childName -NotePropertyValue $childObject
                     } else {
-                        # Text content only
+                        # Text content only, no attributes
                         $textValue = $childElement.InnerText.Trim()
                         $resultObject | Add-Member -NotePropertyName $childName -NotePropertyValue $textValue
                     }
@@ -83,7 +83,7 @@ function ConvertFrom-XmlToObject {
                     foreach ($childElement in $group.Group) {
                         $grandChildren = $childElement.ChildNodes | Where-Object { $_.NodeType -eq [System.Xml.XmlNodeType]::Element }
                         
-                        if ($grandChildren) {
+                        if ($grandChildren -or ($childElement.Attributes -and $childElement.Attributes.Count -gt 0)) {
                             $childArray += ConvertFrom-XmlToObject -XmlElement $childElement -RemoveNamespaces:$RemoveNamespaces
                         } else {
                             $childArray += $childElement.InnerText.Trim()
@@ -93,15 +93,20 @@ function ConvertFrom-XmlToObject {
                 }
             }
         } else {
-            # No child elements - this element contains only text
+            # No child elements - this element contains only text and/or attributes
             $textValue = $XmlElement.InnerText.Trim()
             if (-not [string]::IsNullOrEmpty($textValue)) {
                 $resultObject | Add-Member -NotePropertyName "Text" -NotePropertyValue $textValue
             }
         }
         
-        # If the object has no properties and only text content, return the text directly
-        if ($resultObject.PSObject.Properties.Count -eq 0 -and -not [string]::IsNullOrEmpty($XmlElement.InnerText)) {
+        # If the object has no properties except attributes and no meaningful text content, 
+        # it's still a valid object (e.g., <Properties attr1="val1" attr2="val2" />)
+        # If the object has no properties at all and only text content, return the text directly
+        $hasAttributes = ($resultObject.PSObject.Properties | Where-Object { $_.Name.StartsWith('_') }).Count -gt 0
+        $hasOtherProperties = ($resultObject.PSObject.Properties | Where-Object { -not $_.Name.StartsWith('_') }).Count -gt 0
+        
+        if (-not $hasAttributes -and -not $hasOtherProperties -and -not [string]::IsNullOrEmpty($XmlElement.InnerText)) {
             return $XmlElement.InnerText.Trim()
         }
         

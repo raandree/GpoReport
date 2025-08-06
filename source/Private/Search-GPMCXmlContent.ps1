@@ -212,6 +212,135 @@ function Search-GPMCXmlContent {
             }
         }
         
+        # Search all XML attributes
+        $allElements = $xmlDoc.SelectNodes("//*[@*]")  # Select all elements that have attributes
+        
+        foreach ($element in $allElements) {
+            # Skip elements that are within SecurityDescriptor elements
+            $currentNode = $element
+            $isInSecurityDescriptor = $false
+            $maxDepth = 10
+            $depth = 0
+            
+            while ($null -ne $currentNode -and $depth -lt $maxDepth) {
+                if ($currentNode.LocalName -eq "SecurityDescriptor") {
+                    $isInSecurityDescriptor = $true
+                    break
+                }
+                $currentNode = $currentNode.ParentNode
+                $depth++
+            }
+            
+            if ($isInSecurityDescriptor) {
+                continue
+            }
+            
+            # Check each attribute of the element
+            foreach ($attribute in $element.Attributes) {
+                $attrValue = $attribute.Value.Trim()
+                
+                # Skip empty or whitespace-only attribute values
+                if ([string]::IsNullOrWhiteSpace($attrValue)) {
+                    continue
+                }
+                
+                # Check if attribute value matches the pattern
+                if ($regex.IsMatch($attrValue)) {
+                    # Get section information
+                    $section = Get-GPMCSettingSection -Element $element
+                    
+                    # Get comment information
+                    $comment = Get-GPMCSettingComment -Element $element
+                    
+                    # Get XML node context information
+                    $meaningfulParent = $element
+                    $currentNode = $element
+                    $searchDepth = 0
+                    $maxSearchDepth = 10
+                    
+                    # Look for meaningful parent elements
+                    $meaningfulElementNames = @('Policy', 'Account', 'Audit', 'UserRightsAssignment', 'SecurityOptions', 'EventLog', 'RestrictedGroups', 'SystemServices', 'File', 'Registry', 'AuditSetting', 'Shortcut', 'ShortcutSettings')
+                    
+                    while ($null -ne $currentNode -and $searchDepth -lt $maxSearchDepth) {
+                        if ($meaningfulElementNames -contains $currentNode.LocalName) {
+                            $meaningfulParent = $currentNode
+                            break
+                        }
+                        $currentNode = $currentNode.ParentNode
+                        $searchDepth++
+                    }
+                    
+                    # Create XML node context information
+                    $xmlNodeInfo = [PSCustomObject]@{
+                        ElementName = $meaningfulParent.LocalName
+                        ElementAttributes = @{}
+                        XmlPath = $meaningfulParent.LocalName
+                        OuterXml = if ($meaningfulParent.OuterXml.Length -gt 1000) { $meaningfulParent.OuterXml.Substring(0, 1000) + "..." } else { $meaningfulParent.OuterXml }
+                        ParentHierarchy = @()
+                        ImmediateParent = $element.LocalName
+                        ContextLevel = if ($meaningfulParent -eq $element) { "Element" } else { "Policy" }
+                        ParsedXml = $null
+                    }
+                    
+                    # Add meaningful parent attributes
+                    if ($meaningfulParent.Attributes) {
+                        foreach ($attr in $meaningfulParent.Attributes) {
+                            $xmlNodeInfo.ElementAttributes[$attr.Name] = $attr.Value
+                        }
+                    }
+                    
+                    # Build parent hierarchy
+                    $hierarchyList = [System.Collections.ArrayList]::new()
+                    $hierarchyNode = $meaningfulParent.ParentNode
+                    $hierarchyDepth = 0
+                    $maxHierarchyDepth = 5
+                    
+                    while ($null -ne $hierarchyNode -and $hierarchyNode.NodeType -eq 'Element' -and $hierarchyDepth -lt $maxHierarchyDepth) {
+                        [void]$hierarchyList.Add($hierarchyNode.LocalName)
+                        $hierarchyNode = $hierarchyNode.ParentNode
+                        $hierarchyDepth++
+                    }
+                    
+                    $hierarchyList.Reverse()
+                    $xmlNodeInfo.ParentHierarchy = [array]$hierarchyList
+                    
+                    # Add ParsedXml for dot notation access
+                    try {
+                        $xmlNodeInfo.ParsedXml = ConvertFrom-XmlToObject -XmlElement $meaningfulParent
+                    }
+                    catch {
+                        Write-Verbose "Failed to convert XML to object for element $($meaningfulParent.LocalName): $($_.Exception.Message)"
+                        $xmlNodeInfo.ParsedXml = $null
+                    }
+
+                    # Create result object
+                    $result = [PSCustomObject]@{
+                        GPOName = $gpoInfo.DisplayName
+                        GPOId = $gpoInfo.GUID
+                        DomainName = $gpoInfo.DomainName
+                        CategoryPath = Get-GPMCCategoryPath -Element $element
+                        SettingName = Get-GPMCSettingDetails -Element $element | Select-Object -ExpandProperty Name
+                        SettingValue = "$($attribute.Name): $attrValue"
+                        Context = Get-GPMCSettingContext -Element $element
+                        Section = $section
+                        Comment = $comment
+                        SourceFile = $SourceFile
+                        CreatedTime = $gpoInfo.CreatedTime
+                        ModifiedTime = $gpoInfo.ModifiedTime
+                        XmlNode = $xmlNodeInfo
+                    }
+                    
+                    # Determine if this is an exact match or partial match
+                    $cleanSearchString = $SearchString -replace '[\*\?]', ''
+                    if ($attrValue -eq $cleanSearchString -or ($attrValue -like $SearchString -and $attrValue.Length -eq $cleanSearchString.Length)) {
+                        $exactMatches += $result
+                    } else {
+                        $partialMatches += $result
+                    }
+                }
+            }
+        }
+        
         # Return exact matches first, then partial matches
         $results = $exactMatches + $partialMatches
         
