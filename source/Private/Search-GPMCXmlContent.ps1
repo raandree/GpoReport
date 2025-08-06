@@ -43,14 +43,14 @@ function Search-GPMCXmlContent {
     
     try {
         $results = @()
+
+        Write-Verbose "=== Private Search-GPMCXmlContent function called ==="
         
         # Handle empty or whitespace-only search strings
         if ([string]::IsNullOrWhiteSpace($SearchString)) {
             Write-Verbose "Empty search string provided, returning no results"
             return $results
-        }
-        
-        # Parse XML
+        }        # Parse XML
         $xmlDoc = New-Object System.Xml.XmlDocument
         $xmlDoc.LoadXml($XmlString)
         
@@ -74,6 +74,32 @@ function Search-GPMCXmlContent {
             # Skip empty or whitespace-only content
             if ([string]::IsNullOrWhiteSpace($text)) {
                 continue
+            }
+
+            # Skip nodes that are within SecurityDescriptor elements
+            $currentNode = $node.ParentNode
+            $isInSecurityDescriptor = $false
+            $maxDepth = 10  # Limit search depth for performance
+            $depth = 0
+            
+            Write-Verbose "Checking text '$text' in node path for SecurityDescriptor"
+            
+            while ($null -ne $currentNode -and $depth -lt $maxDepth) {
+                Write-Verbose "  Checking parent node at depth $depth`: $($currentNode.LocalName)"
+                if ($currentNode.LocalName -eq "SecurityDescriptor") {
+                    $isInSecurityDescriptor = $true
+                    Write-Verbose "  Found SecurityDescriptor ancestor!"
+                    break
+                }
+                $currentNode = $currentNode.ParentNode
+                $depth++
+            }
+            
+            if ($isInSecurityDescriptor) {
+                Write-Verbose "Skipping match in SecurityDescriptor: $text"
+                continue
+            } else {
+                Write-Verbose "Text '$text' is NOT in SecurityDescriptor, proceeding with check"
             }
 
             # Check if text matches the pattern

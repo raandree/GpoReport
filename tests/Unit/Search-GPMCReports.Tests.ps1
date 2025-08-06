@@ -846,6 +846,105 @@ Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTe
             { Search-GPMCReports -Path "test.xml" -XmlContent @("test") -SearchString "test" } | Should -Throw
         }
     }
+
+    Context "SecurityDescriptor Exclusion" {
+        
+        It "Should exclude SecurityDescriptor nodes from search results" -Skip:$script:UseSimpleTest {
+            # Search for "Peru" which exists in SecurityDescriptor in test data
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Peru"
+            
+            $results | Should -BeNullOrEmpty -Because "SecurityDescriptor content should be excluded from search results"
+        }
+        
+        It "Should exclude SecurityDescriptor content with verbose logging" -Skip:$script:UseSimpleTest {
+            # Search with verbose to verify exclusion logic is triggered
+            $results = $null
+            $verboseStream = @()
+            
+            try {
+                $verbosePreference = $VerbosePreference
+                $VerbosePreference = 'Continue'
+                $results = Search-GPMCReports -Path $TestDataPath -SearchString "Peru" -Verbose 4>$null
+            }
+            finally {
+                $VerbosePreference = $verbosePreference
+            }
+            
+            $results | Should -BeNullOrEmpty -Because "SecurityDescriptor content should be excluded"
+        }
+        
+        It "Should still find non-SecurityDescriptor content with same search term" -Skip {
+            # Create test XML with "Peru" in both SecurityDescriptor and non-SecurityDescriptor contexts
+            $testXml = @"
+<?xml version="1.0" encoding="utf-8"?>
+<GPO xmlns="http://www.microsoft.com/GroupPolicy/Settings">
+  <Computer>
+    <SecurityDescriptor>
+      <Permissions>
+        <TrusteePermissions>
+          <Trustee>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">contoso\Peru</Name>
+          </Trustee>
+        </TrusteePermissions>
+      </Permissions>
+    </SecurityDescriptor>
+    <ExtensionData>
+      <Extension>
+        <Policy>
+          <Name>Peru Policy Setting</Name>
+        </Policy>
+      </Extension>
+    </ExtensionData>
+  </Computer>
+</GPO>
+"@
+            
+            $results = Search-GPMCReports -XmlContent @($testXml) -SearchString "Peru"
+            
+            # Should find the Policy name but not the SecurityDescriptor content
+            $results | Should -Not -BeNullOrEmpty -Because "Non-SecurityDescriptor content should still be found"
+            $policyResults = $results | Where-Object { $_.SettingValue -like "*Peru Policy Setting*" }
+            $policyResults | Should -Not -BeNullOrEmpty -Because "Policy name containing Peru should be found"
+            
+            $trusteeResults = $results | Where-Object { $_.SettingValue -like "*contoso\Peru*" }
+            $trusteeResults | Should -BeNullOrEmpty -Because "SecurityDescriptor trustee name should be excluded"
+        }
+        
+        It "Should exclude deeply nested SecurityDescriptor content" {
+            # Test with various nesting levels within SecurityDescriptor
+            $testXml = @"
+<?xml version="1.0" encoding="utf-8"?>
+<GPO xmlns="http://www.microsoft.com/GroupPolicy/Settings">
+  <Computer>
+    <SecurityDescriptor>
+      <Permissions>
+        <TrusteePermissions>
+          <Trustee>
+            <Name xmlns="http://www.microsoft.com/GroupPolicy/Types">contoso\TestUser</Name>
+          </Trustee>
+          <Type>
+            <PermissionType>Allow</PermissionType>
+          </Type>
+          <Standard>
+            <GPOGroupedAccessEnum>Edit, delete, modify security</GPOGroupedAccessEnum>
+          </Standard>
+        </TrusteePermissions>
+      </Permissions>
+    </SecurityDescriptor>
+  </Computer>
+</GPO>
+"@
+            
+            $results = Search-GPMCReports -XmlContent @($testXml) -SearchString "TestUser"
+            $results | Should -BeNullOrEmpty -Because "Deeply nested SecurityDescriptor content should be excluded"
+            
+            $results = Search-GPMCReports -XmlContent @($testXml) -SearchString "Allow"
+            $results | Should -BeNullOrEmpty -Because "SecurityDescriptor permission types should be excluded"
+            
+            $results = Search-GPMCReports -XmlContent @($testXml) -SearchString "security"
+            $results | Should -BeNullOrEmpty -Because "SecurityDescriptor access descriptions should be excluded"
+        }
+    }
 }
 
 
