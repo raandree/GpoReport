@@ -1,6 +1,23 @@
 # Progress: What Works and What's Left
 
-## Current Status: ✅ **XML ATTRIBUTE SEARCH & DOT NOTATION ACCESS COMPLETED**
+## 🎯 Next Development Priority
+
+### **DUPLICATE RESULT DEDUPLICATION** 
+**Issue Identified**: XML attribute search returns duplicate results when parent and child elements have identical attribute values (e.g., `<Task name="X"><Properties name="X">` returns both matches for same logical entity)
+
+**Proposed Solution**: Hierarchical deduplication with user control
+- Default behavior: Remove child duplicates when parent contains same attribute match
+- User parameter: `-IncludeChildDuplicates` for full control
+- Enhanced context: Merge useful information from child into parent result
+
+**Implementation Plan**:
+1. Add post-processing deduplication phase to Search-GPMCXmlContent.ps1
+2. Implement parent-child relationship detection
+3. Add user control parameters to Search-GPMCReports.ps1  
+4. Create result merging for context preservation
+5. Add comprehensive test coverage for deduplication scenarios
+
+## 🔧 Current State
 
 ### **LATEST MILESTONE: XML ATTRIBUTE SEARCH IMPLEMENTATION** ✅
 

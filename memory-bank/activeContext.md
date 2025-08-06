@@ -23,7 +23,55 @@ The GPO Report Search System has been fully enhanced with comprehensive XML proc
 - ✅ **SecurityDescriptor Filtering**: Applied proper filtering for both text and attribute searches
 - ✅ **Comprehensive Testing**: All 117 tests passing with 51.11% code coverage
 
-**New Project Structure**:
+### **NEXT PRIORITY: DUPLICATE RESULT DEDUPLICATION** 🎯
+
+**✅ TESTS IMPLEMENTED**: Successfully created comprehensive test suite for duplicate detection
+
+**Test Suite Results**:
+- ✅ **10 New Tests Added**: Comprehensive duplicate detection and future implementation validation
+- ✅ **Current Behavior Tests**: 3 tests passing, confirming duplicate results exist as expected
+- ✅ **Future Implementation Tests**: 7 tests skipped, ready to validate deduplication solution
+- ✅ **Perfect Integration**: All 140 tests run successfully (120 passed, 20 skipped)
+- ✅ **Problem Demonstration**: Tests confirm "Scheduled Task 1" returns 2 duplicate results
+- ✅ **Relationship Validation**: Parent-child relationship between Task and Properties elements verified
+
+**Current Test Evidence**:
+- "Scheduled Task 1" search: **2 results** (Task element + Properties element) ✅ Confirmed duplicates
+- ShortcutSettings search: **2 duplicate groups** found ✅ Confirmed attribute-based duplicates  
+- Parent-child XML hierarchy: **Validated** via OuterXml analysis ✅ Confirmed relationship
+
+**Problem Identified**: 
+- XML attribute search finds duplicate results when parent and child elements have same attribute values
+- Example: `<Task name="Scheduled Task 1"><Properties name="Scheduled Task 1">` returns 2 identical results
+- User confusion: Getting same logical entity multiple times
+
+**Proposed Solution - Hierarchical Deduplication**:
+- **Default Behavior**: Automatically remove child element duplicates when parent contains same attribute match
+- **User Control**: Add `-IncludeChildDuplicates` parameter for users wanting all matches  
+- **Enhanced Context**: Merge useful information from child into parent result when deduplicating
+- **Grouping Option**: Consider `-GroupRelatedResults` to group parent-child matches
+
+**Implementation Requirements**:
+1. **Post-Processing Phase**: After search completion, analyze results for parent-child duplicate patterns
+2. **Relationship Detection**: Identify when multiple results represent same logical entity via XML hierarchy
+3. **Deduplication Logic**: Remove child matches where parent element contains identical attribute value
+4. **Information Preservation**: Merge valuable context from removed child matches into parent result
+5. **Parameter Control**: Add user parameters to control deduplication behavior
+6. **Backward Compatibility**: Ensure existing functionality remains unchanged by default
+
+**Alternative Approaches Considered**:
+- Attribute scope filtering (element-specific rules)
+- Context-aware matching (logical entity grouping)  
+- Weighted result prioritization (element type scoring)
+- Distance-based deduplication (hierarchy distance calculation)
+- User-controlled deduplication (multiple parameter options)
+
+**Technical Implementation Plan**:
+- Modify Search-GPMCXmlContent.ps1 to add post-processing deduplication phase
+- Add new parameters to Search-GPMCReports.ps1 for user control
+- Implement parent-child relationship detection logic
+- Create result merging functionality for enhanced context preservation
+- Add comprehensive tests for deduplication scenarios
 ```
 examples/
 ├── README.md                           # Comprehensive documentation

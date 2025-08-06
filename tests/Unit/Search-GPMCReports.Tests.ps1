@@ -461,6 +461,169 @@ Describe "Search-GPMCReports Function Validation" {
     }
 }
 
+Describe "Search-GPMCReports Duplicate Result Detection" -Skip:$script:UseSimpleTest {
+    
+    Context "Bug Reproduction - These Tests Should FAIL Until Deduplication Is Implemented" {
+        
+        It "Should NOT return duplicate results for 'Scheduled Task 1'" {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
+            
+            # This test should FAIL until deduplication is implemented
+            $results | Should -Not -BeNullOrEmpty
+            
+            if ($results.Count -gt 1) {
+                Write-Host "BUG DETECTED: Found $($results.Count) duplicate results for 'Scheduled Task 1' - this is the problem we need to fix!" -ForegroundColor Red
+                foreach ($result in $results) {
+                    Write-Host "  - Element: $($result.XmlNode.ElementName), SettingName: $($result.SettingName)" -ForegroundColor Yellow
+                }
+            }
+            
+            $results.Count | Should -Be 1 -Because "Should return only one logical result, not duplicates from parent and child elements"
+            
+            # When fixed, should return only the parent Task element
+            $results[0].XmlNode.ElementName | Should -Be "Task" -Because "Should return the meaningful parent element, not child duplicates"
+        }
+        
+        It "Should NOT return both parent and child elements for 'Scheduled Task 1'" {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
+            
+            # This test should FAIL until deduplication is implemented
+            $results | Should -Not -BeNullOrEmpty
+            
+            # Check that we DON'T have both Task and Properties elements
+            $taskElements = $results | Where-Object { $_.XmlNode.ElementName -eq "Task" }
+            $propertiesElements = $results | Where-Object { $_.XmlNode.ElementName -eq "Properties" }
+            
+            # Should have EITHER Task OR Properties, not both
+            ($taskElements -and $propertiesElements) | Should -Be $false -Because "Should not return both parent Task and child Properties elements for the same logical setting"
+        }
+        
+        It "Should NOT return multiple duplicate groups for ShortcutSettings" {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Test"
+            
+            # Should find results but not duplicates
+            $shortcutResults = $results | Where-Object { $_.SettingName -like "*Test*" -or $_.SettingValue -like "*Test*" }
+            
+            if ($shortcutResults -and $shortcutResults.Count -gt 1) {
+                # Group by logical setting name to check for duplicates
+                $groupedByName = $shortcutResults | Group-Object SettingName
+                $duplicateGroups = $groupedByName | Where-Object { $_.Count -gt 1 }
+                
+                # This test should FAIL until deduplication is implemented
+                $duplicateGroups.Count | Should -Be 0 -Because "Should not have multiple results for the same logical setting"
+                
+                if ($duplicateGroups.Count -gt 0) {
+                    Write-Host "BUG DETECTED: Found $($duplicateGroups.Count) duplicate groups - this is the problem we need to fix!" -ForegroundColor Red
+                }
+            }
+        }
+    }
+    
+    Context "Future Deduplication Validation (Will Pass After Implementation)" {
+        
+        It "Should return only one result for 'Scheduled Task 1' after deduplication" -Skip {
+            # This test is skipped initially and will be enabled after deduplication implementation
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
+            
+            # After deduplication, should return only the most meaningful result (Task level)
+            $results.Count | Should -Be 1
+            $results[0].XmlNode.ElementName | Should -Be "Task"
+        }
+        
+        It "Should provide enhanced context when deduplicating" -Skip {
+            # This test is skipped initially and will be enabled after deduplication implementation
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
+            
+            $results.Count | Should -Be 1
+            $result = $results[0]
+            
+            # Should have Task element context with enhanced information from Properties
+            $result.XmlNode.ElementName | Should -Be "Task"
+            
+            # Should preserve important information from the Properties child element
+            $result.XmlNode.OuterXml | Should -Match "Properties"
+            $result.XmlNode.OuterXml | Should -Match "appName"
+            $result.XmlNode.OuterXml | Should -Match "notepad.exe"
+        }
+        
+        It "Should support IncludeChildDuplicates parameter" -Skip {
+            # This test is skipped initially and will be enabled after parameter implementation
+            
+            # Default behavior - deduplicated
+            $defaultResults = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
+            $defaultResults.Count | Should -Be 1
+            
+            # With parameter - include all duplicates
+            $allResults = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1" -IncludeChildDuplicates
+            $allResults.Count | Should -BeGreaterThan 1
+            
+            # Should have both Task and Properties elements
+            $allResults | Where-Object { $_.XmlNode.ElementName -eq "Task" } | Should -Not -BeNullOrEmpty
+            $allResults | Where-Object { $_.XmlNode.ElementName -eq "Properties" } | Should -Not -BeNullOrEmpty
+        }
+        
+        It "Should handle complex hierarchical duplicates" -Skip {
+            # This test is skipped initially and will be enabled after implementation
+            
+            # Test with a search that might find multiple levels of hierarchy
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "*Task*"
+            
+            # After deduplication, should not have parent-child duplicates
+            $groupedByParent = $results | Group-Object { $_.XmlNode.OuterXml.Substring(0, [Math]::Min(100, $_.XmlNode.OuterXml.Length)) }
+            
+            # No group should contain both parent and child elements with same content
+            foreach ($group in $groupedByParent) {
+                if ($group.Count -gt 1) {
+                    # All elements in this group should be at the same hierarchy level
+                    $elementNames = $group.Group | ForEach-Object { $_.XmlNode.ElementName }
+                    $elementNames | Should -Not -Contain "Task"
+                    $elementNames | Should -Not -Contain "Properties"
+                }
+            }
+        }
+    }
+    
+    Context "Deduplication Edge Cases (Future Implementation)" {
+        
+        It "Should handle multiple attribute matches in same element" -Skip {
+            # Test case where single element has multiple attributes matching search term
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "C:"
+            
+            # Should not duplicate results when multiple attributes in same element match
+            $groupedByElement = $results | Group-Object { $_.XmlNode.ElementName + $_.XmlNode.XmlPath }
+            
+            foreach ($group in $groupedByElement) {
+                # Same element path should appear only once, even if multiple attributes match
+                $group.Count | Should -Be 1
+            }
+        }
+        
+        It "Should preserve meaningful parent over child when both match" -Skip {
+            # When both parent and child match, should keep parent and merge child info
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
+            
+            $results.Count | Should -Be 1
+            $result = $results[0]
+            
+            # Should be the parent element (Task)
+            $result.XmlNode.ElementName | Should -Be "Task"
+            
+            # But should contain information from child (Properties)
+            $result.XmlNode.OuterXml | Should -Match "Properties"
+        }
+        
+        It "Should not affect results where no duplicates exist" -Skip {
+            # Test with search terms that don't produce duplicates
+            $beforeCount = (Search-GPMCReports -Path $TestDataPath -SearchString "PasswordHistorySize").Count
+            
+            # After deduplication implementation, count should remain same for non-duplicate results
+            $afterCount = (Search-GPMCReports -Path $TestDataPath -SearchString "PasswordHistorySize").Count
+            
+            $beforeCount | Should -Be $afterCount
+        }
+    }
+}
+
 Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTest {
     
     Context "Security Settings - Account Policies" {
