@@ -29,6 +29,10 @@ function Search-GPMCReports {
     .PARAMETER MaxResults
         Maximum number of results to return. Default is unlimited (0).
 
+    .PARAMETER IncludeChildDuplicates
+        Include child element duplicates when parent and child elements match the same search term.
+        By default, child duplicates are filtered out to avoid showing the same logical setting twice.
+
     .PARAMETER Recurse
         If Path is a directory, search recursively through subdirectories.
 
@@ -117,6 +121,9 @@ function Search-GPMCReports {
 
         [Parameter()]
         [int]$MaxResults = 0,
+
+        # Include child duplicates (e.g., Properties element when Task element is also found)
+        [switch]$IncludeChildDuplicates,
 
         [Parameter(ParameterSetName = 'FilePath')]
         [switch]$Recurse
@@ -243,6 +250,13 @@ function Search-GPMCReports {
         # Return empty array if we skipped processing due to empty search string
         if ($script:shouldSkipProcessing) {
             return @()
+        }
+        
+        # Apply hierarchical deduplication unless specifically disabled
+        if (-not $IncludeChildDuplicates -and $results.Count -gt 0) {
+            $deduplicatedResults = Remove-HierarchicalDuplicates -Results $results -IncludeChildDuplicates:$IncludeChildDuplicates
+            Write-Verbose "Applied deduplication: $($results.Count) original results reduced to $($deduplicatedResults.Count) unique results."
+            $results = $deduplicatedResults
         }
         
         Write-Verbose "Search completed. Processed $processedFiles files, found $totalMatches total matches, returning $($results.Count) results."

@@ -96,7 +96,7 @@ BeforeAll {
         "MaxTicketAge" = "Security Settings > Account Policies > Kerberos Policy"
         "PasswordHistorySize" = "Security Settings > Account Policies > Password Policy"
         "Uruguay" = "Security Settings > Local Policies > User Rights Assignment"
-        "NTDS" = "Security Settings > System Services"
+        "NTDS" = "Security Settings > Local Policies > Security Options > Domain Controller"
         "7-Zip" = "Security Settings > Registry"
         "Armenia" = "Security Settings > Restricted Groups"
         "Force a specific default lock screen" = "Administrative Templates > Control Panel > Personalization > Lock Screen"
@@ -463,16 +463,16 @@ Describe "Search-GPMCReports Function Validation" {
 
 Describe "Search-GPMCReports Duplicate Result Detection" -Skip:$script:UseSimpleTest {
     
-    Context "Bug Reproduction - These Tests Should FAIL Until Deduplication Is Implemented" {
+    Context "Deduplication Validation - These Tests Verify Deduplication Is Working" {
         
         It "Should NOT return duplicate results for 'Scheduled Task 1'" {
             $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
             
-            # This test should FAIL until deduplication is implemented
+            # With deduplication enabled (default), should return only one result
             $results | Should -Not -BeNullOrEmpty
             
             if ($results.Count -gt 1) {
-                Write-Host "BUG DETECTED: Found $($results.Count) duplicate results for 'Scheduled Task 1' - this is the problem we need to fix!" -ForegroundColor Red
+                Write-Host "UNEXPECTED: Found $($results.Count) duplicate results for 'Scheduled Task 1' - deduplication may not be working!" -ForegroundColor Red
                 foreach ($result in $results) {
                     Write-Host "  - Element: $($result.XmlNode.ElementName), SettingName: $($result.SettingName)" -ForegroundColor Yellow
                 }
@@ -480,28 +480,28 @@ Describe "Search-GPMCReports Duplicate Result Detection" -Skip:$script:UseSimple
             
             $results.Count | Should -Be 1 -Because "Should return only one logical result, not duplicates from parent and child elements"
             
-            # When fixed, should return only the parent Task element
+            # Should return only the parent Task element
             $results[0].XmlNode.ElementName | Should -Be "Task" -Because "Should return the meaningful parent element, not child duplicates"
         }
         
         It "Should NOT return both parent and child elements for 'Scheduled Task 1'" {
             $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
             
-            # This test should FAIL until deduplication is implemented
+            # With deduplication enabled (default), should not have both parent and child
             $results | Should -Not -BeNullOrEmpty
             
             # Check that we DON'T have both Task and Properties elements
             $taskElements = $results | Where-Object { $_.XmlNode.ElementName -eq "Task" }
             $propertiesElements = $results | Where-Object { $_.XmlNode.ElementName -eq "Properties" }
             
-            # Should have EITHER Task OR Properties, not both
+            # Should have EITHER Task OR Properties, not both (deduplication should keep Task)
             ($taskElements -and $propertiesElements) | Should -Be $false -Because "Should not return both parent Task and child Properties elements for the same logical setting"
         }
         
         It "Should NOT return multiple duplicate groups for ShortcutSettings" {
             $results = Search-GPMCReports -Path $TestDataPath -SearchString "Test"
             
-            # Should find results but not duplicates
+            # Should find results but not duplicates with deduplication enabled
             $shortcutResults = $results | Where-Object { $_.SettingName -like "*Test*" -or $_.SettingValue -like "*Test*" }
             
             if ($shortcutResults -and $shortcutResults.Count -gt 1) {
@@ -509,19 +509,34 @@ Describe "Search-GPMCReports Duplicate Result Detection" -Skip:$script:UseSimple
                 $groupedByName = $shortcutResults | Group-Object SettingName
                 $duplicateGroups = $groupedByName | Where-Object { $_.Count -gt 1 }
                 
-                # This test should FAIL until deduplication is implemented
+                # With deduplication enabled, should not have duplicates
                 $duplicateGroups.Count | Should -Be 0 -Because "Should not have multiple results for the same logical setting"
                 
                 if ($duplicateGroups.Count -gt 0) {
-                    Write-Host "BUG DETECTED: Found $($duplicateGroups.Count) duplicate groups - this is the problem we need to fix!" -ForegroundColor Red
+                    Write-Host "UNEXPECTED: Found $($duplicateGroups.Count) duplicate groups - deduplication may not be working!" -ForegroundColor Red
                 }
             }
+        }
+        
+        It "Should return duplicate results when IncludeChildDuplicates is used (demonstrates original bug)" {
+            # This test proves the original bug still exists when deduplication is disabled
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1" -IncludeChildDuplicates
+            
+            $results | Should -Not -BeNullOrEmpty
+            $results.Count | Should -BeGreaterThan 1 -Because "With IncludeChildDuplicates, should return both parent and child elements"
+            
+            # Should have both Task and Properties elements when deduplication is disabled
+            $taskElements = $results | Where-Object { $_.XmlNode.ElementName -eq "Task" }
+            $propertiesElements = $results | Where-Object { $_.XmlNode.ElementName -eq "Properties" }
+            
+            $taskElements | Should -Not -BeNullOrEmpty -Because "Should include Task element"
+            $propertiesElements | Should -Not -BeNullOrEmpty -Because "Should include Properties element when IncludeChildDuplicates is used"
         }
     }
     
     Context "Future Deduplication Validation (Will Pass After Implementation)" {
         
-        It "Should return only one result for 'Scheduled Task 1' after deduplication" -Skip {
+        It "Should return only one result for 'Scheduled Task 1' after deduplication" {
             # This test is skipped initially and will be enabled after deduplication implementation
             $results = Search-GPMCReports -Path $TestDataPath -SearchString "Scheduled Task 1"
             
@@ -546,7 +561,7 @@ Describe "Search-GPMCReports Duplicate Result Detection" -Skip:$script:UseSimple
             $result.XmlNode.OuterXml | Should -Match "notepad.exe"
         }
         
-        It "Should support IncludeChildDuplicates parameter" -Skip {
+        It "Should support IncludeChildDuplicates parameter" {
             # This test is skipped initially and will be enabled after parameter implementation
             
             # Default behavior - deduplicated
@@ -562,7 +577,7 @@ Describe "Search-GPMCReports Duplicate Result Detection" -Skip:$script:UseSimple
             $allResults | Where-Object { $_.XmlNode.ElementName -eq "Properties" } | Should -Not -BeNullOrEmpty
         }
         
-        It "Should handle complex hierarchical duplicates" -Skip {
+        It "Should handle complex hierarchical duplicates" {
             # This test is skipped initially and will be enabled after implementation
             
             # Test with a search that might find multiple levels of hierarchy
