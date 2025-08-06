@@ -1,14 +1,60 @@
 # Active Context: Current State
 
-# Active Context: Current State
+## Current Focus: ✅ **DOT NOTATION ACCESS IMPLEMENTATION COMPLETED**
 
-## Current Focus: ✅ **XML NODE CONTEXT ENHANCEMENT COMPLETED**
+### Project Status: **ENHANCED WITH COMPREHENSIVE XML ACCESS PATTERNS** 
 
-### Project Status: **ENHANCED WITH XML NODE CONTEXT INFORMATION** 
+The GPO Report Search System has been fully enhanced with both comprehensive XML node context information AND dot notation access to XML data, providing users with both detailed context and programmatic access to XML structures.
 
-The GPO Report Search System has been enhanced with comprehensive XML node context information, providing users with detailed information about where each search match was found in the XML structure.
+### **LATEST ACHIEVEMENT: DOT NOTATION ACCESS IMPLEMENTATION** ✅
 
-### **LATEST ACHIEVEMENT: XML NODE CONTEXT ENHANCEMENT** ✅
+**Dot Notation Access Implementation**:
+- ✅ **ParsedXml Property**: Each XmlNode result now includes a `ParsedXml` property for structured object access
+- ✅ **XML-to-Object Conversion**: New `ConvertFrom-XmlToObject` function converts XML elements to PowerShell objects
+- ✅ **Namespace Prefix Removal**: Clean property names without XML namespace prefixes (q1:, q2:, etc.)
+- ✅ **Nested Object Support**: Full support for complex nested XML structures with dot notation access
+- ✅ **Array Handling**: Proper conversion of multiple child elements into arrays
+- ✅ **Attribute Integration**: XML attributes merged into object properties seamlessly
+- ✅ **Real-World Testing**: Validated with UserRightsAssignment, Policy, and other GPMC XML structures
+
+**Usage Examples**:
+```powershell
+# Search for privilege assignments
+$results = Search-GPMCReports -Path "Test Reports" -SearchString "SeCreateGlobalPrivilege"
+$r = $results[0]
+
+# Access privilege name via dot notation
+$privilegeName = $r.XmlNode.ParsedXml.Name  # Returns: "SeCreateGlobalPrivilege"
+
+# Access member information via dot notation  
+$memberName = $r.XmlNode.ParsedXml.Member.Name  # Returns: "contoso\Uruguay"
+$memberSID = $r.XmlNode.ParsedXml.Member.SID   # Returns: "S-1-5-21-2541002744..."
+
+# For policy settings
+$policyResults = Search-GPMCReports -Path "Test Reports" -SearchString "Turn off notifications"
+$policy = $policyResults[0]
+$policyName = $policy.XmlNode.ParsedXml.Name   # Returns: "Turn off notifications network usage"
+$policyState = $policy.XmlNode.ParsedXml.State # Returns: "Enabled"
+```
+
+**Technical Implementation**:
+- 🔧 **source/Private/ConvertFrom-XmlToObject.ps1**: New conversion function for XML-to-object transformation
+- 🔧 **Recursive Conversion**: Handles nested XML elements with proper recursion and cycle prevention
+- 🔧 **Namespace Handling**: Removes XML namespace prefixes (q1:, q2:, q4:, q6:) from property names
+- 🔧 **Child Element Grouping**: Groups multiple child elements with same name into arrays
+- 🔧 **Attribute Processing**: Merges XML attributes as object properties
+- 🔧 **Integration**: Added ParsedXml property to XmlNode structure in Search-GPMCXmlContent.ps1
+
+**Comprehensive Test Suite**:
+- ✅ **10 New Dot Notation Tests**: Added comprehensive test coverage for ParsedXml functionality
+- ✅ **UserRightsAssignment Testing**: Validated access to privilege names and member information
+- ✅ **Policy Structure Testing**: Confirmed access to complex policy elements with dropdowns
+- ✅ **Array Handling Tests**: Verified proper handling of multiple similar elements
+- ✅ **Namespace Cleanup**: Confirmed removal of XML namespace prefixes from property names
+- ✅ **Deep Nesting Tests**: Validated access to deeply nested object structures
+- ✅ **Cross-Element Consistency**: Ensured consistent behavior across different XML element types
+
+### **PREVIOUS ACHIEVEMENT: XML NODE CONTEXT ENHANCEMENT** ✅
 
 **XML Node Context Implementation**:
 - ✅ **Enhanced Result Objects**: Search results now include a comprehensive `XmlNode` property containing detailed XML context

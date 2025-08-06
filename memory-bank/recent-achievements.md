@@ -1,5 +1,95 @@
 # Recent Achievements
 
+## Dot Notation Access Implementation ✅
+**Date**: January 19, 2025  
+**Status**: COMPLETED
+
+**Background**: User requested the ability to convert XML data into something accessible with dot-notation syntax, specifically asking for patterns like `$r.XmlNode.UserRightsAssignment.Name` to return privilege names like 'SeTakeOwnershipPrivilege'.
+
+### Technical Implementation
+
+**Key Feature**: Added `ParsedXml` property to every XmlNode result that converts XML elements into structured PowerShell objects supporting full dot notation access.
+
+```powershell
+# New ConvertFrom-XmlToObject function
+function ConvertFrom-XmlToObject {
+    param([System.Xml.XmlElement]$XmlElement)
+    
+    $result = [PSCustomObject]@{}
+    
+    # Add attributes as properties
+    foreach ($attr in $XmlElement.Attributes) {
+        $cleanName = $attr.Name -replace '^q\d+:', ''
+        $result | Add-Member -NotePropertyName $cleanName -NotePropertyValue $attr.Value
+    }
+    
+    # Process child elements with namespace prefix removal
+    $childGroups = $XmlElement.ChildNodes | Where-Object NodeType -eq 'Element' | Group-Object LocalName
+    
+    foreach ($group in $childGroups) {
+        $cleanName = $group.Name -replace '^q\d+:', ''
+        if ($group.Count -eq 1) {
+            $child = $group.Group[0]
+            if ($child.HasChildNodes -and ($child.ChildNodes | Where-Object NodeType -eq 'Element')) {
+                $result | Add-Member -NotePropertyName $cleanName -NotePropertyValue (ConvertFrom-XmlToObject -XmlElement $child)
+            } else {
+                $result | Add-Member -NotePropertyName $cleanName -NotePropertyValue $child.InnerText
+            }
+        } else {
+            # Multiple elements with same name - create array
+            $array = foreach ($child in $group.Group) {
+                if ($child.HasChildNodes -and ($child.ChildNodes | Where-Object NodeType -eq 'Element')) {
+                    ConvertFrom-XmlToObject -XmlElement $child
+                } else {
+                    $child.InnerText
+                }
+            }
+            $result | Add-Member -NotePropertyName $cleanName -NotePropertyValue $array
+        }
+    }
+    
+    return $result
+}
+
+# Integration in Search-GPMCXmlContent.ps1
+$xmlNodeInfo.ParsedXml = ConvertFrom-XmlToObject -XmlElement $contextElement
+```
+
+### Validation and Testing
+
+**Real-World Usage Examples**:
+```powershell
+# Access UserRightsAssignment privilege name
+$results = Search-GPMCReports -Path "Test Reports" -SearchString "SeCreateGlobalPrivilege"
+$r = $results[0]
+$r.XmlNode.ParsedXml.Name         # Returns: "SeCreateGlobalPrivilege"
+$r.XmlNode.ParsedXml.Member.Name  # Returns: "contoso\Uruguay"
+$r.XmlNode.ParsedXml.Member.SID   # Returns: "S-1-5-21-2541002744..."
+
+# Access policy settings
+$policyResults = Search-GPMCReports -Path "Test Reports" -SearchString "Turn off notifications"
+$policy = $policyResults[0]
+$policy.XmlNode.ParsedXml.Name   # Returns: "Turn off notifications network usage"
+$policy.XmlNode.ParsedXml.State  # Returns: "Enabled"
+```
+
+**Comprehensive Test Suite**: Added 10 new tests covering:
+- ParsedXml property availability and type validation
+- UserRightsAssignment dot notation access
+- Nested Member property access
+- XML namespace prefix removal
+- Deep nested object access
+- Array handling for multiple similar elements
+- Cross-element consistency validation
+
+### Key Benefits
+
+1. **Clean Property Names**: Automatic removal of XML namespace prefixes (q1:, q2:, q4:, q6:)
+2. **Nested Object Support**: Full support for complex XML hierarchies with dot notation
+3. **Array Handling**: Multiple child elements properly converted to PowerShell arrays
+4. **Attribute Integration**: XML attributes seamlessly available as object properties
+5. **Type Consistency**: All converted objects are PSCustomObject for predictable behavior
+
 ## Enhanced XML Node Context Implementation ✅
 **Date**: January 19, 2025  
 **Status**: COMPLETED

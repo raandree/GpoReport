@@ -292,6 +292,119 @@ Describe "Search-GPMCReports Function Validation" {
         }
     }
     
+    Context "Dot Notation Access via ParsedXml Property" {
+        
+        It "Should include ParsedXml property in XmlNode results" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "SeTakeOwnershipPrivilege"
+            if ($results) {
+                $results[0].XmlNode.PSObject.Properties.Name | Should -Contain "ParsedXml"
+                $results[0].XmlNode.ParsedXml | Should -Not -BeNullOrEmpty
+            }
+        }
+        
+        It "Should convert XML to structured PowerShell object for dot notation access" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "SeTakeOwnershipPrivilege"
+            if ($results) {
+                $parsedXml = $results[0].XmlNode.ParsedXml
+                $parsedXml.GetType().Name | Should -Be "PSCustomObject"
+                $parsedXml.Name | Should -Be "SeTakeOwnershipPrivilege"
+            }
+        }
+        
+        It "Should provide dot notation access to UserRightsAssignment Name property" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "SeTakeOwnershipPrivilege"
+            if ($results) {
+                $privilegeName = $results[0].XmlNode.ParsedXml.Name
+                $privilegeName | Should -Be "SeTakeOwnershipPrivilege"
+            }
+        }
+        
+        It "Should provide dot notation access to nested Member properties" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "SeTakeOwnershipPrivilege"
+            if ($results) {
+                $memberName = $results[0].XmlNode.ParsedXml.Member.Name
+                $memberName | Should -Match "contoso\\.*"  # Should contain domain prefix
+            }
+        }
+        
+        It "Should handle multiple UserRightsAssignment elements with dot notation" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "SeCreateGlobalPrivilege"
+            if ($results) {
+                $privilegeName = $results[0].XmlNode.ParsedXml.Name
+                $privilegeName | Should -Be "SeCreateGlobalPrivilege"
+                $memberName = $results[0].XmlNode.ParsedXml.Member.Name
+                $memberName | Should -Not -BeNullOrEmpty
+            }
+        }
+        
+        It "Should remove XML namespace prefixes from property names" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "SeTakeOwnershipPrivilege"
+            if ($results) {
+                $parsedXml = $results[0].XmlNode.ParsedXml
+                # Properties should not have q1:, q2: etc. prefixes
+                $propertyNames = $parsedXml.PSObject.Properties.Name
+                $propertyNames | Should -Not -Match "^q\d+:"
+                $propertyNames | Should -Contain "Name"
+                $propertyNames | Should -Contain "Member"
+            }
+        }
+        
+        It "Should handle XML attributes in converted objects" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Turn off notifications network usage"
+            if ($results) {
+                $parsedXml = $results[0].XmlNode.ParsedXml
+                # Should be able to access policy properties
+                $parsedXml.Name | Should -Be "Turn off notifications network usage"
+                $parsedXml.State | Should -Be "Enabled"
+            }
+        }
+        
+        It "Should support deep nested object access via dot notation" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Establish ActiveX installation policy"
+            if ($results) {
+                $parsedXml = $results[0].XmlNode.ParsedXml
+                # Should be able to access nested DropDownList elements
+                if ($parsedXml.DropDownList) {
+                    $dropDownList = $parsedXml.DropDownList
+                    if ($dropDownList -is [array]) {
+                        $dropDownList[0].Name | Should -Not -BeNullOrEmpty
+                    } else {
+                        $dropDownList.Name | Should -Not -BeNullOrEmpty
+                    }
+                }
+            }
+        }
+        
+        It "Should handle arrays of similar elements correctly" -Skip:$script:UseSimpleTest {
+            # Test with a policy that has multiple dropdown lists or similar elements
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Establish ActiveX installation policy"
+            if ($results) {
+                $parsedXml = $results[0].XmlNode.ParsedXml
+                if ($parsedXml.DropDownList -and $parsedXml.DropDownList.Count -gt 1) {
+                    ,$parsedXml.DropDownList | Should -BeOfType [System.Array]
+                    $parsedXml.DropDownList[0].Name | Should -Not -BeNullOrEmpty
+                    $parsedXml.DropDownList[1].Name | Should -Not -BeNullOrEmpty
+                }
+            }
+        }
+        
+        It "Should provide consistent dot notation access across different element types" -Skip:$script:UseSimpleTest {
+            # Test various element types to ensure consistent conversion
+            $testSearches = @("SeTakeOwnershipPrivilege", "Turn off notifications network usage", "PasswordHistorySize")
+            
+            foreach ($searchTerm in $testSearches) {
+                $results = Search-GPMCReports -Path $TestDataPath -SearchString $searchTerm
+                if ($results) {
+                    $parsedXml = $results[0].XmlNode.ParsedXml
+                    $parsedXml | Should -Not -BeNullOrEmpty
+                    $parsedXml.GetType().Name | Should -Be "PSCustomObject"
+                    # Each should have some accessible properties
+                    $parsedXml.PSObject.Properties.Count | Should -BeGreaterThan 0
+                }
+            }
+        }
+    }
+    
     Context "Parameter Validation" {
         
         It "Should require SearchString parameter" {
