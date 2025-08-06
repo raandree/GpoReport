@@ -286,7 +286,9 @@ Describe "Search-GPMCReports Function Validation" {
                 # Find a result that might have XML attributes
                 $resultWithAttributes = $results | Where-Object { $_.XmlNode.ElementAttributes -ne $null }
                 if ($resultWithAttributes) {
-                    $resultWithAttributes[0].XmlNode.ElementAttributes | Should -Match "="
+                    # ElementAttributes should be a hashtable with key-value pairs
+                    $resultWithAttributes[0].XmlNode.ElementAttributes | Should -BeOfType [hashtable]
+                    $resultWithAttributes[0].XmlNode.ElementAttributes.Keys.Count | Should -BeGreaterThan 0
                 }
             }
         }
