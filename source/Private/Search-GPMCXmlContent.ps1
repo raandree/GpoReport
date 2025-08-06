@@ -34,6 +34,7 @@ function Search-GPMCXmlContent {
         - ParentHierarchy: Array of parent element names (up to 5 levels)
         - ImmediateParent: The direct parent element of the matched text
         - ContextLevel: "Policy" if meaningful parent found, "Element" if immediate parent used
+        - ParsedXml: Structured PowerShell object supporting dot notation access to XML data
     #>
     
     [CmdletBinding()]
@@ -149,6 +150,9 @@ function Search-GPMCXmlContent {
                 # Use the meaningful parent for XML context, fall back to immediate parent if none found
                 $contextElement = if ($meaningfulParent -ne $parentElement) { $meaningfulParent } else { $parentElement }
                 
+                # Convert XML to structured object for dot notation access
+                $parsedXml = ConvertFrom-XmlToObject -XmlElement $contextElement
+                
                 $xmlNodeInfo = [PSCustomObject]@{
                     ElementName = $contextElement.LocalName
                     ElementAttributes = if ($contextElement.Attributes -and $contextElement.Attributes.Count -gt 0) {
@@ -163,6 +167,7 @@ function Search-GPMCXmlContent {
                     ParentHierarchy = @()
                     ImmediateParent = $parentElement.LocalName
                     ContextLevel = if ($meaningfulParent -ne $parentElement) { "Policy" } else { "Element" }
+                    ParsedXml = $parsedXml
                 }
                 
                 # Build parent hierarchy for context (limited to 5 levels for readability)

@@ -48,6 +48,16 @@ function Search-GPMCReports {
         PSCustomObject[] with properties: GPOName, GPOId, DomainName, CategoryPath, SettingName, 
         SettingValue, Context, Section, Comment, SourceFile, CreatedTime, ModifiedTime, XmlNode
         
+        The XmlNode property contains enhanced context information:
+        - ElementName: The most meaningful XML element containing the match
+        - ElementAttributes: Attributes of the context element  
+        - XmlPath: The element name path with namespace
+        - OuterXml: Complete XML of the context element
+        - ParentHierarchy: Array of parent element names
+        - ImmediateParent: The direct parent element of the matched text
+        - ContextLevel: "Policy" if meaningful parent found, "Element" if immediate parent used
+        - ParsedXml: Structured PowerShell object supporting dot notation access (e.g., $result.XmlNode.ParsedXml.UserRightsAssignment.Name)
+        
         The XmlNode property provides enhanced context about where the match was found:
         - ElementName: The most meaningful XML element containing the match (Policy, Account, etc.)
         - ElementAttributes: Attributes of the context element  
