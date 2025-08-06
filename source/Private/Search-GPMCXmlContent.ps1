@@ -4,7 +4,8 @@ function Search-GPMCXmlContent {
         Searches XML content for matching patterns and extracts GPO information
         
     .DESCRIPTION
-        Internal helper function that performs the core search logic on XML content
+        Internal helper function that performs the core search logic on XML content.
+        Returns detailed results including XML node context information for each match.
         
     .PARAMETER XmlString
         The XML content as a string
@@ -20,6 +21,19 @@ function Search-GPMCXmlContent {
         
     .PARAMETER IncludeAllMatches
         Whether to include all matches or filter for meaningful content
+        
+    .OUTPUTS
+        PSCustomObject[] with properties: GPOName, GPOId, DomainName, CategoryPath, SettingName, 
+        SettingValue, Context, Section, Comment, SourceFile, CreatedTime, ModifiedTime, XmlNode
+        
+        The XmlNode property contains enhanced context information:
+        - ElementName: The most meaningful XML element containing the match (Policy, Account, etc.)
+        - ElementAttributes: Attributes of the context element
+        - XmlPath: The element name path with namespace
+        - OuterXml: Complete XML of the context element (truncated if > 1000 chars)
+        - ParentHierarchy: Array of parent element names (up to 5 levels)
+        - ImmediateParent: The direct parent element of the matched text
+        - ContextLevel: "Policy" if meaningful parent found, "Element" if immediate parent used
     #>
     
     [CmdletBinding()]
@@ -110,6 +124,61 @@ function Search-GPMCXmlContent {
                 # Get comment information
                 $comment = Get-GPMCSettingComment -Element $node.ParentNode
                 
+                # Get XML node context information with enhanced policy-level context
+                $parentElement = $node.ParentNode
+                
+                # Find the most meaningful parent element (Policy, Account, Audit, etc.)
+                $meaningfulParent = $parentElement
+                $currentNode = $parentElement
+                $searchDepth = 0
+                $maxSearchDepth = 10
+                
+                # Look for meaningful parent elements that represent complete policies or settings
+                $meaningfulElementNames = @('Policy', 'Account', 'Audit', 'UserRightsAssignment', 'SecurityOptions', 'EventLog', 'RestrictedGroups', 'SystemServices', 'File', 'Registry', 'AuditSetting')
+                
+                while ($null -ne $currentNode -and $searchDepth -lt $maxSearchDepth) {
+                    if ($meaningfulElementNames -contains $currentNode.LocalName) {
+                        $meaningfulParent = $currentNode
+                        Write-Verbose "Found meaningful parent: $($currentNode.LocalName) at depth $searchDepth"
+                        break
+                    }
+                    $currentNode = $currentNode.ParentNode
+                    $searchDepth++
+                }
+                
+                # Use the meaningful parent for XML context, fall back to immediate parent if none found
+                $contextElement = if ($meaningfulParent -ne $parentElement) { $meaningfulParent } else { $parentElement }
+                
+                $xmlNodeInfo = [PSCustomObject]@{
+                    ElementName = $contextElement.LocalName
+                    ElementAttributes = if ($contextElement.Attributes -and $contextElement.Attributes.Count -gt 0) {
+                        @($contextElement.Attributes | ForEach-Object { "$($_.Name)='$($_.Value)'" }) -join '; '
+                    } else { $null }
+                    XmlPath = $contextElement.Name
+                    OuterXml = if ($contextElement.OuterXml.Length -gt 1000) { 
+                        $contextElement.OuterXml.Substring(0, 1000) + "..." 
+                    } else { 
+                        $contextElement.OuterXml 
+                    }
+                    ParentHierarchy = @()
+                    ImmediateParent = $parentElement.LocalName
+                    ContextLevel = if ($meaningfulParent -ne $parentElement) { "Policy" } else { "Element" }
+                }
+                
+                # Build parent hierarchy for context (limited to 5 levels for readability)
+                $hierarchyList = [System.Collections.ArrayList]@()
+                $currentParent = $contextElement.ParentNode
+                $hierarchyDepth = 0
+                while ($null -ne $currentParent -and $hierarchyDepth -lt 5 -and $currentParent.NodeType -eq [System.Xml.XmlNodeType]::Element) {
+                    $hierarchyList.Add($currentParent.LocalName) | Out-Null
+                    $currentParent = $currentParent.ParentNode
+                    $hierarchyDepth++
+                }
+                
+                # Reverse hierarchy to show from root to immediate parent and convert to array
+                $hierarchyList.Reverse()
+                $xmlNodeInfo.ParentHierarchy = [array]$hierarchyList
+
                 # Create result object
                 $result = [PSCustomObject]@{
                     GPOName = $gpoInfo.DisplayName
@@ -124,6 +193,7 @@ function Search-GPMCXmlContent {
                     SourceFile = $SourceFile
                     CreatedTime = $gpoInfo.CreatedTime
                     ModifiedTime = $gpoInfo.ModifiedTime
+                    XmlNode = $xmlNodeInfo
                 }
                 
                 # Determine if this is an exact match or partial match

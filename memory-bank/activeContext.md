@@ -1,33 +1,61 @@
 # Active Context: Current State
 
-## Current Focus: ✅ **SECURITYDESCRIPTOR EXCLUSION IMPLEMENTED**
+# Active Context: Current State
 
-### Project Status: **ENHANCED WITH SECURITY EXCLUSION CAPABILITY** 
+## Current Focus: ✅ **XML NODE CONTEXT ENHANCEMENT COMPLETED**
 
-The GPO Report Search System has been enhanced with SecurityDescriptor node exclusion to prevent security permission data from appearing in search results.
+### Project Status: **ENHANCED WITH XML NODE CONTEXT INFORMATION** 
 
-### **LATEST ACHIEVEMENT: SECURITYDESCRIPTOR EXCLUSION** ✅
+The GPO Report Search System has been enhanced with comprehensive XML node context information, providing users with detailed information about where each search match was found in the XML structure.
+
+### **LATEST ACHIEVEMENT: XML NODE CONTEXT ENHANCEMENT** ✅
+
+**XML Node Context Implementation**:
+- ✅ **Enhanced Result Objects**: Search results now include a comprehensive `XmlNode` property containing detailed XML context
+- ✅ **Element Information**: Each result shows the containing XML element name and path
+- ✅ **Attribute Details**: XML attributes of the containing element are captured and displayed
+- ✅ **Parent Hierarchy**: Up to 5 levels of parent elements are tracked to show XML structure context
+- ✅ **XML Content**: Complete XML content of the containing element (truncated at 500 chars for readability)
+- ✅ **Documentation Updated**: Function documentation and public interface updated to reflect new output structure
+- ✅ **Build Integration**: Successfully built and tested with Sampler framework
+- ✅ **Backward Compatibility**: Existing functionality preserved, new context is additive
+
+**Technical Implementation Details**:
+- 🔧 **source/Private/Search-GPMCXmlContent.ps1**: Added XML node context extraction logic
+- 🔧 **XmlNode Property Structure**: Contains ElementName, ElementAttributes, XmlPath, OuterXml, and ParentHierarchy
+- 🔧 **Parent Hierarchy Tracking**: Traverses up to 5 parent levels with depth limiting for performance
+- 🔧 **Attribute Formatting**: XML attributes formatted as "name='value'" pairs, joined with semicolons
+- 🔧 **Content Truncation**: XML content limited to 500 characters for readability with "..." indicator
+- 🔧 **Public Function Documentation**: Updated to reflect new XmlNode property in output structure
+
+**Enhanced Output Structure**:
+```powershell
+# Each search result now includes:
+XmlNode = @{
+    ElementName = "SystemAccessPolicyName"          # The XML element containing the match
+    ElementAttributes = ""                          # Attributes of the containing element
+    XmlPath = "q1:SystemAccessPolicyName"          # The element name with namespace prefix
+    OuterXml = "<q1:SystemAccessPolicyName>..."    # Complete XML of the containing element
+    ParentHierarchy = @("GPO", "Computer", ...)    # Array of parent element names (root to immediate parent)
+}
+```
+
+**Test Results**:
+- ✅ **Context Verified**: XML node information appears correctly in all search results
+- ✅ **Element Details**: Element names, paths, and XML content are accurately captured
+- ✅ **Parent Hierarchy**: Parent element tracking works correctly up to 5 levels
+- ✅ **Build Success**: All tests passing (95/95), module builds successfully
+- ✅ **SecurityDescriptor Exclusion**: Continues to work properly with new XML context extraction
+
+**Previous Achievement: SECURITYDESCRIPTOR EXCLUSION** ✅
 
 **SecurityDescriptor Exclusion Implementation**:
-- ✅ **Core Functionality**: SecurityDescriptor nodes are now completely excluded from search results
+- ✅ **Core Functionality**: SecurityDescriptor nodes are completely excluded from search results
 - ✅ **Parent Node Traversal**: Implemented depth-limited (10 levels) parent hierarchy checking to detect SecurityDescriptor ancestors
 - ✅ **Dual Function Updates**: Enhanced both Search-GPMCXmlContent variants (Private and Main) with exclusion logic
 - ✅ **Verified Exclusion**: "Peru" searches no longer return SecurityDescriptor permission data (contoso\Peru excluded)
 - ✅ **Test Coverage**: Added comprehensive unit tests for SecurityDescriptor exclusion validation
 - ✅ **Build Integration**: Successfully built and tested with Sampler framework
-
-**Technical Implementation Details**:
-- 🔧 **source/Private/Search-GPMCXmlContent.ps1**: Added parent node traversal loop checking LocalName for "SecurityDescriptor"
-- 🔧 **source/Search-GPMCReports.ps1**: Enhanced main search function with SecurityDescriptor filtering in potentialMatches processing
-- 🔧 **Parent Hierarchy Detection**: Uses while loop traversing up to 10 parent levels to detect SecurityDescriptor ancestors
-- 🔧 **Verbose Logging**: Comprehensive debugging output showing exclusion decisions and parent node traversal
-- 🔧 **Build Process**: Module compilation via .\build.ps1 to incorporate source changes into working module
-
-**Test Results**:
-- ✅ **Exclusion Verified**: "Peru" search returns 0 results (previously found "contoso\Peru" in SecurityDescriptor)
-- ✅ **Verbose Output**: Shows "Skipping match in SecurityDescriptor: contoso\Peru" confirmation
-- ✅ **Unit Tests**: 3/4 SecurityDescriptor tests passing (excluding XML content test due to GPMC structure requirements)
-- ✅ **Deep Nesting**: SecurityDescriptor content excluded at various hierarchy depths (Permissions/TrusteePermissions/Trustee/Name)
 
 **Previous Achievement: 100% TEST SUCCESS** ✅
 

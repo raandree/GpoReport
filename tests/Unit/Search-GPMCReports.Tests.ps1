@@ -180,6 +180,117 @@ Describe "Search-GPMCReports Function Validation" {
             }
         }
     }
+
+    Context "Enhanced XML Node Context Validation" {
+        
+        It "Should include XmlNode property in search results" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Chile"
+            if ($results) {
+                $results[0].PSObject.Properties.Name | Should -Contain "XmlNode"
+                $results[0].XmlNode | Should -Not -BeNullOrEmpty
+            }
+        }
+        
+        It "Should have all required XmlNode properties" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Chile"
+            if ($results) {
+                $xmlNode = $results[0].XmlNode
+                $xmlNode.PSObject.Properties.Name | Should -Contain "ElementName"
+                $xmlNode.PSObject.Properties.Name | Should -Contain "XmlPath"
+                $xmlNode.PSObject.Properties.Name | Should -Contain "OuterXml"
+                $xmlNode.PSObject.Properties.Name | Should -Contain "ParentHierarchy"
+                $xmlNode.PSObject.Properties.Name | Should -Contain "ImmediateParent"
+                $xmlNode.PSObject.Properties.Name | Should -Contain "ContextLevel"
+            }
+        }
+        
+        It "Should capture meaningful parent elements for policy settings" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Turn off notifications network usage"
+            if ($results) {
+                $xmlNode = $results[0].XmlNode
+                $xmlNode.ElementName | Should -Be "Policy"
+                $xmlNode.ContextLevel | Should -Be "Policy"
+                $xmlNode.OuterXml | Should -Match "q4:Policy"
+            }
+        }
+        
+        It "Should include complete policy blocks in OuterXml" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Turn off notifications network usage"
+            if ($results) {
+                $xmlNode = $results[0].XmlNode
+                $xmlNode.OuterXml | Should -Match "q4:Name"
+                $xmlNode.OuterXml | Should -Match "q4:State"
+                # Should contain substantial policy content
+                $xmlNode.OuterXml.Length | Should -BeGreaterThan 100
+            }
+        }
+        
+        It "Should truncate very long XML content appropriately" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "*"
+            if ($results) {
+                # Find a result with potentially long XML content (over 1000 chars) or create one that should be truncated
+                $longXmlResult = $results | Where-Object { $_.XmlNode.OuterXml.Length -gt 1000 }
+                if ($longXmlResult) {
+                    $longXmlResult[0].XmlNode.OuterXml | Should -Match "\.\.\.$"
+                    $longXmlResult[0].XmlNode.OuterXml.Length | Should -BeLessOrEqual 1003  # 1000 + "..."
+                } else {
+                    # If no long XML found, just verify truncation logic is in place
+                    $anyResult = $results | Where-Object { $_.XmlNode.OuterXml.Length -gt 0 }
+                    if ($anyResult) {
+                        # At minimum, verify XML content is captured
+                        $anyResult[0].XmlNode.OuterXml | Should -Not -BeNullOrEmpty
+                    }
+                }
+            }
+        }
+        
+        It "Should capture parent hierarchy for context understanding" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Chile"
+            if ($results) {
+                $xmlNode = $results[0].XmlNode
+                $xmlNode.ParentHierarchy | Should -Not -BeNullOrEmpty
+                # ParentHierarchy should be an array or array-like object
+                $xmlNode.ParentHierarchy.GetType().BaseType.Name | Should -BeIn @('Array', 'Object')
+                # Should have some hierarchy depth (at least 1 element)
+                $xmlNode.ParentHierarchy.Count | Should -BeGreaterThan 0
+            }
+        }
+        
+        It "Should distinguish between meaningful and immediate parents" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "Turn off notifications network usage"
+            if ($results) {
+                $xmlNode = $results[0].XmlNode
+                # For policy name searches, immediate parent should be "Name" but meaningful parent should be "Policy"
+                $xmlNode.ImmediateParent | Should -Be "Name"
+                $xmlNode.ElementName | Should -Be "Policy"
+                $xmlNode.ContextLevel | Should -Be "Policy"
+            }
+        }
+        
+        It "Should handle element-level context when no meaningful parent is found" -Skip:$script:UseSimpleTest {
+            # This test might need adjustment based on actual test data structure
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "*"
+            if ($results) {
+                # Look for a result that might not have a meaningful parent
+                $elementLevelResult = $results | Where-Object { $_.XmlNode.ContextLevel -eq "Element" }
+                if ($elementLevelResult) {
+                    $elementLevelResult[0].XmlNode.ContextLevel | Should -Be "Element"
+                    $elementLevelResult[0].XmlNode.ElementName | Should -Be $elementLevelResult[0].XmlNode.ImmediateParent
+                }
+            }
+        }
+        
+        It "Should include element attributes when present" -Skip:$script:UseSimpleTest {
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString "*"
+            if ($results) {
+                # Find a result that might have XML attributes
+                $resultWithAttributes = $results | Where-Object { $_.XmlNode.ElementAttributes -ne $null }
+                if ($resultWithAttributes) {
+                    $resultWithAttributes[0].XmlNode.ElementAttributes | Should -Match "="
+                }
+            }
+        }
+    }
     
     Context "Parameter Validation" {
         

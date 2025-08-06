@@ -45,7 +45,17 @@ function Search-GPMCReports {
         Searches for settings containing "password" in all XML files in the current directory and subdirectories.
 
     .OUTPUTS
-        PSCustomObject[] with properties: GPOName, GPOId, DomainName, CategoryPath, SettingName, SettingValue, Context, SourceFile
+        PSCustomObject[] with properties: GPOName, GPOId, DomainName, CategoryPath, SettingName, 
+        SettingValue, Context, Section, Comment, SourceFile, CreatedTime, ModifiedTime, XmlNode
+        
+        The XmlNode property provides enhanced context about where the match was found:
+        - ElementName: The most meaningful XML element containing the match (Policy, Account, etc.)
+        - ElementAttributes: Attributes of the context element  
+        - XmlPath: The element name path with namespace
+        - OuterXml: Complete XML of the context element (truncated if > 1000 chars)
+        - ParentHierarchy: Array of parent element names (up to 5 levels)
+        - ImmediateParent: The direct parent element of the matched text
+        - ContextLevel: "Policy" if meaningful parent found, "Element" if immediate parent used
     #>
     
     [CmdletBinding(DefaultParameterSetName = 'FilePath')]

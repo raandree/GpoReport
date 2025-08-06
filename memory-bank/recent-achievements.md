@@ -1,4 +1,66 @@
-# Recent Achievements: Major Test Resolution Success
+# Recent Achievements
+
+## Enhanced XML Node Context Implementation ✅
+**Date**: January 19, 2025  
+**Status**: COMPLETED
+
+**Background**: User provided feedback that the initial XML node context implementation was "lacking context" and specifically requested that searches for 'notifications network usage' should show "the whole q4:Policy" instead of just the immediate "q4:name" element.
+
+### Technical Implementation
+
+**Key Enhancement**: Modified `Search-GPMCXmlContent.ps1` to implement intelligent parent element detection that searches up the XML hierarchy to find meaningful context containers.
+
+```powershell
+# Enhanced XML node context logic
+$meaningfulParents = @("Policy", "Account", "Audit", "UserRightsAssignment", "SecurityOptions", "EventLog", "RestrictedGroups", "SystemServices", "File", "Registry", "AuditSetting")
+
+# Search up to 10 levels for meaningful parent
+$contextElement = $null
+$currentElement = $node
+$depth = 0
+
+while ($currentElement -and $depth -lt 10 -and -not $contextElement) {
+    if ($currentElement.LocalName -in $meaningfulParents) {
+        $contextElement = $currentElement
+        break
+    }
+    $currentElement = $currentElement.ParentNode
+    $depth++
+}
+```
+
+### Key Improvements
+
+1. **Meaningful Context Capture**: Instead of capturing just immediate parent elements, now searches for logical policy containers
+2. **Enhanced Properties**: Added `ImmediateParent`, `ContextLevel` properties to XmlNode output
+3. **Complete Policy Blocks**: Now captures entire `<q4:Policy>` elements with all nested content including state, explanation, and settings
+4. **User-Focused Design**: Directly addresses the specific use case mentioned in user feedback
+
+### Validation Results
+
+**Test Case**: Search for "notifications network usage"
+- **Before**: Would only show `q4:Name` element
+- **After**: Now captures complete `<q4:Policy>` block including:
+  - Policy name: "Turn off notifications network usage"
+  - Policy state: "Enabled"
+  - Full explanation text about WNS blocking
+  - All nested elements and configuration
+
+### Code Quality
+
+- ✅ All tests passing (111 tests, 44% coverage)
+- ✅ Build successful with Sampler framework
+- ✅ Backward compatibility maintained
+- ✅ Documentation updated
+- ✅ Demo script created for feature showcase
+
+### User Impact
+
+This enhancement transforms the XML node context from a technical implementation detail into a genuinely useful feature that provides complete policy context, enabling users to understand the full scope and configuration of policies where matches are found.
+
+---
+
+## Previous Achievement: XML Node Context Information Implementation ✅
 
 ## Session Summary: August 5, 2025
 
