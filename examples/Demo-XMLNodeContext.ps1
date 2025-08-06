@@ -2,7 +2,7 @@
 # Demonstrates the enhanced XML node context feature in GpoReport module
 
 # Import the GpoReport module
-Import-Module ".\output\module\GpoReport\0.1.0\GpoReport.psd1" -Force
+Import-Module "..\output\module\GpoReport\0.1.0\GpoReport.psd1" -Force
 
 Write-Host "=== GPO Report XML Node Context Enhancement Demo ===" -ForegroundColor Cyan
 Write-Host ""
@@ -11,7 +11,7 @@ Write-Host ""
 Write-Host "Example 1: Searching for 'audit' - showing XML node context" -ForegroundColor Yellow
 Write-Host ""
 
-$auditResults = Search-GPMCReports -Path ".\Test Reports" -SearchString "*audit*" -MaxResults 1
+$auditResults = Search-GPMCReports -Path "..\Test Reports" -SearchString "*audit*" -MaxResults 1
 if ($auditResults.Count -gt 0) {
     $result = $auditResults[0]
     
@@ -34,7 +34,7 @@ Write-Host ""
 Write-Host "Example 2: Searching for 'registry' - showing potential attributes" -ForegroundColor Yellow
 Write-Host ""
 
-$registryResults = Search-GPMCReports -Path ".\Test Reports" -SearchString "*registry*" -MaxResults 1
+$registryResults = Search-GPMCReports -Path "..\Test Reports" -SearchString "*registry*" -MaxResults 1
 if ($registryResults.Count -gt 0) {
     $result = $registryResults[0]
     
@@ -67,7 +67,7 @@ Write-Host ""
 Write-Host "Example 3: Analysis benefits - showing multiple results with XML context" -ForegroundColor Yellow
 Write-Host ""
 
-$passwordResults = Search-GPMCReports -Path ".\Test Reports" -SearchString "*password*" -MaxResults 3
+$passwordResults = Search-GPMCReports -Path "..\Test Reports" -SearchString "*password*" -MaxResults 3
 Write-Host "Found $($passwordResults.Count) password-related settings:" -ForegroundColor Green
 Write-Host ""
 

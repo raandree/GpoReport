@@ -5,11 +5,11 @@ Write-Host "=== Enhanced XML Node Context Demo ===" -ForegroundColor Cyan
 Write-Host ""
 
 # Import the module
-Import-Module .\output\module\GpoReport\0.1.0\GpoReport.psd1 -Force
+Import-Module ..\output\module\GpoReport\0.1.0\GpoReport.psd1 -Force
 
 # Search for "notifications network usage" to demonstrate enhanced context
 Write-Host "Searching for 'notifications network usage'..." -ForegroundColor Yellow
-$results = Search-GPMCReports -Path ".\Test Reports\AllSettings1.xml" -SearchString "notifications network usage"
+$results = Search-GPMCReports -Path "..\Test Reports\AllSettings1.xml" -SearchString "notifications network usage"
 
 if ($results) {
     $result = $results[0]
