@@ -28,6 +28,8 @@ This project provides a comprehensive PowerShell-based Group Policy Object (GPO)
 - **XML String Array Support**: Direct XML content processing without file operations
 - **Computer/User Section Detection**: Automatic identification of policy scope
 - **Comment Extraction**: Retrieval and display of policy comments
+- **Hierarchical Deduplication**: Advanced duplicate detection with IncludeChildDuplicates parameter
+- **Group Policy Preferences CategoryPath Mapping**: Complete namespace-to-category mapping for all 12 preferences types
 
 ### ✅ Enhanced Capabilities Package
 - **Start-GPOSearchGUI.ps1**: Interactive Windows Forms GUI with drag-drop and real-time filtering
@@ -45,9 +47,11 @@ This project provides a comprehensive PowerShell-based Group Policy Object (GPO)
 - XML string array input for memory-based processing
 - Comment content searching and display
 - Section-aware filtering (Computer/User)
+- Hierarchical duplicate detection and control
 
 ### ✅ Accurate Category Detection
 - **Security Settings**: Account Policies, Local Policies, Advanced Audit Configuration
+- **Group Policy Preferences**: All 12 categories with proper namespace mapping (Drive Maps, Environment Variables, Files, Folders, Registry, Shortcuts, Folder Options, Power Options, Scheduled Tasks, Start Menu, Local Users and Groups, Internet Settings)
 - **Administrative Templates**: Full hierarchy path extraction
 - **Group Policy Preferences**: Environment Variables, Registry, Files, etc.
 - **Special Handling**: Security Options subcategorization, Domain Controller settings
@@ -59,7 +63,7 @@ This project provides a comprehensive PowerShell-based Group Policy Object (GPO)
 - Duplicate result filtering
 
 ### ✅ Automated Testing
-- Comprehensive Pester test suite with 59 total tests
+- Comprehensive Pester test suite with 127 total tests (110 passing, 17 intentionally skipped)
 - Mapping table validation (25+ original test cases)
 - XML string array functionality testing (16 new tests)
 - Section detection testing (6 tests)
@@ -100,7 +104,7 @@ This project provides a comprehensive PowerShell-based Group Policy Object (GPO)
 ## Quality Assurance
 
 ### Testing Coverage
-- **59 total tests** across all functionality areas
+- **127 total tests** across all functionality areas (110 passing, 17 intentionally skipped)
 - 25 distinct search patterns validated (original mapping table)
 - 16 XML string array processing scenarios
 - 6 Computer/User section detection tests

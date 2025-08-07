@@ -8,10 +8,10 @@ Our comprehensive testing approach combines automated validation with extensive 
 
 ### Comprehensive Pester Test Suite Architecture
 
-**File**: `Test-GPMCSearch.Tests.ps1` (369 lines)
-**Purpose**: Automated validation of all search functionality including XML string arrays, section detection, comment extraction
+**File**: `tests/Unit/Search-GPMCReports.Tests.ps1` (1555+ lines)
+**Purpose**: Automated validation of all search functionality including deduplication, Group Policy Preferences, XML string arrays, section detection, comment extraction
 **Framework**: PowerShell Pester v5+
-**Total Tests**: 59 (100% passing)
+**Total Tests**: 127 tests (110 passing, 17 intentionally skipped)
 
 ### Test Coverage Breakdown
 
@@ -21,14 +21,28 @@ Describe "GPO Search Mapping Table Validation" {
     # Original 25 test cases based on user-provided mapping table
     $mappingTable | ForEach-Object {
         It "Should find pattern '$($_.SearchPattern)' in category '$($_.ExpectedCategory)'" {
-            $results = .\Search-GPMCReports.ps1 -Path $testFile -SearchString $_.SearchPattern
+            $results = Search-GPMCReports -Path $testFile -SearchString $_.SearchPattern
             $results.CategoryPath | Should -Be $_.ExpectedCategory
         }
     }
 }
 ```
 
-#### Additional Core Tests (11 tests)
+#### Hierarchical Deduplication Testing (15+ tests) ✨ NEW
+- Two-phase deduplication validation
+- IncludeChildDuplicates parameter testing
+- XML namespace normalization verification
+- Parent-child duplicate detection accuracy
+- Password and Scheduled Task deduplication scenarios
+
+#### Group Policy Preferences Testing (12 tests) ✨ NEW
+- All 12 Group Policy Preferences categories from mapping.txt
+- Drive Maps, Environment Variables, Files, Folders
+- Registry, Shortcuts, Folder Options, Power Options
+- Scheduled Tasks, Start Menu, Local Users and Groups, Internet Settings
+- Namespace detection and CategoryPath accuracy
+
+#### Additional Core Tests (70+ tests)
 - Multiple file processing validation
 - MaxResults parameter testing
 - Verbose output validation

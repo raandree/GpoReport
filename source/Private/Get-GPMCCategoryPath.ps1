@@ -30,6 +30,7 @@ function Get-GPMCCategoryPath {
             "http://www.microsoft.com/GroupPolicy/Settings/PowerOptions" = "Preferences > Control Panel Settings > Power Options"
             "http://www.microsoft.com/GroupPolicy/Settings/ScheduledTasks" = "Preferences > Control Panel Settings > Scheduled Tasks"
             "http://www.microsoft.com/GroupPolicy/Settings/StartMenu" = "Preferences > Control Panel Settings > Start Menu"
+            "http://www.microsoft.com/GroupPolicy/Settings/ControlPanel/Internet" = "Preferences > Control Panel Settings > Internet Settings"
             "http://www.microsoft.com/GroupPolicy/Settings/Lugs" = "Preferences > Control Panel Settings > Local Users and Groups"
         }
         

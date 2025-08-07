@@ -1022,6 +1022,18 @@ Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTe
             $result = Get-GPMCCategoryPath -Element $mockElement
             $result | Should -Be $expected -Because "Local Users and Groups preferences should be categorized under Preferences > Control Panel Settings > Local Users and Groups"
         }
+        
+        It "Should correctly categorize Internet Settings preferences" {
+            # This test checks if Internet Settings namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Control Panel Settings > Internet Settings"
+            
+            # Mock an XML element with Internet Settings namespace for testing
+            $mockXml = [xml]'<root xmlns:q16="http://www.microsoft.com/GroupPolicy/Settings/ControlPanel/Internet"><q16:InternetSettings>TestInternet</q16:InternetSettings></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Internet Settings preferences should be categorized under Preferences > Control Panel Settings > Internet Settings"
+        }
     }
     
     Context "Group Policy Preferences - Namespace Detection" {
