@@ -897,6 +897,206 @@ Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTe
         }
     }
     
+    Context "Group Policy Preferences - Windows Settings" {
+        
+        It "Should correctly categorize Drive Maps preferences" {
+            $searchTerm = "fileserver\software"
+            $expected = "Preferences > Windows Settings > Drive Maps"
+            $actual = Invoke-GPMCSearch -SearchTerm $searchTerm -TestDataPath $TestDataPath
+            
+            $actual | Should -Be $expected -Because "Drive Maps preferences should be categorized under Preferences > Windows Settings > Drive Maps"
+        }
+        
+        It "Should correctly categorize Environment Variables preferences" {
+            $searchTerm = "environment"
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString $searchTerm
+            $preferencesResult = $results | Where-Object { $_.CategoryPath -like "*Environment Variables*" } | Select-Object -First 1
+            
+            $preferencesResult.CategoryPath | Should -Be "Preferences > Windows Settings > Environment Variables" -Because "Environment Variables preferences should be properly categorized"
+        }
+        
+        It "Should correctly categorize Files preferences" {
+            # This test checks if Files namespace mapping would work when the XML contains the namespace
+            $searchTerm = "Files"
+            $expected = "Preferences > Windows Settings > Files"
+            
+            # Mock an XML element with Files namespace for testing
+            $mockXml = [xml]'<root xmlns:q8="http://www.microsoft.com/GroupPolicy/Settings/Files"><q8:File>TestFile</q8:File></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Files preferences should be categorized under Preferences > Windows Settings > Files"
+        }
+        
+        It "Should correctly categorize Folders preferences" {
+            # This test checks if Folders namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Windows Settings > Folders"
+            
+            # Mock an XML element with Folders namespace for testing
+            $mockXml = [xml]'<root xmlns:q9="http://www.microsoft.com/GroupPolicy/Settings/Folders"><q9:Folder>TestFolder</q9:Folder></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Folders preferences should be categorized under Preferences > Windows Settings > Folders"
+        }
+        
+        It "Should correctly categorize Registry preferences" {
+            # This test checks if Registry namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Windows Settings > Registry"
+            
+            # Mock an XML element with Registry namespace for testing
+            $mockXml = [xml]'<root xmlns:q10="http://www.microsoft.com/GroupPolicy/Settings/Windows/Registry"><q10:Registry>TestRegistry</q10:Registry></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Registry preferences should be categorized under Preferences > Windows Settings > Registry"
+        }
+        
+        It "Should correctly categorize Shortcuts preferences" {
+            # This test checks if Shortcuts namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Windows Settings > Shortcuts"
+            
+            # Mock an XML element with Shortcuts namespace for testing
+            $mockXml = [xml]'<root xmlns:q11="http://www.microsoft.com/GroupPolicy/Settings/Shortcuts"><q11:Shortcut>TestShortcut</q11:Shortcut></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Shortcuts preferences should be categorized under Preferences > Windows Settings > Shortcuts"
+        }
+    }
+    
+    Context "Group Policy Preferences - Control Panel Settings" {
+        
+        It "Should correctly categorize Scheduled Tasks preferences" {
+            $searchTerm = "Scheduled Task 1"
+            $expected = "Preferences > Control Panel Settings > Scheduled Tasks"
+            $actual = Invoke-GPMCSearch -SearchTerm $searchTerm -TestDataPath $TestDataPath
+            
+            $actual | Should -Be $expected -Because "Scheduled Tasks preferences should be categorized under Preferences > Control Panel Settings > Scheduled Tasks"
+        }
+        
+        It "Should correctly categorize Folder Options preferences" {
+            # This test checks if Folder Options namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Control Panel Settings > Folder Options"
+            
+            # Mock an XML element with Folder Options namespace for testing
+            $mockXml = [xml]'<root xmlns:q12="http://www.microsoft.com/GroupPolicy/Settings/FolderOptions"><q12:FolderOptions>TestFolderOptions</q12:FolderOptions></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Folder Options preferences should be categorized under Preferences > Control Panel Settings > Folder Options"
+        }
+        
+        It "Should correctly categorize Power Options preferences" {
+            # This test checks if Power Options namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Control Panel Settings > Power Options"
+            
+            # Mock an XML element with Power Options namespace for testing
+            $mockXml = [xml]'<root xmlns:q13="http://www.microsoft.com/GroupPolicy/Settings/PowerOptions"><q13:PowerOptions>TestPowerOptions</q13:PowerOptions></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Power Options preferences should be categorized under Preferences > Control Panel Settings > Power Options"
+        }
+        
+        It "Should correctly categorize Start Menu preferences" {
+            # This test checks if Start Menu namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Control Panel Settings > Start Menu"
+            
+            # Mock an XML element with Start Menu namespace for testing
+            $mockXml = [xml]'<root xmlns:q14="http://www.microsoft.com/GroupPolicy/Settings/StartMenu"><q14:StartMenu>TestStartMenu</q14:StartMenu></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Start Menu preferences should be categorized under Preferences > Control Panel Settings > Start Menu"
+        }
+        
+        It "Should correctly categorize Local Users and Groups preferences" {
+            # This test checks if Local Users and Groups namespace mapping would work when the XML contains the namespace
+            $expected = "Preferences > Control Panel Settings > Local Users and Groups"
+            
+            # Mock an XML element with Local Users and Groups namespace for testing
+            $mockXml = [xml]'<root xmlns:q15="http://www.microsoft.com/GroupPolicy/Settings/Lugs"><q15:LocalUsersAndGroups>TestLugs</q15:LocalUsersAndGroups></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Local Users and Groups preferences should be categorized under Preferences > Control Panel Settings > Local Users and Groups"
+        }
+    }
+    
+    Context "Group Policy Preferences - Namespace Detection" {
+        
+        It "Should detect namespaces from xmlns attributes" {
+            # Test namespace detection from xmlns declarations
+            $expected = "Preferences > Windows Settings > Drive Maps"
+            
+            # Create XML with namespace declaration in attributes
+            $mockXml = [xml]@'
+<root>
+    <ExtensionData xmlns:q7="http://www.microsoft.com/GroupPolicy/Settings/DriveMaps">
+        <q7:DriveMapSettings>
+            <q7:Drive Letter="S:" />
+        </q7:DriveMapSettings>
+    </ExtensionData>
+</root>
+'@
+            $mockElement = $mockXml.DocumentElement.FirstChild.FirstChild.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Namespace should be detected from xmlns attribute declarations"
+        }
+        
+        It "Should traverse parent hierarchy to find namespace" {
+            # Test that the function walks up the parent hierarchy to find namespaces
+            $expected = "Preferences > Windows Settings > Environment Variables"
+            
+            # Create nested XML where namespace is declared at parent level
+            $mockXml = [xml]@'
+<root xmlns:q8="http://www.microsoft.com/GroupPolicy/Settings/Environment">
+    <ExtensionData>
+        <q8:EnvironmentSettings>
+            <q8:Environment Name="TEST_VAR" />
+        </q8:EnvironmentSettings>
+    </ExtensionData>
+</root>
+'@
+            $mockElement = $mockXml.DocumentElement.FirstChild.FirstChild.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Function should traverse parent hierarchy to find namespace declarations"
+        }
+        
+        It "Should return null for non-Preferences namespaces" {
+            # Test that non-preferences namespaces return null
+            $mockXml = [xml]'<root xmlns:q1="http://www.microsoft.com/GroupPolicy/Settings/Security"><q1:SecuritySettings>TestSecurity</q1:SecuritySettings></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Not -Be $null -Because "Security settings should be handled by other category logic, not return null"
+            $result | Should -Not -BeLike "Preferences*" -Because "Non-preferences namespaces should not return Preferences categories"
+        }
+        
+        It "Should prioritize Preferences namespace mapping over other category logic" {
+            # Test that preferences mapping takes precedence
+            $expected = "Preferences > Windows Settings > Drive Maps"
+            
+            # Create XML that could match other category logic but has preferences namespace
+            $mockXml = [xml]@'
+<root>
+    <User xmlns:q7="http://www.microsoft.com/GroupPolicy/Settings/DriveMaps">
+        <q7:DriveMapSettings>
+            <q7:Drive Letter="S:" />
+        </q7:DriveMapSettings>
+    </User>
+</root>
+'@
+            $mockElement = $mockXml.DocumentElement.FirstChild.FirstChild.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Preferences namespace mapping should take priority over other category detection logic"
+        }
+    }
+
     Context "Edge Cases and Error Handling" {
         
         It "Should handle search terms not found in test data" {

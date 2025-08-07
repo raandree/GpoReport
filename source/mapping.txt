@@ -1,3 +1,4 @@
+Policy Mappings:
 "Chile": "Security Settings > Local Policies > User Rights Assignment"
 "SeTakeOwnershipPrivilege": "Security Settings > Local Policies > User Rights Assignment"
 "LDAP server signing requirements": "Security Settings > Local Policies > Security Options > Domain Controller"
@@ -23,3 +24,17 @@
 "Allow only system backup": "Administrative Templates > Server"
 "Establish ActiveX installation": "Administrative Templates > Windows Components > ActiveX Installer Service"
 "Turn on Security Center": "Administrative Templates > Windows Components > Security Center"
+
+Preferences Mapping:
+http://www.microsoft.com/GroupPolicy/Settings/DriveMaps: Preferences > Windows Settings > Drive Maps
+http://www.microsoft.com/GroupPolicy/Settings/Environment: Preferences > Windows Settings > Environmet Variables
+http://www.microsoft.com/GroupPolicy/Settings/Files: Preferences > Windows Settings > Files
+http://www.microsoft.com/GroupPolicy/Settings/Folders: Preferences > Windows Settings > Folders
+http://www.microsoft.com/GroupPolicy/Settings/Windows/Registry: Preferences > Windows Settings > Registry
+http://www.microsoft.com/GroupPolicy/Settings/Shortcuts: Preferences > Windows Settings > Shortcuts
+http://www.microsoft.com/GroupPolicy/Settings/FolderOptions: Preferences > Control Panel Settings > Folder Options
+http://www.microsoft.com/GroupPolicy/Settings/PowerOptions: Preferences > Control Panel Settings > Power Options
+http://www.microsoft.com/GroupPolicy/Settings/ScheduledTasks: Preferences > Control Panel Settings > Scheduled Tasks
+http://www.microsoft.com/GroupPolicy/Settings/StartMenu: Preferences > Control Panel Settings > Start Menu
+http://www.microsoft.com/GroupPolicy/Settings/ControlPanel/Internet: Preferences > Control Panel Settings > Internet Settings
+http://www.microsoft.com/GroupPolicy/Settings/Lugs: Preferences > Control Panel Settings > Local Users and Groups

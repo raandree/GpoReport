@@ -510,6 +510,15 @@ function Get-GPMCCategoryPath {
         $searchDepth++
     }
     
+    # Check for Group Policy Preferences namespace mapping
+    if ($pathElements.Count -eq 0) {
+        $preferencesCategory = Get-PreferencesCategory -Node $Node
+        if ($preferencesCategory) {
+            $pathElements += $preferencesCategory
+            Write-Verbose "Found Preferences category: $preferencesCategory"
+        }
+    }
+    
     # Reset for extension search
     $currentNode = $Node
     $searchDepth = 0

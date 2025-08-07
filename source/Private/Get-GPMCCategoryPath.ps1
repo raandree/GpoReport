@@ -17,6 +17,47 @@ function Get-GPMCCategoryPath {
     )
     
     try {
+        # Check for Group Policy Preferences first
+        # Define the namespace to category mapping based on mapping.txt
+        $namespaceMapping = @{
+            "http://www.microsoft.com/GroupPolicy/Settings/DriveMaps" = "Preferences > Windows Settings > Drive Maps"
+            "http://www.microsoft.com/GroupPolicy/Settings/Environment" = "Preferences > Windows Settings > Environment Variables"
+            "http://www.microsoft.com/GroupPolicy/Settings/Files" = "Preferences > Windows Settings > Files"
+            "http://www.microsoft.com/GroupPolicy/Settings/Folders" = "Preferences > Windows Settings > Folders"
+            "http://www.microsoft.com/GroupPolicy/Settings/Windows/Registry" = "Preferences > Windows Settings > Registry"
+            "http://www.microsoft.com/GroupPolicy/Settings/Shortcuts" = "Preferences > Windows Settings > Shortcuts"
+            "http://www.microsoft.com/GroupPolicy/Settings/FolderOptions" = "Preferences > Control Panel Settings > Folder Options"
+            "http://www.microsoft.com/GroupPolicy/Settings/PowerOptions" = "Preferences > Control Panel Settings > Power Options"
+            "http://www.microsoft.com/GroupPolicy/Settings/ScheduledTasks" = "Preferences > Control Panel Settings > Scheduled Tasks"
+            "http://www.microsoft.com/GroupPolicy/Settings/StartMenu" = "Preferences > Control Panel Settings > Start Menu"
+            "http://www.microsoft.com/GroupPolicy/Settings/Lugs" = "Preferences > Control Panel Settings > Local Users and Groups"
+        }
+        
+        # Check current element and parent elements for namespace information
+        $currentNode = $Element
+        $searchDepth = 0
+        
+        while ($null -ne $currentNode -and $searchDepth -lt 10) {
+            if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
+                # Check if the current node's namespace matches any preferences mapping
+                if ($currentNode.NamespaceURI -and $namespaceMapping.ContainsKey($currentNode.NamespaceURI)) {
+                    return $namespaceMapping[$currentNode.NamespaceURI]
+                }
+                
+                # Also check namespace declarations in the node's attributes
+                if ($currentNode.Attributes) {
+                    foreach ($attr in $currentNode.Attributes) {
+                        if ($attr.Name.StartsWith("xmlns:") -and $namespaceMapping.ContainsKey($attr.Value)) {
+                            return $namespaceMapping[$attr.Value]
+                        }
+                    }
+                }
+            }
+            
+            $currentNode = $currentNode.ParentNode
+            $searchDepth++
+        }
+        
         # Walk up the hierarchy to find the right categorization context
         $current = $Element
         $maxDepth = 20

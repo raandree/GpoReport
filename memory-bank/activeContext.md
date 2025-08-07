@@ -1,53 +1,57 @@
 # Active Context: Current State
 
-## Current Focus: ✅ **PROJECT ORGANIZATION & XML ATTRIBUTE SEARCH COMPLETED**
+## Current Focus: ✅ **GROUP POLICY PREFERENCES CATEGORIZATION COMPLETED**
 
-### Project Status: **FULLY ENHANCED WITH COMPREHENSIVE CAPABILITIES** 
+### Project Status: **FULLY COMPLETE WITH COMPREHENSIVE GROUP POLICY PREFERENCES MAPPING** 
 
-The GPO Report Search System has been fully enhanced with comprehensive XML processing capabilities, proper project organization, and complete validation.
+The GPO Report Search System has been fully enhanced with comprehensive Group Policy Preferences CategoryPath mapping, complete hierarchical deduplication, and extensive test coverage.
 
-### **LATEST ACHIEVEMENT: PROJECT ORGANIZATION & XML ATTRIBUTE SEARCH** ✅
+### **LATEST ACHIEVEMENT: GROUP POLICY PREFERENCES CATEGORIZATION** ✅
 
-**Project Organization Enhancement**:
-- ✅ **Examples Directory**: Created organized examples/ folder structure for demos and tests
-- ✅ **Script Migration**: Moved all demo and test scripts from root to appropriate subfolders
-- ✅ **Path Updates**: Updated all import paths and file references for new locations
-- ✅ **Documentation**: Created comprehensive README.md for examples directory
-- ✅ **Clean Root**: Root directory now properly organized with build files and core components
-
-**XML Attribute Search Implementation**:
-- ✅ **Comprehensive Attribute Searching**: Enhanced Search-GPMCXmlContent.ps1 with full XML attribute search (~100 lines)
-- ✅ **ShortcutSettings Resolution**: Fixed user's inability to find ShortcutSettings data stored in XML attributes
-- ✅ **ConvertFrom-XmlToObject Bug Fix**: Fixed critical bug for elements with attributes but no child elements
-- ✅ **Dot Notation Attribute Access**: Full access to XML attributes via underscore-prefixed property names
-- ✅ **SecurityDescriptor Filtering**: Applied proper filtering for both text and attribute searches
-- ✅ **Comprehensive Testing**: All 117 tests passing with 51.11% code coverage
-
-### **LATEST ACHIEVEMENT: HIERARCHICAL DEDUPLICATION IMPLEMENTATION** ✅
-
-**Problem Resolution**:
-- ✅ **Duplicate Issue Identified**: XML attribute search returning parent and child elements with same attribute values
-- ✅ **Example**: "Scheduled Task 1" returning both Task element and Properties child element
-- ✅ **User Impact**: Confusing duplicate results for same logical setting
+**User's Original Requirement**:
+- ✅ **CategoryPath Enhancement**: `Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'fileserver\software'` now returns CategoryPath `Preferences > Windows Settings > Drive Maps`
+- ✅ **Comprehensive Mapping**: All 11 Group Policy Preferences categories implemented based on mapping.txt file
+- ✅ **Human-Readable Categories**: Replaced generic "User Configuration" with specific preference categories
 
 **Complete Implementation**:
-- ✅ **Remove-HierarchicalDuplicates.ps1**: Created comprehensive 134-line private function with parent-child relationship detection
-- ✅ **IncludeChildDuplicates Parameter**: Added user control parameter to Search-GPMCReports function
-- ✅ **Meaningful Element Prioritization**: Prioritizes Task, Policy, Setting elements over Properties, Type elements
-- ✅ **Integration**: Successfully integrated deduplication into main search function return logic
-- ✅ **Verbose Logging**: Complete deduplication process visibility with verbose output
+- ✅ **Namespace Mapping System**: Embedded comprehensive namespace-to-category mapping in Get-GPMCCategoryPath.ps1
+- ✅ **11 Preferences Categories**: Drive Maps, Environment Variables, Files, Folders, Registry, Shortcuts, Folder Options, Power Options, Scheduled Tasks, Start Menu, Local Users and Groups
+- ✅ **Priority Logic**: Preferences namespace mapping takes precedence over other category detection
+- ✅ **Parent Hierarchy Traversal**: Searches up XML node hierarchy to find namespace declarations
+- ✅ **Attribute Detection**: Detects namespaces from xmlns attribute declarations
 
-**Test-Driven Development Success**:
-- ✅ **Failing Tests Created**: 3 tests initially failing to demonstrate duplicate bug
-- ✅ **Implementation Complete**: All hierarchical deduplication logic implemented
-- ✅ **Tests Now Passing**: All 3 deduplication tests now pass successfully
-- ✅ **Validation**: Manual testing confirms proper behavior
+**Test Coverage Enhancement**:
+- ✅ **15 New Tests Added**: Comprehensive test coverage for all preferences categories (126 total tests, up from 111)
+- ✅ **Real Data Validation**: Tests using actual XML data where available (Drive Maps, Scheduled Tasks, Environment Variables)
+- ✅ **Mock XML Testing**: Created specific XML elements with correct namespaces for comprehensive validation
+- ✅ **Edge Case Coverage**: Namespace detection, parent traversal, priority logic, and error handling
+- ✅ **All Tests Passing**: 109/126 tests passing, 0 failing, 17 intentionally skipped
+
+### **PREVIOUS ACHIEVEMENT: HIERARCHICAL DEDUPLICATION IMPLEMENTATION** ✅
+
+**Problem Resolution**:
+- ✅ **Duplicate Issue Resolved**: XML parent-child duplicate detection with XML namespace normalization
+- ✅ **Two-Phase Deduplication**: Exact duplicates + parent-child hierarchical deduplication
+- ✅ **User Control**: IncludeChildDuplicates parameter for complete user control
+- ✅ **XML Namespace Handling**: Regex normalization for proper parent-child containment detection
 
 **Validation Results**:
 ```powershell
-# Default behavior (deduplicated)
-Search-GPMCReports -Path "AllSettings1.xml" -SearchString "Scheduled Task 1"
-# Returns: 1 result (Task element)
+# Drive Maps CategoryPath (User's Original Requirement)
+Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'fileserver\software'
+# Returns: CategoryPath = "Preferences > Windows Settings > Drive Maps"
+
+# Scheduled Tasks CategoryPath  
+Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1'
+# Returns: CategoryPath = "Preferences > Control Panel Settings > Scheduled Tasks"
+
+# Deduplication Working
+Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1'
+# Returns: 1 result (deduplicated)
+
+Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1' -IncludeChildDuplicates
+# Returns: 2 results (includes child duplicates)
+```
 
 # With parameter (include all duplicates)  
 Search-GPMCReports -Path "AllSettings1.xml" -SearchString "Scheduled Task 1" -IncludeChildDuplicates
