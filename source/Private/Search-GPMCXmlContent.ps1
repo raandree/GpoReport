@@ -78,10 +78,6 @@ function Search-GPMCXmlContent {
         
         # Search all text nodes
         $textNodes = $xmlDoc.SelectNodes("//text()")
-        
-        # Separate exact matches from partial matches to prioritize them
-        $exactMatches = @()
-        $partialMatches = @()
 
         foreach ($node in $textNodes) {
             $text = $node.Value.Trim()
@@ -207,14 +203,8 @@ function Search-GPMCXmlContent {
                     XmlNode = $xmlNodeInfo
                 }
                 
-                # Determine if this is an exact match or partial match
-                # Remove wildcard characters from search string for exact comparison
-                $cleanSearchString = $SearchString -replace '[\*\?]', ''
-                if ($text -eq $cleanSearchString -or ($text -like $SearchString -and $text.Length -eq $cleanSearchString.Length)) {
-                    $exactMatches += $result
-                } else {
-                    $partialMatches += $result
-                }
+                # Add to results array - maintains document order
+                $results += $result
             }
         }
         
@@ -336,19 +326,11 @@ function Search-GPMCXmlContent {
                         XmlNode = $xmlNodeInfo
                     }
                     
-                    # Determine if this is an exact match or partial match
-                    $cleanSearchString = $SearchString -replace '[\*\?]', ''
-                    if ($attrValue -eq $cleanSearchString -or ($attrValue -like $SearchString -and $attrValue.Length -eq $cleanSearchString.Length)) {
-                        $exactMatches += $result
-                    } else {
-                        $partialMatches += $result
-                    }
+                    # Add to results array - maintains document order
+                    $results += $result
                 }
             }
         }
-        
-        # Return exact matches first, then partial matches
-        $results = $exactMatches + $partialMatches
         
         return $results
     }
