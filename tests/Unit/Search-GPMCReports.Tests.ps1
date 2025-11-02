@@ -461,6 +461,28 @@ Describe "Search-GPMCReports Function Validation" {
                 $results.Count | Should -BeLessOrEqual 1
             }
         }
+        
+        It "Should handle IncludeAllMatches parameter with German language content" -Skip:$script:UseSimpleTest {
+            $searchTerm = "verhindert unnötige"
+            $results = Search-GPMCReports -Path $TestDataPath -IncludeAllMatches -SearchString $searchTerm
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Should find German language setting in test data"
+            $results.Count | Should -Be 1 -Because "Should return exactly one result for this German phrase"
+            $results[0].SettingValue | Should -BeLike "*Verhindert unnötige*" -Because "Setting value should contain the German phrase"
+            $results[0].CategoryPath | Should -Be "Administrative Templates > Windows Components > Windows Error Reporting" -Because "Should be categorized under Windows Error Reporting"
+            $results[0].Section | Should -Be "Computer" -Because "Should be in Computer section"
+        }
+        
+        It "Should handle IncludeAllMatches parameter with parenthetical content" -Skip:$script:UseSimpleTest {
+            $searchTerm = "HTTP Only (0)"
+            $results = Search-GPMCReports -Path $TestDataPath -IncludeAllMatches -SearchString $searchTerm
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Should find setting with parenthetical value in test data"
+            $results.Count | Should -Be 1 -Because "Should return exactly one result for this search term"
+            $results[0].SettingValue | Should -BeLike "*HTTP only (0)*" -Because "Setting value should contain the search phrase with parentheses"
+            $results[0].CategoryPath | Should -Be "Administrative Templates > Windows Components > Delivery Optimization" -Because "Should be categorized under Delivery Optimization"
+            $results[0].Section | Should -Be "Computer" -Because "Should be in Computer section"
+        }
     }
 }
 
