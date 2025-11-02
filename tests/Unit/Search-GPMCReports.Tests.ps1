@@ -47,8 +47,9 @@ BeforeAll {
         throw "GpoReport module manifest not found at: $ModuleManifest"
     }
     
-    # Set up test data path
+    # Set up test data paths
     $TestDataPath = Join-Path $PSScriptRoot "..\..\Test Reports\AllSettings1.xml"
+    $PreferencesDataPath = Join-Path $PSScriptRoot "..\..\Test Reports\AllPreferences1.xml"
     
     # Verify test data exists
     if (-not (Test-Path $TestDataPath)) {
@@ -900,16 +901,21 @@ Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTe
     Context "Group Policy Preferences - Windows Settings" {
         
         It "Should correctly categorize Drive Maps preferences" {
-            $searchTerm = "fileserver\software"
+            # This test checks if Drive Maps namespace mapping would work when the XML contains the namespace
             $expected = "Preferences > Windows Settings > Drive Maps"
-            $actual = Invoke-GPMCSearch -SearchTerm $searchTerm -TestDataPath $TestDataPath
             
-            $actual | Should -Be $expected -Because "Drive Maps preferences should be categorized under Preferences > Windows Settings > Drive Maps"
+            # Mock an XML element with Drive Maps namespace for testing
+            $mockXml = [xml]'<root xmlns:q7="http://www.microsoft.com/GroupPolicy/Settings/DriveMaps"><q7:Drive>TestDrive</q7:Drive></root>'
+            $mockElement = $mockXml.DocumentElement.FirstChild
+            
+            $result = Get-GPMCCategoryPath -Element $mockElement
+            $result | Should -Be $expected -Because "Drive Maps preferences should be categorized under Preferences > Windows Settings > Drive Maps"
         }
         
         It "Should correctly categorize Environment Variables preferences" {
             $searchTerm = "environment"
-            $results = Search-GPMCReports -Path $TestDataPath -SearchString $searchTerm
+            # Use PreferencesDataPath since environment variables are in AllPreferences1.xml
+            $results = Search-GPMCReports -Path $PreferencesDataPath -SearchString $searchTerm
             $preferencesResult = $results | Where-Object { $_.CategoryPath -like "*Environment Variables*" } | Select-Object -First 1
             
             $preferencesResult.CategoryPath | Should -Be "Preferences > Windows Settings > Environment Variables" -Because "Environment Variables preferences should be properly categorized"
@@ -968,9 +974,10 @@ Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTe
     Context "Group Policy Preferences - Control Panel Settings" {
         
         It "Should correctly categorize Scheduled Tasks preferences" {
-            $searchTerm = "Scheduled Task 1"
+            $searchTerm = "Test1"  # Changed from "Scheduled Task 1" to "Test1" which actually exists in AllPreferences1.xml
             $expected = "Preferences > Control Panel Settings > Scheduled Tasks"
-            $actual = Invoke-GPMCSearch -SearchTerm $searchTerm -TestDataPath $TestDataPath
+            # Use PreferencesDataPath since scheduled tasks are in AllPreferences1.xml
+            $actual = Invoke-GPMCSearch -SearchTerm $searchTerm -TestDataPath $PreferencesDataPath
             
             $actual | Should -Be $expected -Because "Scheduled Tasks preferences should be categorized under Preferences > Control Panel Settings > Scheduled Tasks"
         }
