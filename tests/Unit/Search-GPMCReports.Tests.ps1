@@ -483,6 +483,28 @@ Describe "Search-GPMCReports Function Validation" {
             $results[0].CategoryPath | Should -Be "Administrative Templates > Windows Components > Delivery Optimization" -Because "Should be categorized under Delivery Optimization"
             $results[0].Section | Should -Be "Computer" -Because "Should be in Computer section"
         }
+        
+        It "Should handle IncludeAllMatches parameter with domain name in URL" -Skip:$script:UseSimpleTest {
+            $searchTerm = "123.xx.bingo.de"
+            $results = Search-GPMCReports -Path $TestDataPath -IncludeAllMatches -SearchString $searchTerm
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Should find setting with domain name in test data"
+            $results.Count | Should -Be 1 -Because "Should return exactly one result for this domain search"
+            $results[0].SettingValue | Should -BeLike "*123.xx.bingo.de*" -Because "Setting value should contain the domain name"
+            $results[0].CategoryPath | Should -Be "Administrative Templates > Windows Components > Search" -Because "Should be categorized under Search component"
+            $results[0].Section | Should -Be "Computer" -Because "Should be in Computer section"
+        }
+        
+        It "Should handle IncludeAllMatches parameter with German comment text" -Skip:$script:UseSimpleTest {
+            $searchTerm = "Diplonetsuche"
+            $results = Search-GPMCReports -Path $TestDataPath -IncludeAllMatches -SearchString $searchTerm
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Should find setting with German comment text in test data"
+            $results.Count | Should -Be 1 -Because "Should return exactly one result for this German term"
+            $results[0].SettingValue | Should -BeLike "*Diplonetsuche*" -Because "Setting value should contain the German term"
+            $results[0].CategoryPath | Should -Be "Administrative Templates > Windows Components > Search" -Because "Should be categorized under Search component"
+            $results[0].Section | Should -Be "Computer" -Because "Should be in Computer section"
+        }
     }
 }
 
