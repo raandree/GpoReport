@@ -510,6 +510,15 @@ function Get-GPMCCategoryPath {
         $searchDepth++
     }
     
+    # Check for Group Policy Preferences namespace mapping
+    if ($pathElements.Count -eq 0) {
+        $preferencesCategory = Get-PreferencesCategory -Node $Node
+        if ($preferencesCategory) {
+            $pathElements += $preferencesCategory
+            Write-Verbose "Found Preferences category: $preferencesCategory"
+        }
+    }
+    
     # Reset for extension search
     $currentNode = $Node
     $searchDepth = 0
@@ -1067,6 +1076,7 @@ function Search-GPMCXmlContent {
     
     try {
         Write-Verbose "Processing XML content: $SourceIdentifier"
+        Write-Verbose "=== Main Search-GPMCXmlContent function called ==="
         
         # Get GPO information once for the entire XML content
         $gpoInfo = Get-GPMCGpoInfo -XmlDocument $XmlDocument -SourceFilePath $SourceIdentifier
@@ -1084,6 +1094,8 @@ function Search-GPMCXmlContent {
             $matchFound = $false
             $matchedValue = $null
             $matchType = $null
+            
+            Write-Verbose "Checking node: $($node.LocalName), content: $($textContent.Substring(0, [Math]::Min(50, $textContent.Length)))"
             
             # Check text content (only for leaf nodes or nodes with short text to avoid duplicates)
             if (-not [string]::IsNullOrWhiteSpace($textContent) -and $textContent.Length -ge 2) {
@@ -1118,6 +1130,26 @@ function Search-GPMCXmlContent {
             }
             
             if ($matchFound) {
+                # Skip nodes that are within SecurityDescriptor elements
+                $currentNode = $node
+                $isInSecurityDescriptor = $false
+                $maxDepth = 10  # Limit search depth for performance
+                $depth = 0
+                
+                while ($null -ne $currentNode -and $depth -lt $maxDepth) {
+                    if ($currentNode.LocalName -eq "SecurityDescriptor") {
+                        $isInSecurityDescriptor = $true
+                        break
+                    }
+                    $currentNode = $currentNode.ParentNode
+                    $depth++
+                }
+                
+                if ($isInSecurityDescriptor) {
+                    Write-Verbose "Skipping match in SecurityDescriptor: $matchedValue (node: $($node.LocalName))"
+                    continue
+                }
+
                 $potentialMatches += @{
                     Node = $node
                     MatchedValue = $matchedValue

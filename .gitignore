@@ -1,0 +1,140 @@
+# Build output
+output/
+*.nupkg
+
+# Temporary files
+.temp/
+temp/
+tmp/
+
+# PowerShell artifacts
+*.ps1xml
+TestResults.xml
+coverage.xml
+*TestResults.xml
+*coverage.xml
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+$RECYCLE.BIN/
+Desktop.ini
+
+# PowerShell profile backups
+*_profile.ps1.backup
+
+# PSDepend cache
+.psdepend/
+
+# Module artifacts
+*.zip
+publish/
+
+# Test artifacts
+TestResults/
+testResults/
+*.trx
+
+# Coverage reports
+coverage/
+*.coverage
+*.coveragexml
+
+# Documentation artifacts
+docs/_site/
+help/
+
+# Pester output
+PesterResults.xml
+CodeCoverageResults.xml
+
+# NuGet
+packages/
+*.nuget.props
+*.nuget.targets
+
+# Node.js (if using any JS tools)
+node_modules/
+npm-debug.log*
+
+# Python (if using any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE files
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Local configuration
+local.settings.json
+appsettings.local.json
+
+# Azure Functions
+local.settings.json
+bin
+obj
+appsettings.json
+host.json
+
+# JetBrains
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]

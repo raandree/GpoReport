@@ -55,6 +55,10 @@ $xmlContent = Get-Content "MyGPO.xml" -Raw
 - `Search-GPOCached.ps1` - High-performance caching system  
 - `Get-GPOInsights.ps1` - AI-powered analysis and insights
 
+### Examples & Demonstrations
+- `examples/` - Demo scripts and feature showcases
+- `examples/tests/` - Validation scripts for enhanced features
+
 ### Testing & Validation
 - `Test-GPMCSearch.Tests.ps1` - Comprehensive test suite (369 lines, 59 tests)
 

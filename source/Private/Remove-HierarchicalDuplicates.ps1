@@ -1,0 +1,166 @@
+function Remove-HierarchicalDuplicates {
+    <#
+    .SYNOPSIS
+    Removes hierarchical duplicates from search results while preserving legitimate different results.
+    
+    .DESCRIPTION
+    This function analyzes search results to identify and remove hierarchical duplicates where
+    a child element duplicate is found within a parent element. Uses a two-phase approach:
+    1. Groups results by XmlPath and category path to find potential duplicates from same XML element
+    2. Within each group, applies parent-child relationship detection
+    
+    .PARAMETER Results
+    Array of search result objects to deduplicate
+    
+    .PARAMETER IncludeChildDuplicates
+    When specified, returns all duplicates including child elements that would normally be filtered
+    
+    .EXAMPLE
+    $deduplicatedResults = Remove-HierarchicalDuplicates -Results $searchResults
+    #>
+    
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [Array]$Results,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$IncludeChildDuplicates
+    )
+    
+    if ($IncludeChildDuplicates) {
+        Write-Verbose "IncludeChildDuplicates specified - returning all results without deduplication"
+        return $Results
+    }
+    
+    if ($Results.Count -le 1) {
+        Write-Verbose "Only $($Results.Count) result(s) - no deduplication needed"
+        return $Results
+    }
+    
+    Write-Verbose "Starting deduplication process with $($Results.Count) results"
+    
+    # Phase 1: Group by XmlPath and CategoryPath to find exact duplicates
+    # Results with the same XmlPath (same XML element) in the same category are exact duplicates
+    $exactDuplicateGroups = @()
+    foreach ($result in $Results) {
+        $xmlPath = $result.XmlNode.XmlPath
+        $categoryPath = $result.CategoryPath
+        $groupKey = "$xmlPath|$categoryPath"
+        Write-Verbose "Creating exact duplicate group key: '$groupKey' (XmlPath='$xmlPath', CategoryPath='$categoryPath')"
+        
+        $existingGroup = $exactDuplicateGroups | Where-Object { $_.Name -eq $groupKey }
+        if ($existingGroup) {
+            $existingGroup.Group += $result
+        } else {
+            $exactDuplicateGroups += [PSCustomObject]@{
+                Name = $groupKey
+                Group = @($result)
+                Count = 1
+            }
+        }
+    }
+    
+    # Update Count property
+    foreach ($group in $exactDuplicateGroups) {
+        $group.Count = $group.Group.Count
+    }
+    
+    # Phase 1.5: Remove exact duplicates within each XmlPath group
+    $afterExactDeduplication = @()
+    $exactDuplicatesRemoved = 0
+    
+    foreach ($group in $exactDuplicateGroups) {
+        if ($group.Count -eq 1) {
+            # No exact duplicates, keep the result
+            $afterExactDeduplication += $group.Group[0]
+        } else {
+            Write-Verbose "Removing $($group.Count - 1) exact duplicates for XmlPath/Category '$($group.Name)'"
+            # Keep only the first result, remove exact duplicates
+            $afterExactDeduplication += $group.Group[0]
+            $exactDuplicatesRemoved += ($group.Count - 1)
+        }
+    }
+    
+    Write-Verbose "After exact duplicate removal: $($Results.Count) -> $($afterExactDeduplication.Count) results (removed $exactDuplicatesRemoved exact duplicates)"
+    
+    # Phase 2: Group remaining results by CategoryPath to check for parent-child relationships
+    $categoryGroups = @{}
+    foreach ($result in $afterExactDeduplication) {
+        $categoryPath = $result.CategoryPath
+        if (-not $categoryGroups.ContainsKey($categoryPath)) {
+            $categoryGroups[$categoryPath] = @()
+        }
+        $categoryGroups[$categoryPath] += $result
+    }
+    
+    # Phase 3: Check for parent-child relationships within each category
+    $deduplicatedResults = @()
+    $parentChildDuplicatesRemoved = 0
+    
+    foreach ($categoryPath in $categoryGroups.Keys) {
+        $categoryResults = $categoryGroups[$categoryPath]
+        
+        if ($categoryResults.Count -eq 1) {
+            # Only one result in this category, no parent-child relationships possible
+            $deduplicatedResults += $categoryResults[0]
+            continue
+        }
+        
+        Write-Verbose "Processing $($categoryResults.Count) results for parent-child relationships in Category '$categoryPath'"
+        
+        # Check for parent-child relationships within this category
+        $parentChildPairs = @()
+        
+        for ($i = 0; $i -lt $categoryResults.Count; $i++) {
+            for ($j = 0; $j -lt $categoryResults.Count; $j++) {
+                if ($i -eq $j) { continue }
+                
+                $result1 = $categoryResults[$i]
+                $result2 = $categoryResults[$j]
+                
+                # Check if result1's XML contains result2's XML (result1 is parent, result2 is child)
+                # Handle XML namespace differences by checking if the parent contains the child content
+                if ($result1.XmlNode.OuterXml -and $result2.XmlNode.OuterXml -and
+                    $result1.XmlNode.OuterXml.Length -gt $result2.XmlNode.OuterXml.Length) {
+                    
+                    # Remove namespace declarations to normalize comparison
+                    $parent = $result1.XmlNode.OuterXml -replace '\s+xmlns:\w+="[^"]*"', ''
+                    $child = $result2.XmlNode.OuterXml -replace '\s+xmlns:\w+="[^"]*"', ''
+                    
+                    if ($parent.Contains($child)) {
+                        Write-Verbose "Found parent-child relationship: '$($result1.XmlNode.XmlPath)' contains '$($result2.XmlNode.XmlPath)'"
+                        $parentChildPairs += [PSCustomObject]@{
+                            Parent = $result1
+                            Child = $result2
+                            ParentIndex = $i
+                            ChildIndex = $j
+                        }
+                    }
+                }
+            }
+        }
+        
+        if ($parentChildPairs.Count -eq 0) {
+            Write-Verbose "No parent-child relationships found in category '$categoryPath', keeping all $($categoryResults.Count) results"
+            $deduplicatedResults += $categoryResults
+        } else {
+            # Remove child duplicates, keep parents
+            $childIndicesToRemove = $parentChildPairs | ForEach-Object { $_.ChildIndex } | Sort-Object -Unique -Descending
+            Write-Verbose "Removing $($childIndicesToRemove.Count) child duplicates from category '$categoryPath'"
+            
+            for ($i = 0; $i -lt $categoryResults.Count; $i++) {
+                if ($childIndicesToRemove -notcontains $i) {
+                    $deduplicatedResults += $categoryResults[$i]
+                } else {
+                    $parentChildDuplicatesRemoved++
+                }
+            }
+        }
+    }
+    
+    $totalDuplicatesRemoved = $exactDuplicatesRemoved + $parentChildDuplicatesRemoved
+    Write-Verbose "Deduplication complete: $($Results.Count) -> $($deduplicatedResults.Count) results (removed $totalDuplicatesRemoved duplicates: $exactDuplicatesRemoved exact + $parentChildDuplicatesRemoved parent-child)"
+    
+    return $deduplicatedResults
+}
