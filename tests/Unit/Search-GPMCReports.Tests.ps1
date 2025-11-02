@@ -866,6 +866,30 @@ Describe "Search-GPMCReports Category Path Validation" -Skip:$script:UseSimpleTe
             $actual | Should -Be $expected -Because "Windows Defender SmartScreen settings should have full category path"
         }
         
+        It "Should correctly categorize Windows Game Recording and Broadcasting settings" {
+            $searchTerm = "Enables or disables Windows Game Recording and Broadcasting"
+            $expected = "Administrative Templates > Windows Components > Windows Game Recording and Broadcasting"
+            
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString $searchTerm
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Game Recording setting should be found in test data"
+            $results.Count | Should -Be 1 -Because "Should return exactly one result for this specific setting"
+            $results[0].CategoryPath | Should -Be $expected -Because "Windows Game Recording and Broadcasting settings should have full category path"
+            $results[0].Section | Should -Be "Computer" -Because "This setting should be in the Computer section"
+        }
+        
+        It "Should correctly categorize Windows Game Recording and Broadcasting settings with shorter search term" {
+            $searchTerm = "Game Recording and Broadcasting"
+            $expected = "Administrative Templates > Windows Components > Windows Game Recording and Broadcasting"
+            
+            $results = Search-GPMCReports -Path $TestDataPath -SearchString $searchTerm
+            
+            $results | Should -Not -BeNullOrEmpty -Because "Game Recording setting should be found with shorter search term"
+            $results.Count | Should -Be 1 -Because "Should return exactly one result for this search term"
+            $results[0].CategoryPath | Should -Be $expected -Because "Windows Game Recording and Broadcasting settings should have full category path"
+            $results[0].Section | Should -Be "Computer" -Because "This setting should be in the Computer section"
+        }
+        
         It "Should correctly categorize Windows Defender Antivirus - Attack Surface Reduction settings" -Skip {
             # Test skipped: Policy not present in current test XML data
             $searchTerm = "Configure Attack Surface Reduction rules"
