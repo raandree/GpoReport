@@ -33,10 +33,16 @@ function Get-GPMCGpoInfo {
     try {
         # Use source file path for display name fallback if provided
         if ($SourceFilePath) {
-            $gpoInfo.DisplayName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $SourceFilePath -Leaf))
+            $leafName = Split-Path $SourceFilePath -Leaf
+            if ($leafName) {
+                $gpoInfo.DisplayName = [System.IO.Path]::GetFileNameWithoutExtension($leafName)
+            }
         }
         elseif ($XmlDocument.BaseURI) {
-            $gpoInfo.DisplayName = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $XmlDocument.BaseURI -Leaf))
+            $leafName = Split-Path $XmlDocument.BaseURI -Leaf
+            if ($leafName) {
+                $gpoInfo.DisplayName = [System.IO.Path]::GetFileNameWithoutExtension($leafName)
+            }
         }
         
         # Try to get the actual GPO name from XML structure
