@@ -58,6 +58,73 @@ Write-Host "Found $($allResults.Count) results" -ForegroundColor Green
 
 <#
 .SYNOPSIS
+    Converts a PowerShell object to an HTML table for display in collapsible sections
+
+.PARAMETER Object
+    The object to convert to HTML
+
+.PARAMETER Depth
+    Current recursion depth (used to prevent infinite loops)
+
+.PARAMETER MaxDepth
+    Maximum recursion depth allowed
+#>
+function ConvertTo-PropertyTable {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [object]$Object,
+        
+        [int]$Depth = 0,
+        
+        [int]$MaxDepth = 3
+    )
+    
+    if ($null -eq $Object -or $Depth -ge $MaxDepth) {
+        return ''
+    }
+    
+    $html = '<table style="width: 100%; font-size: 11px; border-collapse: collapse;">'
+    
+    # Get all properties
+    $properties = $Object.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' }
+    
+    foreach ($prop in $properties) {
+        $propName = $prop.Name
+        $value = $prop.Value
+        
+        # Handle null values
+        if ($null -eq $value) {
+            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>(null)</td></tr>"
+            continue
+        }
+        
+        # Handle different value types
+        if ($value -is [string] -or $value -is [int] -or $value -is [bool] -or $value -is [datetime]) {
+            $displayValue = [System.Security.SecurityElement]::Escape($value.ToString())
+            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>$displayValue</td></tr>"
+        }
+        elseif ($value -is [array]) {
+            $arrayString = ($value | ForEach-Object { [System.Security.SecurityElement]::Escape($_.ToString()) }) -join '<br/>'
+            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>$arrayString</td></tr>"
+        }
+        elseif ($value.GetType().Name -eq 'PSCustomObject' -or $value.GetType().Name -eq 'XmlElement') {
+            # Recursively handle complex objects
+            $nestedTable = ConvertTo-PropertyTable -Object $value -Depth ($Depth + 1) -MaxDepth $MaxDepth
+            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%; vertical-align: top;'>$($propName):</td><td style='padding: 3px 10px;'>$nestedTable</td></tr>"
+        }
+        else {
+            $displayValue = [System.Security.SecurityElement]::Escape($value.GetType().Name)
+            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>($displayValue)</td></tr>"
+        }
+    }
+    
+    $html += '</table>'
+    return $html
+}
+
+<#
+.SYNOPSIS
     Generates an HTML report from GPO search results
 
 .PARAMETER PageTitle
@@ -113,6 +180,67 @@ function New-Report {
                 text-align: left; 
                 font-family: "Segoe UI", Verdana, sans-serif; 
                 font-style: normal; 
+            }
+            
+            /* Collapsible sections */
+            .collapsible {
+                background-color: #f5f5f5;
+                color: #333;
+                cursor: pointer;
+                padding: 8px 10px;
+                width: 100%;
+                border: 1px solid #ddd;
+                text-align: left;
+                outline: none;
+                font-size: 12px;
+                font-weight: normal;
+                margin-top: 5px;
+            }
+            
+            .collapsible:hover {
+                background-color: #e8e8e8;
+            }
+            
+            .collapsible:after {
+                content: '\25B6'; /* Right-pointing triangle */
+                color: #666;
+                font-size: 10px;
+                float: right;
+                margin-left: 5px;
+            }
+            
+            .collapsible.active:after {
+                content: "\25BC"; /* Down-pointing triangle */
+            }
+            
+            .toggle-all-btn:hover {
+                background-color: #e8e8e8;
+            }
+            
+            .content {
+                padding: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.2s ease-out;
+                background-color: #f1f1f1;
+            }
+            
+            .content table {
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+            
+            .content table td {
+                padding: 3px 10px;
+                font-size: 11px;
+            }
+            
+            .content table tr:nth-child(even) {
+                background: #e8e8e8;
+            }
+            
+            .content table tr:nth-child(odd) {
+                background: #ffffff;
             }
             
             /* Table in the head section if the web page  */
@@ -241,6 +369,55 @@ function New-Report {
             p { font-family: Segoe UI, Verdana, sans-serif; }
 
         </style>
+        <script type="text/javascript">
+            function toggleCollapsible(element) {
+                element.classList.toggle("active");
+                var content = element.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            }
+            
+            function toggleAllInGroup(button) {
+                // Find the parent table
+                var table = button.closest('table');
+                if (!table) return;
+                
+                // Find all property rows within this table
+                var propertyRows = table.querySelectorAll('.property-row');
+                
+                // Determine if we should expand or collapse based on visibility
+                var shouldExpand = propertyRows.length > 0 && propertyRows[0].style.display === 'none';
+                
+                // Toggle property row visibility and collapsibles
+                propertyRows.forEach(function(row) {
+                    if (shouldExpand) {
+                        row.style.display = '';
+                        // Also expand the content
+                        var collapsible = row.querySelector('.collapsible');
+                        var content = row.querySelector('.content');
+                        if (collapsible && content) {
+                            collapsible.classList.add('active');
+                            content.style.maxHeight = content.scrollHeight + "px";
+                        }
+                    } else {
+                        row.style.display = 'none';
+                        // Also collapse the content
+                        var collapsible = row.querySelector('.collapsible');
+                        var content = row.querySelector('.content');
+                        if (collapsible && content) {
+                            collapsible.classList.remove('active');
+                            content.style.maxHeight = null;
+                        }
+                    }
+                });
+                
+                // Update button text
+                button.textContent = shouldExpand ? 'Collapse All Properties' : 'Expand All Properties';
+            }
+        </script>
     </head>
     <body>
         <table Class="HeadLine">
@@ -317,8 +494,7 @@ foreach ($result in $allResults) {
     $tableOfResults += "<tr><td><b>GPO created:</b></td><td>$creationTime</td></tr>"
     $tableOfResults += "<tr><td><b>GPO modified:</b></td><td>$modificationTime</td></tr>"
 
-    # Setting Details Section
-    $tableOfResults += '<tr><td><u>Setting Details:</u></td><td></td></tr>'
+    # Setting Details
     $tableOfResults += "<tr><td><b>Setting Path:</b></td><td>$($result.Section) > $($result.CategoryPath)</td></tr>"
 
     if ($result.XmlNode.ParsedXml.Name) {
@@ -456,6 +632,28 @@ foreach ($result in $allResults) {
     # Policy Explanation
     if ($result.XmlNode.ParsedXml.Explain) {
         $tableOfResults += "<tr><td><b>Explanation:</b></td><td>$($result.XmlNode.ParsedXml.Explain)</td></tr>"
+    }
+
+    # Add expand/collapse button before property sections
+    $tableOfResults += '<tr><td></td><td><button class="toggle-all-btn" onclick="toggleAllInGroup(this)" style="font-size: 11px; padding: 4px 8px; background-color: #f5f5f5; color: #333; border: 1px solid #ddd; cursor: pointer;">Expand All Properties</button></td></tr>'
+
+    # Add collapsible sections within the table
+    # Add collapsible section for ParsedXml
+    if ($result.XmlNode.ParsedXml) {
+        $parsedXmlTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml -MaxDepth 2
+        $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
+        $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml Properties</button>'
+        $tableOfResults += "<div class='content'>$parsedXmlTable</div>"
+        $tableOfResults += '</td></tr>'
+    }
+    
+    # Add collapsible section for ParsedXml.Properties
+    if ($result.XmlNode.ParsedXml.Properties) {
+        $propertiesTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml.Properties -MaxDepth 2
+        $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
+        $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml.Properties</button>'
+        $tableOfResults += "<div class='content'>$propertiesTable</div>"
+        $tableOfResults += '</td></tr>'
     }
 
     # Close table for this result
