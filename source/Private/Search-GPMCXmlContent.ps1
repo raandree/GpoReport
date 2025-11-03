@@ -161,11 +161,7 @@ function Search-GPMCXmlContent {
                     ElementName = $contextElement.LocalName
                     ElementAttributes = if ($attributesHash.Count -gt 0) { $attributesHash } else { $null }
                     XmlPath = $contextElement.Name
-                    OuterXml = if ($contextElement.OuterXml.Length -gt 1000) { 
-                        $contextElement.OuterXml.Substring(0, 1000) + "..." 
-                    } else { 
-                        $contextElement.OuterXml 
-                    }
+                    OuterXml = $contextElement.OuterXml
                     ParentHierarchy = @()
                     ImmediateParent = $parentElement.LocalName
                     ContextLevel = if ($meaningfulParent -ne $parentElement) { "Policy" } else { "Element" }
@@ -274,11 +270,7 @@ function Search-GPMCXmlContent {
                     
                     # Create XML node context information
                     $outerXmlValue = if ($meaningfulParent -and $meaningfulParent.OuterXml) { 
-                        if ($meaningfulParent.OuterXml.Length -gt 1000) { 
-                            $meaningfulParent.OuterXml.Substring(0, 1000) + "..." 
-                        } else { 
-                            $meaningfulParent.OuterXml 
-                        }
+                        $meaningfulParent.OuterXml 
                     } else { 
                         "" 
                     }
