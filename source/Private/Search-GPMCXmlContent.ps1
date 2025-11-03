@@ -187,12 +187,13 @@ function Search-GPMCXmlContent {
                 $xmlNodeInfo.ParentHierarchy = [array]$hierarchyList
 
                 # Create result object
+                $settingDetails = Get-GPMCSettingDetails -Element $node.ParentNode
                 $result = [PSCustomObject]@{
                     GPOName = $gpoInfo.DisplayName
                     GPOId = $gpoInfo.GUID
                     DomainName = $gpoInfo.DomainName
                     CategoryPath = Get-GPMCCategoryPath -Element $node.ParentNode
-                    SettingName = Get-GPMCSettingDetails -Element $node.ParentNode | Select-Object -ExpandProperty Name
+                    SettingName = if ($settingDetails) { $settingDetails.Name } else { 'Unknown Setting' }
                     SettingValue = $text
                     Context = Get-GPMCSettingContext -Element $node.ParentNode
                     Section = $section
@@ -233,6 +234,11 @@ function Search-GPMCXmlContent {
             
             # Check each attribute of the element
             foreach ($attribute in $element.Attributes) {
+                # Skip null or empty attribute values
+                if ($null -eq $attribute.Value) {
+                    continue
+                }
+                
                 $attrValue = $attribute.Value.Trim()
                 
                 # Skip empty or whitespace-only attribute values
@@ -267,13 +273,23 @@ function Search-GPMCXmlContent {
                     }
                     
                     # Create XML node context information
+                    $outerXmlValue = if ($meaningfulParent -and $meaningfulParent.OuterXml) { 
+                        if ($meaningfulParent.OuterXml.Length -gt 1000) { 
+                            $meaningfulParent.OuterXml.Substring(0, 1000) + "..." 
+                        } else { 
+                            $meaningfulParent.OuterXml 
+                        }
+                    } else { 
+                        "" 
+                    }
+                    
                     $xmlNodeInfo = [PSCustomObject]@{
-                        ElementName = $meaningfulParent.LocalName
+                        ElementName = if ($meaningfulParent) { $meaningfulParent.LocalName } else { "Unknown" }
                         ElementAttributes = @{}
-                        XmlPath = $meaningfulParent.LocalName
-                        OuterXml = if ($meaningfulParent.OuterXml.Length -gt 1000) { $meaningfulParent.OuterXml.Substring(0, 1000) + "..." } else { $meaningfulParent.OuterXml }
+                        XmlPath = if ($meaningfulParent) { $meaningfulParent.LocalName } else { "Unknown" }
+                        OuterXml = $outerXmlValue
                         ParentHierarchy = @()
-                        ImmediateParent = $element.LocalName
+                        ImmediateParent = if ($element) { $element.LocalName } else { "Unknown" }
                         ContextLevel = if ($meaningfulParent -eq $element) { "Element" } else { "Policy" }
                         ParsedXml = $null
                     }
@@ -287,11 +303,11 @@ function Search-GPMCXmlContent {
                     
                     # Build parent hierarchy
                     $hierarchyList = [System.Collections.ArrayList]::new()
-                    $hierarchyNode = $meaningfulParent.ParentNode
+                    $hierarchyNode = if ($meaningfulParent) { $meaningfulParent.ParentNode } else { $null }
                     $hierarchyDepth = 0
                     $maxHierarchyDepth = 5
                     
-                    while ($null -ne $hierarchyNode -and $hierarchyNode.NodeType -eq 'Element' -and $hierarchyDepth -lt $maxHierarchyDepth) {
+                    while ($null -ne $hierarchyNode -and $hierarchyNode.NodeType -eq [System.Xml.XmlNodeType]::Element -and $hierarchyDepth -lt $maxHierarchyDepth) {
                         [void]$hierarchyList.Add($hierarchyNode.LocalName)
                         $hierarchyNode = $hierarchyNode.ParentNode
                         $hierarchyDepth++
@@ -302,20 +318,23 @@ function Search-GPMCXmlContent {
                     
                     # Add ParsedXml for dot notation access
                     try {
-                        $xmlNodeInfo.ParsedXml = ConvertFrom-XmlToObject -XmlElement $meaningfulParent
+                        if ($meaningfulParent) {
+                            $xmlNodeInfo.ParsedXml = ConvertFrom-XmlToObject -XmlElement $meaningfulParent
+                        }
                     }
                     catch {
-                        Write-Verbose "Failed to convert XML to object for element $($meaningfulParent.LocalName): $($_.Exception.Message)"
+                        Write-Verbose "Failed to convert XML to object for element $(if ($meaningfulParent) { $meaningfulParent.LocalName } else { 'null' }): $($_.Exception.Message)"
                         $xmlNodeInfo.ParsedXml = $null
                     }
 
                     # Create result object
+                    $settingDetails = Get-GPMCSettingDetails -Element $element
                     $result = [PSCustomObject]@{
                         GPOName = $gpoInfo.DisplayName
                         GPOId = $gpoInfo.GUID
                         DomainName = $gpoInfo.DomainName
                         CategoryPath = Get-GPMCCategoryPath -Element $element
-                        SettingName = Get-GPMCSettingDetails -Element $element | Select-Object -ExpandProperty Name
+                        SettingName = if ($settingDetails) { $settingDetails.Name } else { 'Unknown Setting' }
                         SettingValue = "$($attribute.Name): $attrValue"
                         Context = Get-GPMCSettingContext -Element $element
                         Section = $section
