@@ -1,5 +1,28 @@
 # Recent Achievements
 
+## GPO Metadata Enhancement ✅
+**Date**: November 3, 2025  
+**Status**: COMPLETED
+
+**Enhancement**: Extended Get-GPMCGpoInfo function to capture additional GPO metadata
+
+**Changes Made**:
+- Added `ReadTime` property to capture report generation timestamp
+- Added `IncludeComments` property to indicate whether policy comments were included
+- Enhanced XML node selection for more accurate metadata extraction
+
+**Impact**:
+- Improved audit trail capabilities with report timestamps
+- Better metadata completeness for compliance reporting
+- Enhanced tracking of when GPO data was captured
+
+**Files Modified**:
+- `source/Private/Get-GPMCGpoInfo.ps1`
+
+**Commit**: `761f2f8` - "Refactor Get-GPMCGpoInfo to include ReadTime and IncludeComments properties"
+
+---
+
 ## Deduplication Bug Fix ✅
 **Date**: November 3, 2025  
 **Status**: COMPLETED

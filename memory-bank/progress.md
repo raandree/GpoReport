@@ -1,5 +1,23 @@
 # Progress: What Works and What's Left
 
+## 🎯 ✅ **RECENT ACHIEVEMENTS (November 3, 2025)**
+
+### **LATEST UPDATE: GPO INFO ENHANCEMENT** ✅
+
+**Enhancement Applied**:
+- Added `ReadTime` and `IncludeComments` properties to Get-GPMCGpoInfo function
+- Enhanced XML node selection for more accurate GPO metadata extraction
+- Improved GPO information structure returned with every search result
+
+**Files Modified**:
+- `source/Private/Get-GPMCGpoInfo.ps1` - Enhanced function to capture additional GPO metadata
+
+**Validation**:
+- All existing tests continue to pass
+- Enhanced GPO information structure provides more complete metadata for reporting
+
+---
+
 ## 🎯 ✅ **DEDUPLICATION BUG FIX COMPLETE (November 3, 2025)**
 
 ### **CRITICAL BUG FIX: DUPLICATE RESULTS RESOLVED** ✅
