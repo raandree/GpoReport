@@ -109,8 +109,8 @@ function Remove-HierarchicalDuplicates {
         
         Write-Verbose "Processing $($categoryResults.Count) results for parent-child relationships in Category '$categoryPath'"
         
-        # Check for parent-child relationships within this category
-        $parentChildPairs = @()
+        # Build a hierarchy map to track all parent-child relationships
+        $parentChildMap = @{}  # Key: child index, Value: array of parent indices
         
         for ($i = 0; $i -lt $categoryResults.Count; $i++) {
             for ($j = 0; $j -lt $categoryResults.Count; $j++) {
@@ -129,32 +129,65 @@ function Remove-HierarchicalDuplicates {
                     $child = $result2.XmlNode.OuterXml -replace '\s+xmlns:\w+="[^"]*"', ''
                     
                     if ($parent.Contains($child)) {
-                        Write-Verbose "Found parent-child relationship: '$($result1.XmlNode.XmlPath)' contains '$($result2.XmlNode.XmlPath)'"
-                        $parentChildPairs += [PSCustomObject]@{
-                            Parent = $result1
-                            Child = $result2
-                            ParentIndex = $i
-                            ChildIndex = $j
+                        Write-Verbose "Found parent-child relationship: '$($result1.XmlNode.XmlPath)' (index $i) contains '$($result2.XmlNode.XmlPath)' (index $j)"
+                        
+                        # Track this relationship
+                        if (-not $parentChildMap.ContainsKey($j)) {
+                            $parentChildMap[$j] = @()
                         }
+                        $parentChildMap[$j] += $i
                     }
                 }
             }
         }
         
-        if ($parentChildPairs.Count -eq 0) {
+        if ($parentChildMap.Count -eq 0) {
             Write-Verbose "No parent-child relationships found in category '$categoryPath', keeping all $($categoryResults.Count) results"
             $deduplicatedResults += $categoryResults
         } else {
-            # Remove child duplicates, keep parents
-            $childIndicesToRemove = $parentChildPairs | ForEach-Object { $_.ChildIndex } | Sort-Object -Unique -Descending
-            Write-Verbose "Removing $($childIndicesToRemove.Count) child duplicates from category '$categoryPath'"
+            # Determine which results to keep
+            # Strategy: Keep only the top-level parent (the one that isn't a child of anything else)
+            # If multiple top-level parents exist, keep the first one encountered
             
-            for ($i = 0; $i -lt $categoryResults.Count; $i++) {
-                if ($childIndicesToRemove -notcontains $i) {
-                    $deduplicatedResults += $categoryResults[$i]
-                } else {
-                    $parentChildDuplicatesRemoved++
+            $childIndices = $parentChildMap.Keys
+            $parentIndices = $parentChildMap.Values | ForEach-Object { $_ } | Sort-Object -Unique
+            
+            # Find top-level parents (parents that are not children of anything)
+            $topLevelParents = $parentIndices | Where-Object { $childIndices -notcontains $_ }
+            
+            # If we have top-level parents, keep only the first one
+            # All children and nested parents will be removed
+            if ($topLevelParents) {
+                $primaryParentIndex = $topLevelParents[0]
+                Write-Verbose "Identified primary parent at index $primaryParentIndex with element '$($categoryResults[$primaryParentIndex].XmlNode.XmlPath)'"
+                
+                # Mark all children for removal
+                $indicesToRemove = @()
+                foreach ($childIndex in $childIndices) {
+                    $indicesToRemove += $childIndex
                 }
+                
+                # Also remove other top-level parents that are duplicates
+                foreach ($otherParent in $topLevelParents | Where-Object { $_ -ne $primaryParentIndex }) {
+                    $indicesToRemove += $otherParent
+                }
+                
+                $indicesToRemove = $indicesToRemove | Sort-Object -Unique
+                Write-Verbose "Removing $($indicesToRemove.Count) child/duplicate results from category '$categoryPath'"
+                
+                for ($i = 0; $i -lt $categoryResults.Count; $i++) {
+                    if ($indicesToRemove -notcontains $i) {
+                        $deduplicatedResults += $categoryResults[$i]
+                    } else {
+                        $parentChildDuplicatesRemoved++
+                    }
+                }
+            } else {
+                # All results are in parent-child relationships, keep the first parent
+                # This handles circular references or complex hierarchies
+                Write-Verbose "Complex hierarchy detected, keeping first parent only"
+                $deduplicatedResults += $categoryResults[0]
+                $parentChildDuplicatesRemoved += ($categoryResults.Count - 1)
             }
         }
     }
