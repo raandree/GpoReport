@@ -1,169 +1,199 @@
-﻿<#
-.SYNOPSIS
-    GPO Search Results HTML Report Generator
+function Show-GPOSearchReport {
+    <#
+    .SYNOPSIS
+        GPO Search Results HTML Report Generator
 
-.DESCRIPTION
-    Searches GPO XML reports using the GpoReport module and generates an HTML report with detailed results.
-    Optionally retrieves additional GPO information from Active Directory if the GroupPolicy module is available.
+    .DESCRIPTION
+        Searches GPO XML reports using the GpoReport module and generates an HTML report with detailed results.
+        Optionally retrieves additional GPO information from Active Directory if the GroupPolicy module is available.
 
-.PARAMETER SearchString
-    The search string to look for in GPO settings. Supports wildcards (*).
+    .PARAMETER Path
+        Path to the directory containing GPO XML report files, or path to a specific XML file.
 
-.PARAMETER OutputPath
-    Path where the HTML report will be saved. Defaults to C:\Temp\GPOSearchReport.html
+    .PARAMETER SearchString
+        The search string to look for in GPO settings. Supports wildcards (*).
 
-.EXAMPLE
-    .\Go.ps1 -SearchString "Remote *"
-    Searches for settings containing "Remote" and generates an HTML report.
+    .PARAMETER OutputPath
+        Path where the HTML report will be saved. If not specified, a temporary file will be created.
 
-.EXAMPLE
-    .\Go.ps1 -SearchString "password*" -OutputPath "C:\Reports\PasswordPolicies.html"
-    Searches for password-related settings and saves the report to a custom location.
+    .EXAMPLE
+        Show-GPOSearchReport -Path "C:\GPOReports" -SearchString "Remote *"
+        Searches for settings containing "Remote" in all XML files in the specified directory and generates an HTML report.
 
-.NOTES
-    Author: Generated from GpoReport testing
-    Date: November 3, 2025
-    
-    Dependencies:
-    - Required: GpoReport module (Search-GPMCReports function)
-    - Optional: GroupPolicy module (for enhanced GPO description lookup)
-#>
+    .EXAMPLE
+        Show-GPOSearchReport -Path "C:\GPOReports\GPO1.xml" -SearchString "password*" -OutputPath "C:\Reports\PasswordPolicies.html"
+        Searches for password-related settings in a specific file and saves the report to a custom location.
 
-#Requires -Modules GpoReport
+    .NOTES
+        Author: Generated from GpoReport testing
+        Date: November 3, 2025
+        
+        Dependencies:
+        - Required: GpoReport module (Search-GPMCReports function)
+        - Optional: GroupPolicy module (for enhanced GPO description lookup)
+    #>
 
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory = $true, Position = 0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$SearchString,
-
-    [Parameter()]
-    [ValidateNotNullOrEmpty()]
-    [string]$OutputPath = 'C:\Temp\GPOSearchReport.html'
-)
-
-# Script configuration
-$here = $PSScriptRoot
-
-# Search GPO XML files
-Write-Host "Searching for '$SearchString' in XML files..." -ForegroundColor Cyan
-$allResults = Get-ChildItem -Path "$here\..\Test Reports\*.xml" | ForEach-Object {
-    Write-Verbose "Processing file: $($_.Name)"
-    Search-GPMCReports -Path $_.FullName -SearchString $SearchString
-}
-
-Write-Host "Found $($allResults.Count) results" -ForegroundColor Green
-
-#region Helper Functions
-
-<#
-.SYNOPSIS
-    Converts a PowerShell object to an HTML table for display in collapsible sections
-
-.PARAMETER Object
-    The object to convert to HTML
-
-.PARAMETER Depth
-    Current recursion depth (used to prevent infinite loops)
-
-.PARAMETER MaxDepth
-    Maximum recursion depth allowed
-#>
-function ConvertTo-PropertyTable {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)]
-        [object]$Object,
-        
-        [int]$Depth = 0,
-        
-        [int]$MaxDepth = 3
-    )
-    
-    if ($null -eq $Object -or $Depth -ge $MaxDepth) {
-        return ''
-    }
-    
-    $html = '<table style="width: 100%; font-size: 11px; border-collapse: collapse;">'
-    
-    # Get all properties
-    $properties = $Object.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' }
-    
-    foreach ($prop in $properties) {
-        $propName = $prop.Name
-        $value = $prop.Value
-        
-        # Handle null values
-        if ($null -eq $value) {
-            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>(null)</td></tr>"
-            continue
-        }
-        
-        # Handle different value types
-        if ($value -is [string] -or $value -is [int] -or $value -is [bool] -or $value -is [datetime]) {
-            $displayValue = [System.Security.SecurityElement]::Escape($value.ToString())
-            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>$displayValue</td></tr>"
-        }
-        elseif ($value -is [array]) {
-            $arrayString = ($value | ForEach-Object { [System.Security.SecurityElement]::Escape($_.ToString()) }) -join '<br/>'
-            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>$arrayString</td></tr>"
-        }
-        elseif ($value.GetType().Name -eq 'PSCustomObject' -or $value.GetType().Name -eq 'XmlElement') {
-            # Recursively handle complex objects
-            $nestedTable = ConvertTo-PropertyTable -Object $value -Depth ($Depth + 1) -MaxDepth $MaxDepth
-            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%; vertical-align: top;'>$($propName):</td><td style='padding: 3px 10px;'>$nestedTable</td></tr>"
-        }
-        else {
-            $displayValue = [System.Security.SecurityElement]::Escape($value.GetType().Name)
-            $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>($displayValue)</td></tr>"
-        }
-    }
-    
-    $html += '</table>'
-    return $html
-}
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path,
 
-<#
-.SYNOPSIS
-    Generates an HTML report from GPO search results
-
-.PARAMETER PageTitle
-    The title of the HTML report page
-
-.PARAMETER SearchString
-    The search string used to find results
-
-.PARAMETER TableOfResults
-    HTML table content with search results
-
-.PARAMETER ResultCount
-    Total number of results found
-
-.PARAMETER OutputPath
-    Path where the HTML file will be saved
-#>
-function New-Report {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string]$PageTitle,
-
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
         [string]$SearchString,
 
-        [Parameter(Mandatory)]
-        [string[]]$TableOfResults,
-
-        [Parameter(Mandatory)]
-        [int]$ResultCount,
-
         [Parameter()]
-        [string]$OutputPath = 'C:\Temp\test.html'
+        [ValidateNotNullOrEmpty()]
+        [string]$OutputPath
     )
 
-    $dateCreate = (Get-Date).ToString('dd.MM.yyyy HH:mm:ss')
+    # Generate output path if not specified
+    if (-not $OutputPath) {
+        $tempFile = [System.IO.Path]::GetTempFileName()
+        $OutputPath = [System.IO.Path]::ChangeExtension($tempFile, 'html')
+        # Remove the original temp file since we're using .html extension
+        if (Test-Path $tempFile) {
+            Remove-Item $tempFile -Force
+        }
+    }
 
-    $htmlDocument = @"
+    # Validate path exists
+    if (-not (Test-Path -Path $Path)) {
+        throw "Path not found: $Path"
+    }
+
+    # Determine if path is a file or directory
+    $xmlFiles = if ((Get-Item $Path).PSIsContainer) {
+        Get-ChildItem -Path $Path -Filter "*.xml" -File
+    } else {
+        Get-Item -Path $Path
+    }
+
+    if ($xmlFiles.Count -eq 0) {
+        Write-Warning "No XML files found in path: $Path"
+        return
+    }
+
+    # Search GPO XML files
+    Write-Host "Searching for '$SearchString' in XML files..." -ForegroundColor Cyan
+    $allResults = $xmlFiles | ForEach-Object {
+        Write-Verbose "Processing file: $($_.Name)"
+        Search-GPMCReports -Path $_.FullName -SearchString $SearchString
+    }
+
+    Write-Host "Found $($allResults.Count) results" -ForegroundColor Green
+
+    #region Helper Functions
+
+    <#
+    .SYNOPSIS
+        Converts a PowerShell object to an HTML table for display in collapsible sections
+
+    .PARAMETER Object
+        The object to convert to HTML
+
+    .PARAMETER Depth
+        Current recursion depth (used to prevent infinite loops)
+
+    .PARAMETER MaxDepth
+        Maximum recursion depth allowed
+    #>
+    function ConvertTo-PropertyTable {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory)]
+            [object]$Object,
+            
+            [int]$Depth = 0,
+            
+            [int]$MaxDepth = 3
+        )
+        
+        if ($null -eq $Object -or $Depth -ge $MaxDepth) {
+            return ''
+        }
+        
+        $html = '<table style="width: 100%; font-size: 11px; border-collapse: collapse;">'
+        
+        # Get all properties
+        $properties = $Object.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' }
+        
+        foreach ($prop in $properties) {
+            $propName = $prop.Name
+            $value = $prop.Value
+            
+            # Handle null values
+            if ($null -eq $value) {
+                $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>(null)</td></tr>"
+                continue
+            }
+            
+            # Handle different value types
+            if ($value -is [string] -or $value -is [int] -or $value -is [bool] -or $value -is [datetime]) {
+                $displayValue = [System.Security.SecurityElement]::Escape($value.ToString())
+                $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>$displayValue</td></tr>"
+            }
+            elseif ($value -is [array]) {
+                $arrayString = ($value | ForEach-Object { [System.Security.SecurityElement]::Escape($_.ToString()) }) -join '<br/>'
+                $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>$arrayString</td></tr>"
+            }
+            elseif ($value.GetType().Name -eq 'PSCustomObject' -or $value.GetType().Name -eq 'XmlElement') {
+                # Recursively handle complex objects
+                $nestedTable = ConvertTo-PropertyTable -Object $value -Depth ($Depth + 1) -MaxDepth $MaxDepth
+                $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%; vertical-align: top;'>$($propName):</td><td style='padding: 3px 10px;'>$nestedTable</td></tr>"
+            }
+            else {
+                $displayValue = [System.Security.SecurityElement]::Escape($value.GetType().Name)
+                $html += "<tr><td style='padding: 3px 10px; font-weight: bold; width: 30%;'>$($propName):</td><td style='padding: 3px 10px;'>($displayValue)</td></tr>"
+            }
+        }
+        
+        $html += '</table>'
+        return $html
+    }
+
+    <#
+    .SYNOPSIS
+        Generates an HTML report from GPO search results
+
+    .PARAMETER PageTitle
+        The title of the HTML report page
+
+    .PARAMETER SearchString
+        The search string used to find results
+
+    .PARAMETER TableOfResults
+        HTML table content with search results
+
+    .PARAMETER ResultCount
+        Total number of results found
+
+    .PARAMETER OutputPath
+        Path where the HTML file will be saved
+    #>
+    function New-Report {
+        [CmdletBinding()]
+        param(
+            [Parameter(Mandatory)]
+            [string]$PageTitle,
+
+            [Parameter(Mandatory)]
+            [string]$SearchString,
+
+            [Parameter(Mandatory)]
+            [string[]]$TableOfResults,
+
+            [Parameter(Mandatory)]
+            [int]$ResultCount,
+
+            [Parameter()]
+            [string]$OutputPath = 'C:\Temp\test.html'
+        )
+
+        $dateCreate = (Get-Date).ToString('dd.MM.yyyy HH:mm:ss')
+
+        $htmlDocument = @"
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -446,28 +476,28 @@ function New-Report {
 </html>
 "@
 
-    # Save HTML report
-    Write-Verbose "Saving report to $OutputPath"
-    $htmlDocument | Out-File -FilePath $OutputPath -Force -Encoding utf8
+        # Save HTML report
+        Write-Verbose "Saving report to $OutputPath"
+        $htmlDocument | Out-File -FilePath $OutputPath -Force -Encoding utf8
 
-    # Open report in browser
-    Write-Verbose "Opening report in browser"
-    Start-Process 'msedge.exe' -ArgumentList $OutputPath
-}
+        # Open report in browser
+        Write-Verbose "Opening report in browser"
+        Start-Process 'msedge.exe' -ArgumentList $OutputPath
+    }
 
-#endregion Helper Functions
+    #endregion Helper Functions
 
-#region Generate HTML Report
+    #region Generate HTML Report
 
-$tableOfResults = @()
+    $tableOfResults = @()
 
-foreach ($result in $allResults) {
-    # Initialize table for this result
-    $tableOfResults += '<table>'
+    foreach ($result in $allResults) {
+        # Initialize table for this result
+        $tableOfResults += '<table>'
 
-    # Get GPO information from Active Directory if available
-    $gpo = $null
-    if (Get-Command -Name Get-GPO -ErrorAction SilentlyContinue) {
+        # Get GPO information from Active Directory if available
+        $gpo = $null
+        if (Get-Command -Name Get-GPO -ErrorAction SilentlyContinue) {
         try {
             $gpo = Get-GPO -Name $result.GPOName -ErrorAction Stop
         }
@@ -656,29 +686,30 @@ foreach ($result in $allResults) {
         $tableOfResults += '</td></tr>'
     }
 
-    # Close table for this result
-    $tableOfResults += '</table>'
-    $tableOfResults += '<br>'
+        # Close table for this result
+        $tableOfResults += '</table>'
+        $tableOfResults += '<br>'
+    }
+    #endregion Generate HTML Report
+
+    #region Generate and Display Report
+
+    # Generate the HTML report
+    Write-Host "`nGenerating HTML report..." -ForegroundColor Cyan
+    Write-Host "  Search String: '$SearchString'" -ForegroundColor White
+    Write-Host "  Total Results: $($allResults.Count)" -ForegroundColor White
+    Write-Host "  Output Path: $OutputPath" -ForegroundColor White
+
+    New-Report `
+        -PageTitle 'GPO Search Results' `
+        -SearchString $SearchString `
+        -TableOfResults $tableOfResults `
+        -ResultCount $allResults.Count `
+        -OutputPath $OutputPath
+
+    Write-Host "`nReport generated successfully!" -ForegroundColor Green
+    Write-Host "Report saved to: $OutputPath" -ForegroundColor Green
+
+    #endregion Generate and Display Report
 }
-#endregion Generate HTML Report
-
-#region Generate and Display Report
-
-# Generate the HTML report
-Write-Host "`nGenerating HTML report..." -ForegroundColor Cyan
-Write-Host "  Search String: '$SearchString'" -ForegroundColor White
-Write-Host "  Total Results: $($allResults.Count)" -ForegroundColor White
-Write-Host "  Output Path: $OutputPath" -ForegroundColor White
-
-New-Report `
-    -PageTitle 'GPO Search Results' `
-    -SearchString $SearchString `
-    -TableOfResults $tableOfResults `
-    -ResultCount $allResults.Count `
-    -OutputPath $OutputPath
-
-Write-Host "`nReport generated successfully!" -ForegroundColor Green
-Write-Host "Report saved to: $OutputPath" -ForegroundColor Green
-
-#endregion Generate and Display Report
 

@@ -8,13 +8,3 @@
 #region Private Functions  
 # The build process will insert private function files here
 #endregion Private Functions
-
-# Export public functions
-Export-ModuleMember -Function @(
-    'Search-GPMCReports',
-    'Export-SearchResults',
-    'Get-GPOInsights', 
-    'Search-GPOCompliance',
-    'Search-GPOCached',
-    'Start-GPOSearchGUI'
-)
