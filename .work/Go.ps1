@@ -1,23 +1,27 @@
-﻿
+﻿$here = $PSScriptRoot
 # set searchstring
 #$SearchString = "Remove Libraries"
-$SearchString = "Remote "
+$SearchString = 'Remote '
 
 # select GPOs for searching searchstring
-$allGPOs = get-gpo -all | Where-Object {$_.DisplayName -like "Test*"} | Sort-Object -Property DisplayName
+#$allGPOs = get-gpo -all | Where-Object { $_.DisplayName -like 'Test*' } | Sort-Object -Property DisplayName
 
 # start searchstring in each selected GPO
-$allresults = foreach ($GPO in $allGPOs){
-    # create XML Object
-    $XMLGPOObject = Get-GPOReport -name $GPO.DisplayName -ReportType Xml
-    # start search in selected GPO
-    Search-GPMCReports -XmlContent $XMLGPOObject -SearchString $SearchString
+#$allresults = foreach ($GPO in $allGPOs) {
+#    # create XML Object
+#    $XMLGPOObject = Get-GPOReport -name $GPO.DisplayName -ReportType Xml
+#    # start search in selected GPO
+#    Search-GPMCReports -XmlContent $XMLGPOObject -SearchString $SearchString
+#}
+
+$allResults = dir -Path "$here\..\Test Reports\*.xml" | ForEach-Object {
+    Search-GPMCReports -Path $_.FullName -SearchString $SearchString
 }
 
 #region ----[Start outout]-------------------------------------------------------------------------
 function New-Report ($PageTitle, $SearchString, $TableOne, $TableOfResults, $ResultCount) {
 
-    $DateCreate = (get-Date).ToString("dd.MM.yyyy HH:mm:ss")
+    $DateCreate = (Get-Date).ToString('dd.MM.yyyy HH:mm:ss')
 
     $HTML_Document = @"
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -180,8 +184,8 @@ function New-Report ($PageTitle, $SearchString, $TableOne, $TableOfResults, $Res
 </html>
 "@
     # create base statistic
-    $HTML_Document | Out-File -filepath "C:\Temp\test.html" -force
-    Start-Process "msedge.exe" -ArgumentList "c:\temp\test.html"
+    $HTML_Document | Out-File -FilePath 'C:\Temp\test.html' -Force
+    Start-Process 'msedge.exe' -ArgumentList 'c:\temp\test.html'
 }
 #endregion -[END outout]---------------------------------------------------------------------------
 
@@ -189,35 +193,44 @@ $TableOfResults = @()
 foreach ($result in $allResults) {
 
     #region ----[Start create table for the results]-----------------------------------------------
-    $GPO = Get-GPO -Name $result.GPOName
-    $CreationTime = ($GPO.CreationTime).ToString("dd.MM.yyyy HH:mm:ss")
+    if (Get-Command -Name Get-GPO -ErrorAction SilentlyContinue) {
+        $GPO = Get-GPO -Name $result.GPOName
+    }
+    
+    $CreationTime = $result.CreatedTime #($GPO.CreationTime).ToString('dd.MM.yyyy HH:mm:ss')
 
-    $ModificationTime = ($GPO.ModificationTime).ToString("dd.MM.yyyy HH:mm:ss")
-    $TableOfResults += "<table>"
+    $ModificationTime = $result.ModifiedTime #($GPO.ModificationTime).ToString('dd.MM.yyyy HH:mm:ss')
+    $TableOfResults += '<table>'
     
     #region ----[Start GPO information]------------------------------------------------------------
-    $TableOfResults += "<tr><th>GPO name:</th><th>$($GPO.DisplayName)</th></tr>"
-    $GPOdescription = $GPO.Description -replace (";","<br>")
+    $TableOfResults += "<tr><th>GPO name:</th><th>$($result.GPOName)</th></tr>"
+    if ($GPO)
+    {
+    $GPOdescription = $GPO.Description -replace (';', '<br>')
+    }
+    else {
+        $GPOdescription = 'Description not available'
+    }
     $TableOfResults += "<tr><td><b>GPO description: </b></td><td>$GPOdescription</td></tr>"
     $TableOfResults += "<tr><td><b>GPO created: </b></td><td>$CreationTime</td></tr>"
     $TableOfResults += "<tr><td><b>GPO modified: </b></td><td>$ModificationTime</td></tr>"
     #endregion -[END GPO information]--------------------------------------------------------------
     
-    $TableOfResults += "<tr><td><u>Setting Details:</u></td><td></td></tr>"
+    $TableOfResults += '<tr><td><u>Setting Details:</u></td><td></td></tr>'
     # add setting path
     $TableOfResults += "<tr><td><b>Setting Path:</b></td><td>$($Result.Section) > $($result.CategoryPath)</td></tr>"
-    if ($result.XmlNode.ParsedXml.Name){$TableOfResults += "<tr><td><b>Policy Name:</b></td><td>$($result.XmlNode.ParsedXml.Name)</td></tr>"}
+    if ($result.XmlNode.ParsedXml.Name) { $TableOfResults += "<tr><td><b>Policy Name:</b></td><td>$($result.XmlNode.ParsedXml.Name)</td></tr>" }
     
 
     #region ----[Start localsecurity settings ...]-------------------------------------------------
-    $Member = ($result.XmlNode.parsedXml.Member.Name.Text) -join "<br>"
-    if ($result.XmlNode.parsedXml.Member){$TableOfResults += "<tr><td><b>Policy Member:</b></td><td>$Member</td></tr>"}
+    $Member = ($result.XmlNode.parsedXml.Member.Name.Text) -join '<br>'
+    if ($result.XmlNode.parsedXml.Member) { $TableOfResults += "<tr><td><b>Policy Member:</b></td><td>$Member</td></tr>" }
 
     
     #region ----[Start certifications]-------------------------------------------------------------
-    if (($result.XmlNode.ElementName) -eq "IssuedTo"){
+    if (($result.XmlNode.ElementName) -eq 'IssuedTo') {
         $TableOfResults += "<tr><td><b>Certificate Name:</b></td><td>$($result.XmlNode.ParsedXml.Text)</td></tr>"
-        $CertificationTyp = ($result.XmlNode.ParentHierarchy)[(($result.XmlNode.ParentHierarchy).count) -1]
+        $CertificationTyp = ($result.XmlNode.ParentHierarchy)[(($result.XmlNode.ParentHierarchy).count) - 1]
         $TableOfResults += "<tr><td><b>Certification Type:</b></td><td>$CertificationTyp</td></tr>"
     }
     #endregion -[END certifications]---------------------------------------------------------------
@@ -226,13 +239,13 @@ foreach ($result in $allResults) {
     
 
     #region ----[Start Policy settings]------------------------------------------------------------
-    if ($result.XmlNode.ElementName -eq "Policy"){
+    if ($result.XmlNode.ElementName -eq 'Policy') {
         #if ($result.XmlNode.ParsedXml.Name){$TableOfResults += "<tr><td><b>Policy Name::</b></td><td>$($result.XmlNode.ParsedXml.Name)</td></tr>"}
-        if ($result.XmlNode.ParsedXml.State){$TableOfResults += "<tr><td><b>State:</b></td><td>$($result.XmlNode.ParsedXml.State)</td></tr>"}
+        if ($result.XmlNode.ParsedXml.State) { $TableOfResults += "<tr><td><b>State:</b></td><td>$($result.XmlNode.ParsedXml.State)</td></tr>" }
 
         # if policy contains listbox
-        if ($result.XmlNode.ParsedXml.ListBox){
-            $ListBoxString = ([System.String]::join("<br>", ($result.XmlNode.ParsedXml.ListBox.Value.Element.Data))).ToString()
+        if ($result.XmlNode.ParsedXml.ListBox) {
+            $ListBoxString = ([System.String]::join('<br>', ($result.XmlNode.ParsedXml.ListBox.Value.Element.Data))).ToString()
             $TableOfResults += "<tr><td><b>ListBox:</b></td><td>$($ListBoxString)</td></tr>"
         }
     }
@@ -240,53 +253,53 @@ foreach ($result in $allResults) {
 
 
     #region ----[Start GPP settings]---------------------------------------------------------------
-    if ($result.xmlnode.ParsedXml._name){$TableOfResults += "<tr><td><b>Name:</b></td><td>$($result.xmlnode.ParsedXml._name)</td></tr>"}
+    if ($result.xmlnode.ParsedXml._name) { $TableOfResults += "<tr><td><b>Name:</b></td><td>$($result.xmlnode.ParsedXml._name)</td></tr>" }
 
     #region ----[Start File settings]--------------------------------------------------------------
-    if ($result.XmlNode.ParentHierarchy -contains "FilesSettings"){
+    if ($result.XmlNode.ParentHierarchy -contains 'FilesSettings') {
         #$TableOfResults += "<tr><td><b>TEST - Type:</b></td><td>$($result.XmlNode.ElementName)</td></tr>"
-        $TableOfResults += "<tr><td><b>Source file:</b></td><td>! ! ! Fehlt noch ! ! !</td></tr>"
+        $TableOfResults += '<tr><td><b>Source file:</b></td><td>! ! ! Fehlt noch ! ! !</td></tr>'
         $TableOfResults += "<tr><td><b>Targe File:</b></td><td>$($result.xmlnode.ParsedXml.Properties._targetPath)</td></tr>"
     }
     #endregion -[END File]- settings---------------------------------------------------------------
 
     #region ----[Start Folder settings]------------------------------------------------------------
-    if ($result.XmlNode.ParentHierarchy -contains "Folder"){
+    if ($result.XmlNode.ParentHierarchy -contains 'Folder') {
         $TableOfResults += "<tr><td><b>SettingName(Folder):</b></td><td>$($result.SettingName)</td></tr>"
-        if ($result.xmlnode.ParsedXml._Path){$TableOfResults += "<tr><td><b>Folderpath:</b></td><td>$($result.xmlnode.ParsedXml._Path)</td></tr>"}
+        if ($result.xmlnode.ParsedXml._Path) { $TableOfResults += "<tr><td><b>Folderpath:</b></td><td>$($result.xmlnode.ParsedXml._Path)</td></tr>" }
     }
     
     #if (($result.settingName) -and (($result.CategoryPath) -notlike "*Administrative Templates*") -and (($result.CategoryPath) -notlike "*Security Settings*")){$TableOfResults += "<tr><td><b>SettingName:</b></td><td>$($result.SettingName)</td></tr>"}
     #if (($result.CategoryPath) -like "*:FolderAdministrative Templates*") -and (($result.CategoryPath) -notlike "*Security Settings*")){$TableOfResults += "<tr><td><b>SettingName:</b></td><td>$($result.SettingName)</td></tr>"}
-        #if ($result.xmlnode.ParsedXml._Path){$TableOfResults += "<tr><td><b>Folderpath:</b></td><td>$($result.xmlnode.ParsedXml._Path)</td></tr>"}
+    #if ($result.xmlnode.ParsedXml._Path){$TableOfResults += "<tr><td><b>Folderpath:</b></td><td>$($result.xmlnode.ParsedXml._Path)</td></tr>"}
 
     #endregion -[END Folder settings]--------------------------------------------------------------
 
     #region ----[Start Registry]-------------------------------------------------------------------
-    if ($result.XmlNode.ParentHierarchy -contains "Registry"){
-        if ($result.xmlnode.ParsedXml.Properties._hive){$TableOfResults += "<tr><td><b>Hive:</b></td><td>$($result.xmlnode.ParsedXml.Properties._hive)</td></tr>"}
-        if ($result.xmlnode.ParsedXml.Properties._key){$TableOfResults += "<tr><td><b>Key:</b></td><td>$($result.xmlnode.ParsedXml.Properties._key)</td></tr>"}
-        if ($result.xmlnode.ParsedXml.Properties._type){$TableOfResults += "<tr><td><b>Type:</b></td><td>$($result.xmlnode.ParsedXml.Properties._type)</td></tr>"}
-        if ($result.xmlnode.ParsedXml.Properties._value){$TableOfResults += "<tr><td><b>Type:</b></td><td>$($result.xmlnode.ParsedXml.Properties._value)</td></tr>"}
+    if ($result.XmlNode.ParentHierarchy -contains 'Registry') {
+        if ($result.xmlnode.ParsedXml.Properties._hive) { $TableOfResults += "<tr><td><b>Hive:</b></td><td>$($result.xmlnode.ParsedXml.Properties._hive)</td></tr>" }
+        if ($result.xmlnode.ParsedXml.Properties._key) { $TableOfResults += "<tr><td><b>Key:</b></td><td>$($result.xmlnode.ParsedXml.Properties._key)</td></tr>" }
+        if ($result.xmlnode.ParsedXml.Properties._type) { $TableOfResults += "<tr><td><b>Type:</b></td><td>$($result.xmlnode.ParsedXml.Properties._type)</td></tr>" }
+        if ($result.xmlnode.ParsedXml.Properties._value) { $TableOfResults += "<tr><td><b>Type:</b></td><td>$($result.xmlnode.ParsedXml.Properties._value)</td></tr>" }
     }
     #endregion -[END Registry]---------------------------------------------------------------------
 
     #region ----[Start Shortcut settings]----------------------------------------------------------
-    if ($result.XmlNode.ParentHierarchy -contains "Shortcut"){
+    if ($result.XmlNode.ParentHierarchy -contains 'Shortcut') {
         $TableOfResults += "<tr><td><b>TEST - Type:</b></td><td>$($result.XmlNode.ElementName)</td></tr>"
-        if ($result.xmlnode.ParsedXml.Properties._shortcutPath){$TableOfResults += "<tr><td><b>Shortcut Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._shortcutPath)</td></tr>"}
-        if ($result.xmlnode.ParsedXml.Properties._targetPath){$TableOfResults += "<tr><td><b>Target Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._targetPath)</td></tr>"}
-        if ($result.xmlnode.ParsedXml.Properties._arguments){$TableOfResults += "<tr><td><b>Argument:</b></td><td>$($result.xmlnode.ParsedXml.Properties._arguments)</td></tr>"}
+        if ($result.xmlnode.ParsedXml.Properties._shortcutPath) { $TableOfResults += "<tr><td><b>Shortcut Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._shortcutPath)</td></tr>" }
+        if ($result.xmlnode.ParsedXml.Properties._targetPath) { $TableOfResults += "<tr><td><b>Target Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._targetPath)</td></tr>" }
+        if ($result.xmlnode.ParsedXml.Properties._arguments) { $TableOfResults += "<tr><td><b>Argument:</b></td><td>$($result.xmlnode.ParsedXml.Properties._arguments)</td></tr>" }
     }
     #endregion -[END Shortcut settings]------------------------------------------------------------
     
     #region ----[Start Scheduled tasks]------------------------------------------------------------
-    if ($result.XmlNode.ParentHierarchy -contains "ScheduledTasks"){
-        if ($result.XmlNode.parsedXml.task.triggers.LogonTrigger){$TableOfResults += "<tr><td><b>Trigger:</b></td><td>Logon</td></tr>"}
-        if ($result.XmlNode.parsedXml.task.triggers.EventTrigger){$TableOfResults += "<tr><td><b>Trigger:</b></td><td>Event:$($result.XmlNode.parsedXml.task.Triggers.EventTrigger.Subscription)</td></tr>"}
-        if ($result.XmlNode.parsedXml.task.triggers.CalendarTrigger){$TableOfResults += "<tr><td><b>Trigger:</b></td><td>Event:$($result.XmlNode.parsedXml.task.Triggers.CalendarTrigger)</td></tr>"}
-        if ($result.XmlNode.parsedXml.task.Actions.exec.command){$TableOfResults += "<tr><td><b>Command:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.command)</td></tr>"}
-        if ($result.XmlNode.parsedXml.task.Actions.exec.Arguments){$TableOfResults += "<tr><td><b>Argument:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.Arguments)</td></tr>"}
+    if ($result.XmlNode.ParentHierarchy -contains 'ScheduledTasks') {
+        if ($result.XmlNode.parsedXml.task.triggers.LogonTrigger) { $TableOfResults += '<tr><td><b>Trigger:</b></td><td>Logon</td></tr>' }
+        if ($result.XmlNode.parsedXml.task.triggers.EventTrigger) { $TableOfResults += "<tr><td><b>Trigger:</b></td><td>Event:$($result.XmlNode.parsedXml.task.Triggers.EventTrigger.Subscription)</td></tr>" }
+        if ($result.XmlNode.parsedXml.task.triggers.CalendarTrigger) { $TableOfResults += "<tr><td><b>Trigger:</b></td><td>Event:$($result.XmlNode.parsedXml.task.Triggers.CalendarTrigger)</td></tr>" }
+        if ($result.XmlNode.parsedXml.task.Actions.exec.command) { $TableOfResults += "<tr><td><b>Command:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.command)</td></tr>" }
+        if ($result.XmlNode.parsedXml.task.Actions.exec.Arguments) { $TableOfResults += "<tr><td><b>Argument:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.Arguments)</td></tr>" }
     }
     #if ($result.XmlNode.parsedXml.task.RegistrationInfo.Descriptionlt.xmlnode.ParsedXml._changed){$TableOfResults += "<tr><td><b>Last changed:</b></td><td>$($result.xmlnode.ParsedXml._changed)</td></tr>"}
     #endregion -[END Scheduled tasks]--------------------------------------------------------------
@@ -295,51 +308,51 @@ foreach ($result in $allResults) {
 
     # informations there only in GPP
     # description
-    if ($result.xmlnode.ParsedXml._desc){
-        $desc = ($result.xmlnode.ParsedXml._desc) -replace (";","<br>")
+    if ($result.xmlnode.ParsedXml._desc) {
+        $desc = ($result.xmlnode.ParsedXml._desc) -replace (';', '<br>')
         $TableOfResults += "<tr><td><b>Description:</b></td><td>$desc</td></tr>"
     }
     
-    if ($result.XmlNode.parsedXml._action){
-        if ($result.XmlNode.parsedXml._action -eq "R"){$TableOfResults += "<tr><td><b>Action:</b></td><td>Replace</td></tr>"}
-        if ($result.XmlNode.parsedXml._action -eq "U"){$TableOfResults += "<tr><td><b>Action:</b></td><td>Update</td></tr>"}
-        if ($result.XmlNode.parsedXml._action -eq "D"){$TableOfResults += "<tr><td><b>Action:</b></td><td>Delete</td></tr>"}        
+    if ($result.XmlNode.parsedXml._action) {
+        if ($result.XmlNode.parsedXml._action -eq 'R') { $TableOfResults += '<tr><td><b>Action:</b></td><td>Replace</td></tr>' }
+        if ($result.XmlNode.parsedXml._action -eq 'U') { $TableOfResults += '<tr><td><b>Action:</b></td><td>Update</td></tr>' }
+        if ($result.XmlNode.parsedXml._action -eq 'D') { $TableOfResults += '<tr><td><b>Action:</b></td><td>Delete</td></tr>' }        
     }
-    if ($result.xmlnode.ParsedXml.Properties._action){
-        if ($result.xmlnode.ParsedXml.Properties._action -eq "R"){$TableOfResults += "<tr><td><b>Action:</b></td><td>Replace</td></tr>"}
-        if ($result.xmlnode.ParsedXml.Properties._action -eq "U"){$TableOfResults += "<tr><td><b>Action:</b></td><td>Update</td></tr>"}
-        if ($result.xmlnode.ParsedXml.Properties._action -eq "D"){$TableOfResults += "<tr><td><b>Action:</b></td><td>Delete</td></tr>"}
+    if ($result.xmlnode.ParsedXml.Properties._action) {
+        if ($result.xmlnode.ParsedXml.Properties._action -eq 'R') { $TableOfResults += '<tr><td><b>Action:</b></td><td>Replace</td></tr>' }
+        if ($result.xmlnode.ParsedXml.Properties._action -eq 'U') { $TableOfResults += '<tr><td><b>Action:</b></td><td>Update</td></tr>' }
+        if ($result.xmlnode.ParsedXml.Properties._action -eq 'D') { $TableOfResults += '<tr><td><b>Action:</b></td><td>Delete</td></tr>' }
     }
-    if ($result.XmlNode.parsedXml.task.RegistrationInfo.Descriptionlt.xmlnode.ParsedXml._changed){$TableOfResults += "<tr><td><b>Last changed:</b></td><td>$($result.xmlnode.ParsedXml._changed)</td></tr>"}
-    if ($result.xmlnode.ParsedXml._changed){$TableOfResults += "<tr><td><b>Last changed:</b></td><td>$($result.xmlnode.ParsedXml._changed) </td></tr>"}
+    if ($result.XmlNode.parsedXml.task.RegistrationInfo.Descriptionlt.xmlnode.ParsedXml._changed) { $TableOfResults += "<tr><td><b>Last changed:</b></td><td>$($result.xmlnode.ParsedXml._changed)</td></tr>" }
+    if ($result.xmlnode.ParsedXml._changed) { $TableOfResults += "<tr><td><b>Last changed:</b></td><td>$($result.xmlnode.ParsedXml._changed) </td></tr>" }
 
     #endregion -[END GPP settings]-----------------------------------------------------------------
 
     # AA comment 
-    if ($result.XmlNode.ParsedXml.Comment){
-        $comment = ($result.XmlNode.ParsedXml.Comment) -replace (";","<br>")
+    if ($result.XmlNode.ParsedXml.Comment) {
+        $comment = ($result.XmlNode.ParsedXml.Comment) -replace (';', '<br>')
         $TableOfResults += "<tr><td><b>Comment:</b></td><td>$Comment</td></tr>"
     }
     # setting description from MS
-    if ($result.XmlNode.ParsedXml.Explain){$TableOfResults += "<tr><td><b>Explain:</b></td><td>$($result.XmlNode.ParsedXml.Explain)</td></tr>"}
+    if ($result.XmlNode.ParsedXml.Explain) { $TableOfResults += "<tr><td><b>Explain:</b></td><td>$($result.XmlNode.ParsedXml.Explain)</td></tr>" }
     
     # end of Table
-    $TableOfResults += "</table>"
-    $TableOfResults += "<br>"
+    $TableOfResults += '</table>'
+    $TableOfResults += '<br>'
     #region ----[End create table for the results]-------------------------------------------------
 }
-    # test only
-    "---------------------"
-    $result.XmlNode.parsedXml.Member.Name.Text
-    "--------------------"
-    $result.CategoryPath
-    "-------------------"
-    $result.Comment
-    "-----------------------------------"
-    $SearchString
-    ($allResults.count)
-    "-----------------------------------"
+# test only
+'---------------------'
+$result.XmlNode.parsedXml.Member.Name.Text
+'--------------------'
+$result.CategoryPath
+'-------------------'
+$result.Comment
+'-----------------------------------'
+$SearchString
+($allResults.count)
+'-----------------------------------'
 
 # start generate report
-New-Report -PageTitle "Search result for String:" -SearchString $SearchString -TableOne $TableOne -TableOfResults $TableOfResults -ResultCount ($allResults.count)
-get-gporeport -Name TestPolicy1 -ReportType xml -Path c:\temp\GPP.xml
+New-Report -PageTitle 'Search result for String:' -SearchString $SearchString -TableOne $TableOne -TableOfResults $TableOfResults -ResultCount ($allResults.count)
+
