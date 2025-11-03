@@ -1,5 +1,36 @@
 # Progress: What Works and What's Left
 
+## 🎯 ✅ **DEDUPLICATION BUG FIX COMPLETE (November 3, 2025)**
+
+### **CRITICAL BUG FIX: DUPLICATE RESULTS RESOLVED** ✅
+
+**Issue Reported**: Search-GPMCReports returning 3 duplicate results instead of 1 for scheduled task search
+
+**Root Cause Identified**:
+- OuterXml property truncated at 1000 characters in Search-GPMCXmlContent.ps1
+- Truncation prevented Remove-HierarchicalDuplicates from detecting parent-child relationships
+- Algorithm couldn't see that larger parent elements (TaskV2) contained smaller child elements (Arguments, Description)
+
+**Fix Implemented**:
+1. **Removed XML Truncation**: Eliminated 1000-character limit on OuterXml in Search-GPMCXmlContent.ps1 (2 locations)
+2. **Enhanced Deduplication**: Improved Remove-HierarchicalDuplicates.ps1 to build complete hierarchy map
+3. **Better Parent Detection**: Algorithm now identifies all top-level parents and removes all children/nested parents
+
+**Validation Results**:
+```powershell
+# Before Fix: 3 duplicate results
+Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
+# Returned: TaskV2 (attribute), Properties (attribute), Description (text), Arguments (text)
+
+# After Fix: 1 deduplicated result ✅
+Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
+# Returns: TaskV2 element only (top-level parent)
+```
+
+**Impact**: Production-critical fix ensuring clean, deduplicated search results for all queries
+
+---
+
 ## 🎯 ✅ **GROUP POLICY PREFERENCES CATEGORIZATION COMPLETE**
 
 ### **GROUP POLICY PREFERENCES MILESTONE ACHIEVED** ✅

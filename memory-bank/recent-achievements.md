@@ -1,5 +1,77 @@
 # Recent Achievements
 
+## Deduplication Bug Fix ✅
+**Date**: November 3, 2025  
+**Status**: COMPLETED
+
+**Background**: User reported that `Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2` returned 3 duplicate results instead of 1. Investigation revealed the same scheduled task was being returned multiple times due to matches in different XML locations (attribute values and text content).
+
+### Root Cause Analysis
+
+**The Problem**: 
+- `OuterXml` property was truncated to 1000 characters in `Search-GPMCXmlContent.ps1`
+- `Remove-HierarchicalDuplicates` uses string containment to detect parent-child relationships: `$parent.Contains($child)`
+- Truncated parent XML couldn't contain the full child XML text
+- Large elements like `TaskV2` (>1000 chars) couldn't be detected as parents of smaller children like `Arguments` or `Description`
+
+**Example**:
+```xml
+<!-- TaskV2 element: ~1500 characters (truncated to 1000) -->
+<q11:TaskV2 name="TestTask2">
+  <q11:Properties name="TestTask2">
+    <q11:Task>
+      <q11:Description>TestTask2</q11:Description>  <!-- Match 1: text content -->
+      <q11:Actions>
+        <q11:Arguments>TestTask2</q11:Arguments>    <!-- Match 2: text content -->
+      </q11:Actions>
+    </q11:Task>
+  </q11:Properties>
+</q11:TaskV2>
+<!-- Result: 4 matches (2 attributes + 2 text), dedup only removes 1, leaves 3 -->
+```
+
+### Technical Solution
+
+**Files Modified**:
+1. `source/Private/Search-GPMCXmlContent.ps1` (2 locations)
+   - Line 165: Removed truncation for text node matches
+   - Line 277: Removed truncation for attribute matches
+   
+2. `source/Private/Remove-HierarchicalDuplicates.ps1`
+   - Enhanced to build complete parent-child hierarchy map
+   - Improved algorithm to identify all top-level parents
+   - Removes all children and duplicate top-level parents
+
+**Before**:
+```powershell
+$xmlNodeInfo.OuterXml = if ($element.OuterXml.Length -gt 1000) { 
+    $element.OuterXml.Substring(0, 1000) + "..." 
+} else { 
+    $element.OuterXml 
+}
+```
+
+**After**:
+```powershell
+$xmlNodeInfo.OuterXml = $element.OuterXml  # No truncation
+```
+
+### Validation Results
+
+```powershell
+# Before Fix: 3 duplicate results
+Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
+# Returned 3 results from same scheduled task
+
+# After Fix: 1 deduplicated result ✅
+Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
+# Returns 1 result: TaskV2 element (top-level parent)
+```
+
+**Impact**: Production-critical fix ensuring clean, deduplicated search results for all queries.
+
+---
+
 ## Dot Notation Access Implementation ✅
 **Date**: January 19, 2025  
 **Status**: COMPLETED
