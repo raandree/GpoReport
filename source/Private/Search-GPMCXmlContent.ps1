@@ -24,7 +24,8 @@ function Search-GPMCXmlContent {
         
     .OUTPUTS
         PSCustomObject[] with properties: GPOName, GPOId, DomainName, CategoryPath, SettingName, 
-        SettingValue, Context, Section, Comment, SourceFile, CreatedTime, ModifiedTime, XmlNode
+        SettingValue, Context, Section, Comment, SourceFile, CreatedTime, ModifiedTime, ReadTime, 
+        IncludeComments, XmlNode
         
         The XmlNode property contains enhanced context information:
         - ElementName: The most meaningful XML element containing the match (Policy, Account, etc.)
@@ -197,6 +198,8 @@ function Search-GPMCXmlContent {
                     SourceFile = $SourceFile
                     CreatedTime = $gpoInfo.CreatedTime
                     ModifiedTime = $gpoInfo.ModifiedTime
+                    ReadTime = $gpoInfo.ReadTime
+                    IncludeComments = $gpoInfo.IncludeComments
                     XmlNode = $xmlNodeInfo
                 }
                 
@@ -334,6 +337,8 @@ function Search-GPMCXmlContent {
                         SourceFile = $SourceFile
                         CreatedTime = $gpoInfo.CreatedTime
                         ModifiedTime = $gpoInfo.ModifiedTime
+                        ReadTime = $gpoInfo.ReadTime
+                        IncludeComments = $gpoInfo.IncludeComments
                         XmlNode = $xmlNodeInfo
                     }
                     

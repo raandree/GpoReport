@@ -134,6 +134,8 @@ function Get-GPMCGpoInfo {
         GUID = "Unknown"
         CreatedTime = $null
         ModifiedTime = $null
+        ReadTime = $null
+        IncludeComments = $null
     }
     
     try {
@@ -172,14 +174,24 @@ function Get-GPMCGpoInfo {
         }
         
         # Get timestamps
-        $createdElement = $XmlDocument.SelectSingleNode("//CreatedTime")
+        $createdElement = $XmlDocument.SelectSingleNode("//*[local-name()='CreatedTime']")
         if ($createdElement) {
             $gpoInfo.CreatedTime = $createdElement.InnerText
         }
         
-        $modifiedElement = $XmlDocument.SelectSingleNode("//ModifiedTime")
+        $modifiedElement = $XmlDocument.SelectSingleNode("//*[local-name()='ModifiedTime']")
         if ($modifiedElement) {
             $gpoInfo.ModifiedTime = $modifiedElement.InnerText
+        }
+        
+        $readElement = $XmlDocument.SelectSingleNode("//*[local-name()='ReadTime']")
+        if ($readElement) {
+            $gpoInfo.ReadTime = $readElement.InnerText
+        }
+        
+        $includeCommentsElement = $XmlDocument.SelectSingleNode("//*[local-name()='IncludeComments']")
+        if ($includeCommentsElement) {
+            $gpoInfo.IncludeComments = $includeCommentsElement.InnerText
         }
     }
     catch {
