@@ -203,19 +203,19 @@ function Search-GPMCReports {
                     # Get all GPOs matching the filter (supports wildcards)
                     $gpos = Get-GPO @getAllParams | Where-Object { $_.DisplayName -like $GpoFilter }
                     
-                    if ($gpos.Count -eq 0) {
+                    if ($gpos.Count -gt 0) {
+                        Write-Host "Found $($gpos.Count) GPO(s) matching filter"
+                    } else {
                         Write-Warning "No GPOs found matching filter: $GpoFilter"
                         return
                     }
-                    
-                    Write-Verbose "Found $($gpos.Count) GPO(s) matching filter"
                     
                     # Export each GPO to XML
                     foreach ($gpo in $gpos) {
                         $xmlFileName = "$($gpo.DisplayName -replace '[<>:"/\\|?*]', '_').xml"
                         $xmlPath = Join-Path $tempDirectory $xmlFileName
-                        
-                        Write-Verbose "Exporting GPO: $($gpo.DisplayName) to $xmlPath"
+
+                        Write-Host "Exporting GPO: $($gpo.DisplayName) to $xmlPath"
                         
                         try {
                             $reportParams = @{
