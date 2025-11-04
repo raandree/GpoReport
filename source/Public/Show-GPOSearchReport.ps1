@@ -97,7 +97,7 @@ function Show-GPOSearchReport {
             $searchParams['Domain'] = $Domain
         }
         
-        $allResults = Search-GPMCReports @searchParams
+        $allResults = @(Search-GPMCReports @searchParams)
         
         Write-Host "Found $($allResults.Count) results" -ForegroundColor Green
     }
