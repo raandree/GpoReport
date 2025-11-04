@@ -744,6 +744,11 @@ function Show-GPOSearchReport {
     #region Generate and Display Report
 
     # Generate the HTML report
+    if ($allResults.Count -eq 0) {
+        Write-Host "'Search-GPMCReports' returned no search results."
+        return
+    }
+    
     Write-Host "`nGenerating HTML report..." -ForegroundColor Cyan
     Write-Host "  Search String: '$SearchString'" -ForegroundColor White
     Write-Host "  Total Results: $($allResults.Count)" -ForegroundColor White
