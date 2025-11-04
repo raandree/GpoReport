@@ -163,6 +163,7 @@ function Search-GPMCReports {
         
         $results = @()
         $processedFiles = 0
+        $processedGpos = 0
         $totalMatches = 0
         $tempDirectory = $null
         $exportedXmlFiles = @()
@@ -212,25 +213,20 @@ function Search-GPMCReports {
                     }
                     
                     # Export each GPO to XML
-                    foreach ($gpo in $gpos) {
-                        $xmlFileName = "$($gpo.DisplayName -replace '[<>:"/\\|?*]', '_').xml"
-                        $xmlPath = Join-Path $tempDirectory $xmlFileName
-
-                        Write-Host "Exporting GPO: $($gpo.DisplayName) to $xmlPath"
+                    $xmlReports = foreach ($gpo in $gpos) {
+                        Write-Host "Exporting GPO: $($gpo.DisplayName) to memory"
                         
                         try {
                             $reportParams = @{
                                 Guid        = $gpo.Id
                                 ReportType  = 'Xml'
-                                Path        = $xmlPath
                                 ErrorAction = 'Stop'
                             }
                             if ($Domain) {
                                 $reportParams['Domain'] = $Domain
                             }
                             
-                            Get-GPOReport @reportParams | Out-Null
-                            $exportedXmlFiles += $xmlPath
+                            [xml](Get-GPOReport @reportParams)
                             Write-Verbose "Successfully exported GPO: $($gpo.DisplayName)"
                         }
                         catch {
@@ -239,7 +235,7 @@ function Search-GPMCReports {
                         }
                     }
                     
-                    if ($exportedXmlFiles.Count -eq 0) {
+                    if ($xmlReports.Count -eq 0) {
                         Write-Warning 'No GPOs were successfully exported'
                         return
                     }
@@ -247,17 +243,17 @@ function Search-GPMCReports {
                     Write-Verbose "Successfully exported $($exportedXmlFiles.Count) GPO(s)"
                     
                     # Process exported XML files
-                    foreach ($file in $exportedXmlFiles) {
-                        Write-Verbose "Processing exported file: $file"
-                        $processedFiles++
+                    foreach ($xmlReport in $xmlReports) {
+                        Write-Verbose "Processing GPO '$($xmlReport.GPO.Name)'"
+                        $processedGpos++
                         
                         try {
-                            $fileResults = Search-GPMCXmlFile -FilePath $file -SearchString $SearchString -CaseSensitive:$CaseSensitive -IncludeAllMatches:$IncludeAllMatches
+                            $fileResults = Search-GPMCXmlContent -XmlString $xmlReport.OuterXml -SearchString $SearchString -CaseSensitive:$CaseSensitive -IncludeAllMatches:$IncludeAllMatches -SourceFile $xmlReport.GPO.Name
                             
                             if ($fileResults) {
                                 $results += $fileResults
                                 $totalMatches += $fileResults.Count
-                                Write-Verbose "Found $($fileResults.Count) matches in $(Split-Path $file -Leaf)"
+                                Write-Verbose "Found $($fileResults.Count) matches in $($xmlReport.GPO.Name)"
                                 
                                 if ($MaxResults -gt 0 -and $results.Count -ge $MaxResults) {
                                     $results = $results[0..($MaxResults - 1)]
