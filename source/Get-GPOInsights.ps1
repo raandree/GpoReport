@@ -412,7 +412,11 @@ function Get-SecurityRecommendation {
         'Password Complexity' = 'Enable password complexity requirements'
     }
     
-    return $recommendations[$PatternName] ?? "Review this setting for security implications"
+    if ($recommendations.ContainsKey($PatternName)) {
+        return $recommendations[$PatternName]
+    } else {
+        return "Review this setting for security implications"
+    }
 }
 
 function Generate-AnalysisReport {

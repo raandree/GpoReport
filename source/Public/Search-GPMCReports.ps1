@@ -14,6 +14,10 @@ function Search-GPMCReports {
     .PARAMETER Path
         The path to the GPMC XML report file to search. Can also be a directory to search all XML files within it.
 
+    .PARAMETER GpoFilter
+        Query Active Directory for GPOs matching this filter (supports wildcards). GPOs will be exported to a 
+        temporary directory, searched, and then cleaned up automatically. Requires GroupPolicy module (RSAT).
+
     .PARAMETER XmlContent
         Array of XML content strings to search through instead of reading from files.
 
@@ -36,9 +40,21 @@ function Search-GPMCReports {
     .PARAMETER Recurse
         If Path is a directory, search recursively through subdirectories.
 
+    .PARAMETER Domain
+        Specify the domain to query when using GpoFilter. If not specified, uses the current domain.
+
     .EXAMPLE
         Search-GPMCReports -Path ".\AllPreferences1.xml" -SearchString "*oscdimg*"
         Searches for settings containing "oscdimg" in the specified GPMC XML report.
+
+    .EXAMPLE
+        Search-GPMCReports -GpoFilter "Default*" -SearchString "*password*"
+        Queries Active Directory for all GPOs starting with "Default", exports them temporarily, 
+        searches for password-related settings, and cleans up the temporary files.
+
+    .EXAMPLE
+        Search-GPMCReports -GpoFilter "*Security*" -SearchString "*audit*" -Domain "contoso.com"
+        Searches for audit settings in GPOs containing "Security" in the specified domain.
 
     .EXAMPLE
         Search-GPMCReports -Path ".\AllPreferences1.xml" -SearchString "*Audiosrv*"
@@ -89,6 +105,10 @@ function Search-GPMCReports {
         })]
         [string]$Path,
 
+        [Parameter(Mandatory = $true, ParameterSetName = 'GpoFilter')]
+        [ValidateNotNullOrEmpty()]
+        [string]$GpoFilter,
+
         [Parameter(Mandatory = $true, ParameterSetName = 'XmlContent')]
         [AllowEmptyCollection()]
         [AllowEmptyString()]
@@ -126,7 +146,10 @@ function Search-GPMCReports {
         [switch]$IncludeChildDuplicates,
 
         [Parameter(ParameterSetName = 'FilePath')]
-        [switch]$Recurse
+        [switch]$Recurse,
+
+        [Parameter(ParameterSetName = 'GpoFilter')]
+        [string]$Domain
     )
 
     begin {
@@ -141,6 +164,8 @@ function Search-GPMCReports {
         $results = @()
         $processedFiles = 0
         $totalMatches = 0
+        $tempDirectory = $null
+        $exportedXmlFiles = @()
     }
 
     process {
@@ -150,7 +175,107 @@ function Search-GPMCReports {
         }
         
         try {
-            if ($PSCmdlet.ParameterSetName -eq 'FilePath') {
+            if ($PSCmdlet.ParameterSetName -eq 'GpoFilter') {
+                # Query Active Directory for GPOs and export to temporary directory
+                Write-Verbose "Querying Active Directory for GPOs matching filter: $GpoFilter"
+                
+                # Check if GroupPolicy module is available
+                if (-not (Get-Command -Name Get-GPO -ErrorAction SilentlyContinue)) {
+                    throw "GroupPolicy module is not available. Please install RSAT Group Policy Management Tools."
+                }
+                
+                # Create temporary directory for GPO exports
+                $tempDirectory = Join-Path $env:TEMP "GpoReport_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+                New-Item -Path $tempDirectory -ItemType Directory -Force | Out-Null
+                Write-Verbose "Created temporary directory: $tempDirectory"
+                
+                # Get GPOs from Active Directory
+                try {
+                    # Get all GPOs and filter by display name (Get-GPO doesn't support wildcards in -Name)
+                    $getAllParams = @{
+                        All = $true
+                        ErrorAction = 'Stop'
+                    }
+                    if ($Domain) {
+                        $getAllParams['Domain'] = $Domain
+                    }
+                    
+                    # Get all GPOs matching the filter (supports wildcards)
+                    $gpos = Get-GPO @getAllParams | Where-Object { $_.DisplayName -like $GpoFilter }
+                    
+                    if ($gpos.Count -eq 0) {
+                        Write-Warning "No GPOs found matching filter: $GpoFilter"
+                        return
+                    }
+                    
+                    Write-Verbose "Found $($gpos.Count) GPO(s) matching filter"
+                    
+                    # Export each GPO to XML
+                    foreach ($gpo in $gpos) {
+                        $xmlFileName = "$($gpo.DisplayName -replace '[<>:"/\\|?*]', '_').xml"
+                        $xmlPath = Join-Path $tempDirectory $xmlFileName
+                        
+                        Write-Verbose "Exporting GPO: $($gpo.DisplayName) to $xmlPath"
+                        
+                        try {
+                            $reportParams = @{
+                                Guid = $gpo.Id
+                                ReportType = 'Xml'
+                                Path = $xmlPath
+                                ErrorAction = 'Stop'
+                            }
+                            if ($Domain) {
+                                $reportParams['Domain'] = $Domain
+                            }
+                            
+                            Get-GPOReport @reportParams | Out-Null
+                            $exportedXmlFiles += $xmlPath
+                            Write-Verbose "Successfully exported GPO: $($gpo.DisplayName)"
+                        }
+                        catch {
+                            Write-Warning "Failed to export GPO '$($gpo.DisplayName)': $($_.Exception.Message)"
+                            continue
+                        }
+                    }
+                    
+                    if ($exportedXmlFiles.Count -eq 0) {
+                        Write-Warning "No GPOs were successfully exported"
+                        return
+                    }
+                    
+                    Write-Verbose "Successfully exported $($exportedXmlFiles.Count) GPO(s)"
+                    
+                    # Process exported XML files
+                    foreach ($file in $exportedXmlFiles) {
+                        Write-Verbose "Processing exported file: $file"
+                        $processedFiles++
+                        
+                        try {
+                            $fileResults = Search-GPMCXmlFile -FilePath $file -SearchString $SearchString -CaseSensitive:$CaseSensitive -IncludeAllMatches:$IncludeAllMatches
+                            
+                            if ($fileResults) {
+                                $results += $fileResults
+                                $totalMatches += $fileResults.Count
+                                Write-Verbose "Found $($fileResults.Count) matches in $(Split-Path $file -Leaf)"
+                                
+                                if ($MaxResults -gt 0 -and $results.Count -ge $MaxResults) {
+                                    $results = $results[0..($MaxResults-1)]
+                                    Write-Warning "Maximum results ($MaxResults) reached. Stopping search."
+                                    break
+                                }
+                            }
+                        }
+                        catch {
+                            Write-Warning "Failed to process file $($file): $($_.Exception.Message)"
+                            continue
+                        }
+                    }
+                }
+                catch {
+                    throw "Failed to query Active Directory: $($_.Exception.Message)"
+                }
+            }
+            elseif ($PSCmdlet.ParameterSetName -eq 'FilePath') {
                 # Process file path
                 $files = @()
                 
@@ -247,6 +372,18 @@ function Search-GPMCReports {
     }
 
     end {
+        # Clean up temporary directory if it was created
+        if ($tempDirectory -and (Test-Path $tempDirectory)) {
+            try {
+                Write-Verbose "Cleaning up temporary directory: $tempDirectory"
+                Remove-Item -Path $tempDirectory -Recurse -Force -ErrorAction Stop
+                Write-Verbose "Temporary directory removed successfully"
+            }
+            catch {
+                Write-Warning "Failed to remove temporary directory '$tempDirectory': $($_.Exception.Message)"
+            }
+        }
+        
         # Return empty array if we skipped processing due to empty search string
         if ($script:shouldSkipProcessing) {
             return @()

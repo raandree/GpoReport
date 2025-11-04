@@ -6,9 +6,16 @@ function Show-GPOSearchReport {
     .DESCRIPTION
         Searches GPO XML reports using the GpoReport module and generates an HTML report with detailed results.
         Optionally retrieves additional GPO information from Active Directory if the GroupPolicy module is available.
+        
+        Can either search pre-exported XML files or query Active Directory directly for GPOs.
 
     .PARAMETER Path
         Path to the directory containing GPO XML report files, or path to a specific XML file.
+
+    .PARAMETER GpoFilter
+        Query Active Directory for GPOs matching this filter (supports wildcards). GPOs will be exported to a 
+        temporary directory, searched, and the report generated. Temporary files are cleaned up automatically.
+        Requires GroupPolicy module (RSAT).
 
     .PARAMETER SearchString
         The search string to look for in GPO settings. Supports wildcards (*).
@@ -16,9 +23,21 @@ function Show-GPOSearchReport {
     .PARAMETER OutputPath
         Path where the HTML report will be saved. If not specified, a temporary file will be created.
 
+    .PARAMETER Domain
+        Specify the domain to query when using GpoFilter. If not specified, uses the current domain.
+
     .EXAMPLE
         Show-GPOSearchReport -Path "C:\GPOReports" -SearchString "Remote *"
         Searches for settings containing "Remote" in all XML files in the specified directory and generates an HTML report.
+
+    .EXAMPLE
+        Show-GPOSearchReport -GpoFilter "Default*" -SearchString "password*"
+        Queries Active Directory for all GPOs starting with "Default", searches for password-related settings,
+        and generates an HTML report. Temporary XML files are automatically cleaned up.
+
+    .EXAMPLE
+        Show-GPOSearchReport -GpoFilter "*Security*" -SearchString "audit*" -Domain "contoso.com" -OutputPath "C:\Reports\SecurityAudit.html"
+        Searches for audit settings in GPOs containing "Security" in the specified domain and saves the report to a custom location.
 
     .EXAMPLE
         Show-GPOSearchReport -Path "C:\GPOReports\GPO1.xml" -SearchString "password*" -OutputPath "C:\Reports\PasswordPolicies.html"
@@ -33,11 +52,15 @@ function Show-GPOSearchReport {
         - Optional: GroupPolicy module (for enhanced GPO description lookup)
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'FilePath')]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'FilePath')]
         [ValidateNotNullOrEmpty()]
         [string]$Path,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'GpoFilter')]
+        [ValidateNotNullOrEmpty()]
+        [string]$GpoFilter,
 
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -45,7 +68,10 @@ function Show-GPOSearchReport {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [string]$OutputPath
+        [string]$OutputPath,
+
+        [Parameter(ParameterSetName = 'GpoFilter')]
+        [string]$Domain
     )
 
     # Generate output path if not specified
@@ -58,31 +84,50 @@ function Show-GPOSearchReport {
         }
     }
 
-    # Validate path exists
-    if (-not (Test-Path -Path $Path)) {
-        throw "Path not found: $Path"
+    # Search GPO XML files based on parameter set
+    if ($PSCmdlet.ParameterSetName -eq 'GpoFilter') {
+        # Query Active Directory for GPOs
+        Write-Host "Querying Active Directory for GPOs matching filter: '$GpoFilter'..." -ForegroundColor Cyan
+        
+        $searchParams = @{
+            GpoFilter = $GpoFilter
+            SearchString = $SearchString
+        }
+        if ($Domain) {
+            $searchParams['Domain'] = $Domain
+        }
+        
+        $allResults = Search-GPMCReports @searchParams
+        
+        Write-Host "Found $($allResults.Count) results" -ForegroundColor Green
     }
+    else {
+        # Validate path exists
+        if (-not (Test-Path -Path $Path)) {
+            throw "Path not found: $Path"
+        }
 
-    # Determine if path is a file or directory
-    $xmlFiles = if ((Get-Item $Path).PSIsContainer) {
-        Get-ChildItem -Path $Path -Filter "*.xml" -File
-    } else {
-        Get-Item -Path $Path
+        # Determine if path is a file or directory
+        $xmlFiles = if ((Get-Item $Path).PSIsContainer) {
+            Get-ChildItem -Path $Path -Filter "*.xml" -File
+        } else {
+            Get-Item -Path $Path
+        }
+
+        if ($xmlFiles.Count -eq 0) {
+            Write-Warning "No XML files found in path: $Path"
+            return
+        }
+
+        # Search GPO XML files
+        Write-Host "Searching for '$SearchString' in XML files..." -ForegroundColor Cyan
+        $allResults = $xmlFiles | ForEach-Object {
+            Write-Verbose "Processing file: $($_.Name)"
+            Search-GPMCReports -Path $_.FullName -SearchString $SearchString
+        }
+
+        Write-Host "Found $($allResults.Count) results" -ForegroundColor Green
     }
-
-    if ($xmlFiles.Count -eq 0) {
-        Write-Warning "No XML files found in path: $Path"
-        return
-    }
-
-    # Search GPO XML files
-    Write-Host "Searching for '$SearchString' in XML files..." -ForegroundColor Cyan
-    $allResults = $xmlFiles | ForEach-Object {
-        Write-Verbose "Processing file: $($_.Name)"
-        Search-GPMCReports -Path $_.FullName -SearchString $SearchString
-    }
-
-    Write-Host "Found $($allResults.Count) results" -ForegroundColor Green
 
     #region Helper Functions
 
@@ -637,7 +682,11 @@ function Show-GPOSearchReport {
     }
 
     # Action Type
-    $actionValue = $result.XmlNode.parsedXml._action ?? $result.xmlnode.ParsedXml.Properties._action
+    $actionValue = if ($result.XmlNode.parsedXml._action) { 
+        $result.XmlNode.parsedXml._action 
+    } elseif ($result.xmlnode.ParsedXml.Properties._action) { 
+        $result.xmlnode.ParsedXml.Properties._action 
+    }
     if ($actionValue) {
         $actionText = switch ($actionValue) {
             'R' { 'Replace' }
@@ -712,4 +761,3 @@ function Show-GPOSearchReport {
 
     #endregion Generate and Display Report
 }
-
