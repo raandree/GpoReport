@@ -59,10 +59,10 @@ function Export-SearchResults {
         Write-Verbose "Starting export operation to: $OutputPath"
         $allResults = @()
         $exportMetadata = @{
-            ExportTime = Get-Date
-            ExportUser = $env:USERNAME
+            ExportTime    = Get-Date
+            ExportUser    = $env:USERNAME
             ExportMachine = $env:COMPUTERNAME
-            TotalResults = 0
+            TotalResults  = 0
         }
     }
 
@@ -72,7 +72,7 @@ function Export-SearchResults {
 
     end {
         if ($allResults.Count -eq 0) {
-            Write-Warning "No results to export"
+            Write-Warning 'No results to export'
             return
         }
 

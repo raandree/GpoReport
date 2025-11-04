@@ -23,7 +23,7 @@ function Get-CachedResults {
     )
     
     try {
-        $cacheFile = Join-Path (Join-Path $CacheDirectory "Results") "$CacheKey.json"
+        $cacheFile = Join-Path (Join-Path $CacheDirectory 'Results') "$CacheKey.json"
         
         if (Test-Path $cacheFile) {
             $cacheData = Get-Content $cacheFile -Raw | ConvertFrom-Json
@@ -33,7 +33,8 @@ function Get-CachedResults {
             if ($cacheAge.TotalHours -lt 1) {
                 Write-Verbose "Cache hit for key: $CacheKey"
                 return $cacheData.Results
-            } else {
+            }
+            else {
                 Write-Verbose "Cache expired for key: $CacheKey"
                 Remove-Item $cacheFile -ErrorAction SilentlyContinue
             }

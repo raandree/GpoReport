@@ -40,8 +40,8 @@ function Export-ToCSV {
         if ($IncludeMetadata -and $Metadata) {
             # Append metadata as comments at the end
             $metadataText = @()
-            $metadataText += ""
-            $metadataText += "# Export Metadata"
+            $metadataText += ''
+            $metadataText += '# Export Metadata'
             foreach ($key in $Metadata.Keys) {
                 $metadataText += "# $key`: $($Metadata[$key])"
             }

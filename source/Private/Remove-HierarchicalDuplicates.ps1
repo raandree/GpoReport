@@ -29,7 +29,7 @@ function Remove-HierarchicalDuplicates {
     )
     
     if ($IncludeChildDuplicates) {
-        Write-Verbose "IncludeChildDuplicates specified - returning all results without deduplication"
+        Write-Verbose 'IncludeChildDuplicates specified - returning all results without deduplication'
         return $Results
     }
     
@@ -52,9 +52,10 @@ function Remove-HierarchicalDuplicates {
         $existingGroup = $exactDuplicateGroups | Where-Object { $_.Name -eq $groupKey }
         if ($existingGroup) {
             $existingGroup.Group += $result
-        } else {
+        }
+        else {
             $exactDuplicateGroups += [PSCustomObject]@{
-                Name = $groupKey
+                Name  = $groupKey
                 Group = @($result)
                 Count = 1
             }
@@ -74,7 +75,8 @@ function Remove-HierarchicalDuplicates {
         if ($group.Count -eq 1) {
             # No exact duplicates, keep the result
             $afterExactDeduplication += $group.Group[0]
-        } else {
+        }
+        else {
             Write-Verbose "Removing $($group.Count - 1) exact duplicates for XmlPath/Category '$($group.Name)'"
             # Keep only the first result, remove exact duplicates
             $afterExactDeduplication += $group.Group[0]
@@ -144,7 +146,8 @@ function Remove-HierarchicalDuplicates {
         if ($parentChildMap.Count -eq 0) {
             Write-Verbose "No parent-child relationships found in category '$categoryPath', keeping all $($categoryResults.Count) results"
             $deduplicatedResults += $categoryResults
-        } else {
+        }
+        else {
             # Determine which results to keep
             # Strategy: Keep only the top-level parent (the one that isn't a child of anything else)
             # If multiple top-level parents exist, keep the first one encountered
@@ -178,14 +181,16 @@ function Remove-HierarchicalDuplicates {
                 for ($i = 0; $i -lt $categoryResults.Count; $i++) {
                     if ($indicesToRemove -notcontains $i) {
                         $deduplicatedResults += $categoryResults[$i]
-                    } else {
+                    }
+                    else {
                         $parentChildDuplicatesRemoved++
                     }
                 }
-            } else {
+            }
+            else {
                 # All results are in parent-child relationships, keep the first parent
                 # This handles circular references or complex hierarchies
-                Write-Verbose "Complex hierarchy detected, keeping first parent only"
+                Write-Verbose 'Complex hierarchy detected, keeping first parent only'
                 $deduplicatedResults += $categoryResults[0]
                 $parentChildDuplicatesRemoved += ($categoryResults.Count - 1)
             }

@@ -127,10 +127,10 @@
     • Thread Utilization: Parallel processing efficiency metrics
     • I/O Statistics: File read performance and bottleneck analysis
 #>
-    Create search indexes for faster subsequent searches.
+Create search indexes for faster subsequent searches.
 
 .EXAMPLE
-    .\Search-GPOCached.ps1 -Path "*.xml" -SearchString "*audit*" -UseCache -ParallelProcessing
+.\Search-GPOCached.ps1 -Path '*.xml' -SearchString '*audit*' -UseCache -ParallelProcessing
 #>
 
 [CmdletBinding()]
@@ -161,9 +161,9 @@ param(
 )
 
 # Cache and index directories
-$script:CacheDir = Join-Path $env:TEMP "GPOSearchCache"
-$script:IndexDir = Join-Path $script:CacheDir "Indexes"
-$script:ResultsCache = Join-Path $script:CacheDir "Results"
+$script:CacheDir = Join-Path $env:TEMP 'GPOSearchCache'
+$script:IndexDir = Join-Path $script:CacheDir 'Indexes'
+$script:ResultsCache = Join-Path $script:CacheDir 'Results'
 
 function Initialize-CacheDirectories {
     if (-not (Test-Path $script:CacheDir)) {
@@ -199,7 +199,8 @@ function Get-CachedResults {
             $cachedData = Get-Content $cacheFile -Raw | ConvertFrom-Json
             Write-Verbose "Cache hit for key: $CacheKey"
             return $cachedData.Results
-        } catch {
+        }
+        catch {
             Write-Verbose "Cache file corrupted, removing: $cacheFile"
             Remove-Item $cacheFile -Force -ErrorAction SilentlyContinue
         }
@@ -213,14 +214,15 @@ function Set-CachedResults {
     $cacheFile = Join-Path $script:ResultsCache "$CacheKey.json"
     $cacheData = @{
         Timestamp = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ')
-        Results = $Results
-        Count = $Results.Count
+        Results   = $Results
+        Count     = $Results.Count
     }
     
     try {
         $cacheData | ConvertTo-Json -Depth 10 | Out-File -FilePath $cacheFile -Encoding UTF8
         Write-Verbose "Results cached with key: $CacheKey"
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to cache results: $($_.Exception.Message)"
     }
 }
@@ -244,13 +246,13 @@ function Build-FileIndex {
         $xmlDoc.Load($FilePath)
         
         $searchableContent = @()
-        $nodes = $xmlDoc.SelectNodes("//*")
+        $nodes = $xmlDoc.SelectNodes('//*')
         
         foreach ($node in $nodes) {
             if (-not [string]::IsNullOrWhiteSpace($node.InnerText) -and $node.InnerText.Length -gt 2) {
                 $searchableContent += @{
-                    Text = $node.InnerText.Trim()
-                    XPath = $node.GetElementsByTagName("*")[0].Name
+                    Text     = $node.InnerText.Trim()
+                    XPath    = $node.GetElementsByTagName('*')[0].Name
                     NodeType = $node.NodeType.ToString()
                 }
             }
@@ -259,9 +261,9 @@ function Build-FileIndex {
             foreach ($attr in $node.Attributes) {
                 if (-not [string]::IsNullOrWhiteSpace($attr.Value)) {
                     $searchableContent += @{
-                        Text = $attr.Value
-                        XPath = "$($node.Name)/@$($attr.Name)"
-                        NodeType = "Attribute"
+                        Text     = $attr.Value
+                        XPath    = "$($node.Name)/@$($attr.Name)"
+                        NodeType = 'Attribute'
                     }
                 }
             }
@@ -269,10 +271,10 @@ function Build-FileIndex {
         
         # Save index
         $indexData = @{
-            FilePath = $FilePath
-            FileHash = $fileHash
-            BuildTime = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ')
-            ContentCount = $searchableContent.Count
+            FilePath          = $FilePath
+            FileHash          = $fileHash
+            BuildTime         = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ')
+            ContentCount      = $searchableContent.Count
             SearchableContent = $searchableContent
         }
         
@@ -281,7 +283,8 @@ function Build-FileIndex {
         
         return $indexFile
         
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to build index for $FilePath`: $($_.Exception.Message)"
         return $null
     }
@@ -299,9 +302,9 @@ function Search-IndexedFile {
             if ($regex.IsMatch($item.Text)) {
                 $matches += @{
                     MatchedText = $item.Text
-                    XPath = $item.XPath
-                    NodeType = $item.NodeType
-                    FilePath = $indexData.FilePath
+                    XPath       = $item.XPath
+                    NodeType    = $item.NodeType
+                    FilePath    = $indexData.FilePath
                 }
             }
         }
@@ -309,7 +312,8 @@ function Search-IndexedFile {
         Write-Verbose "Index search found $($matches.Count) matches in $($indexData.FilePath)"
         return $matches
         
-    } catch {
+    }
+    catch {
         Write-Warning "Failed to search index $IndexFile`: $($_.Exception.Message)"
         return @()
     }
@@ -333,7 +337,8 @@ function Start-ParallelSearch {
                 
                 try {
                     & $ScriptPath -Path $FilePath -SearchString $Pattern
-                } catch {
+                }
+                catch {
                     Write-Error "Error processing $FilePath`: $_"
                     return @()
                 }
@@ -348,8 +353,8 @@ function Start-ParallelSearch {
             
             $jobs += @{
                 PowerShell = $powershell
-                Handle = $powershell.BeginInvoke()
-                File = $file
+                Handle     = $powershell.BeginInvoke()
+                File       = $file
             }
         }
         
@@ -359,14 +364,17 @@ function Start-ParallelSearch {
                 $result = $job.PowerShell.EndInvoke($job.Handle)
                 $allResults += $result
                 Write-Verbose "Completed processing: $($job.File)"
-            } catch {
+            }
+            catch {
                 Write-Warning "Job failed for $($job.File): $($_.Exception.Message)"
-            } finally {
+            }
+            finally {
                 $job.PowerShell.Dispose()
             }
         }
         
-    } finally {
+    }
+    finally {
         $runspacePool.Close()
         $runspacePool.Dispose()
     }
@@ -390,7 +398,8 @@ function Show-PerformanceStatistics {
         Write-Host "Cache Misses: $CacheMisses" -ForegroundColor Yellow
         $cacheHitRate = if (($CacheHits + $CacheMisses) -gt 0) { 
             [Math]::Round(($CacheHits / ($CacheHits + $CacheMisses)) * 100, 1) 
-        } else { 0 }
+        }
+        else { 0 }
         Write-Host "Cache Hit Rate: $cacheHitRate%" -ForegroundColor Cyan
     }
     
@@ -403,12 +412,12 @@ $cacheHits = 0
 $cacheMisses = 0
 
 try {
-    Write-Host "=== HIGH-PERFORMANCE GPO SEARCH ===" -ForegroundColor Cyan
+    Write-Host '=== HIGH-PERFORMANCE GPO SEARCH ===' -ForegroundColor Cyan
     Write-Host "Search Pattern: $SearchString" -ForegroundColor Yellow
     Write-Host "Caching: $($UseCache.IsPresent)" -ForegroundColor Yellow
     Write-Host "Parallel Processing: $($ParallelProcessing.IsPresent)" -ForegroundColor Yellow
     Write-Host "Indexing: $($IndexFiles.IsPresent)" -ForegroundColor Yellow
-    Write-Host ("-" * 50) -ForegroundColor Gray
+    Write-Host ('-' * 50) -ForegroundColor Gray
     
     if ($UseCache -or $IndexFiles) {
         Initialize-CacheDirectories
@@ -417,14 +426,15 @@ try {
     # Clear cache if requested
     if ($RebuildCache -and (Test-Path $script:ResultsCache)) {
         Remove-Item "$script:ResultsCache\*" -Force -Recurse
-        Write-Host "Cache cleared" -ForegroundColor Yellow
+        Write-Host 'Cache cleared' -ForegroundColor Yellow
     }
     
     # Get files to process
     $pathItem = Get-Item -Path $Path
     if ($pathItem.PSIsContainer) {
-        $xmlFiles = Get-ChildItem -Path $Path -Filter "*.xml" -File | Select-Object -ExpandProperty FullName
-    } else {
+        $xmlFiles = Get-ChildItem -Path $Path -Filter '*.xml' -File | Select-Object -ExpandProperty FullName
+    }
+    else {
         $xmlFiles = @($pathItem.FullName)
     }
     
@@ -435,7 +445,8 @@ try {
     if ($ParallelProcessing -and $xmlFiles.Count -gt 1) {
         # Use parallel processing for multiple files
         $allResults = Start-ParallelSearch -Files $xmlFiles -SearchPattern $SearchString
-    } else {
+    }
+    else {
         # Sequential processing with caching
         foreach ($xmlFile in $xmlFiles) {
             $fileName = [System.IO.Path]::GetFileName($xmlFile)
@@ -448,9 +459,10 @@ try {
                 if ($cachedResults) {
                     $allResults += $cachedResults
                     $cacheHits++
-                    Write-Host "  └─ Cache hit" -ForegroundColor Green
+                    Write-Host '  └─ Cache hit' -ForegroundColor Green
                     continue
-                } else {
+                }
+                else {
                     $cacheMisses++
                 }
             }
@@ -462,11 +474,13 @@ try {
                     $indexResults = Search-IndexedFile -IndexFile $indexFile -SearchPattern $SearchString
                     # Convert index results to full result objects (simplified for demo)
                     $fileResults = $indexResults
-                } else {
+                }
+                else {
                     # Fall back to normal search
                     $fileResults = & "$PSScriptRoot\Search-GPMCReports.ps1" -Path $xmlFile -SearchString $SearchString
                 }
-            } else {
+            }
+            else {
                 # Normal search
                 $fileResults = & "$PSScriptRoot\Search-GPMCReports.ps1" -Path $xmlFile -SearchString $SearchString
             }
@@ -496,7 +510,8 @@ try {
     # Return results
     return $allResults
     
-} catch {
+}
+catch {
     Write-Error "Search failed: $($_.Exception.Message)"
     throw
 }

@@ -20,11 +20,11 @@ function Get-GPMCSettingComment {
     try {
         # Look for comment elements in current element and children
         $commentPatterns = @(
-            ".//q*:Comment",
-            ".//Comment", 
+            './/q*:Comment',
+            './/Comment', 
             ".//*[local-name()='Comment']",
-            ".//q4:Comment",
-            ".//q6:Comment"
+            './/q4:Comment',
+            './/q6:Comment'
         )
         
         foreach ($pattern in $commentPatterns) {

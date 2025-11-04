@@ -20,7 +20,7 @@ function Get-ConflictAnalysis {
         $conflictFindings = @()
         
         # Group results by setting path to find potential conflicts
-        $settingGroups = $Results | Group-Object @{Expression={$_.CategoryPath + '::' + $_.SettingName}}
+        $settingGroups = $Results | Group-Object @{Expression = { $_.CategoryPath + '::' + $_.SettingName } }
         
         foreach ($group in $settingGroups) {
             if ($group.Count -gt 1) {
@@ -31,13 +31,13 @@ function Get-ConflictAnalysis {
                 if ($values.Count -gt 1) {
                     # Different values for same setting - definite conflict
                     $conflict = [PSCustomObject]@{
-                        SettingPath = $group.Name -replace '::', ' > '
-                        ConflictType = 'Value Mismatch'
-                        AffectedGPOs = ($gpoNames -join ', ')
+                        SettingPath       = $group.Name -replace '::', ' > '
+                        ConflictType      = 'Value Mismatch'
+                        AffectedGPOs      = ($gpoNames -join ', ')
                         ConflictingValues = ($values -join ' | ')
-                        Severity = 'High'
-                        Resolution = 'Review GPO precedence and consolidate conflicting settings'
-                        AnalysisDate = Get-Date
+                        Severity          = 'High'
+                        Resolution        = 'Review GPO precedence and consolidate conflicting settings'
+                        AnalysisDate      = Get-Date
                     }
                     
                     $conflictFindings += $conflict
@@ -45,13 +45,13 @@ function Get-ConflictAnalysis {
                 elseif ($gpoNames.Count -gt 1) {
                     # Same value but multiple GPOs - potential redundancy
                     $conflict = [PSCustomObject]@{
-                        SettingPath = $group.Name -replace '::', ' > '
-                        ConflictType = 'Redundant Configuration'
-                        AffectedGPOs = ($gpoNames -join ', ')
+                        SettingPath       = $group.Name -replace '::', ' > '
+                        ConflictType      = 'Redundant Configuration'
+                        AffectedGPOs      = ($gpoNames -join ', ')
                         ConflictingValues = $values[0]
-                        Severity = 'Medium'
-                        Resolution = 'Consider consolidating redundant settings into single GPO'
-                        AnalysisDate = Get-Date
+                        Severity          = 'Medium'
+                        Resolution        = 'Consider consolidating redundant settings into single GPO'
+                        AnalysisDate      = Get-Date
                     }
                     
                     $conflictFindings += $conflict

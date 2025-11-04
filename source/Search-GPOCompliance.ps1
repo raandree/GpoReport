@@ -125,7 +125,7 @@ param(
 
 # Security pattern definitions
 $SecurityPatterns = @{
-    CIS = @{
+    CIS   = @{
         Critical = @(
             '*guest*account*',
             '*password*policy*',
@@ -135,7 +135,7 @@ $SecurityPatterns = @{
             '*administrator*',
             '*remote*desktop*'
         )
-        High = @(
+        High     = @(
             '*security*log*',
             '*user*rights*',
             '*lockout*',
@@ -147,14 +147,14 @@ $SecurityPatterns = @{
             '*registry*'
         )
     }
-    NIST = @{
+    NIST  = @{
         Critical = @(
             '*authentication*',
             '*authorization*',
             '*cryptography*',
             '*incident*response*'
         )
-        High = @(
+        High     = @(
             '*access*management*',
             '*system*integrity*',
             '*monitoring*'
@@ -167,7 +167,7 @@ $SecurityPatterns = @{
             '*audit*trail*',
             '*authentication*'
         )
-        High = @(
+        High     = @(
             '*user*access*',
             '*data*protection*',
             '*backup*'
@@ -181,10 +181,10 @@ function Get-RiskScore {
     $riskScore = 0
     
     # Base scoring
-    if ($CategoryPath -like "*Security Settings*") { $riskScore += 30 }
-    if ($CategoryPath -like "*User Rights*") { $riskScore += 25 }
-    if ($CategoryPath -like "*Audit*") { $riskScore += 20 }
-    if ($Section -eq "Computer") { $riskScore += 10 }
+    if ($CategoryPath -like '*Security Settings*') { $riskScore += 30 }
+    if ($CategoryPath -like '*User Rights*') { $riskScore += 25 }
+    if ($CategoryPath -like '*Audit*') { $riskScore += 20 }
+    if ($Section -eq 'Computer') { $riskScore += 10 }
     
     # Pattern-based scoring
     $criticalPatterns = @('*password*', '*guest*', '*administrator*', '*encryption*', '*firewall*')
@@ -205,11 +205,11 @@ function Get-ComplianceStatus {
     param($MatchedText, $CategoryPath, $SettingState)
     
     # Simple compliance logic - would be more sophisticated in real implementation
-    if ($SettingState -eq "Not Configured") { return "Non-Compliant" }
-    if ($SettingState -eq "Disabled" -and $MatchedText -like "*security*") { return "Risk" }
-    if ($SettingState -eq "Enabled" -and $MatchedText -like "*audit*") { return "Compliant" }
+    if ($SettingState -eq 'Not Configured') { return 'Non-Compliant' }
+    if ($SettingState -eq 'Disabled' -and $MatchedText -like '*security*') { return 'Risk' }
+    if ($SettingState -eq 'Enabled' -and $MatchedText -like '*audit*') { return 'Compliant' }
     
-    return "Review Required"
+    return 'Review Required'
 }
 
 # Get patterns based on template and security level
@@ -239,17 +239,17 @@ if ($CustomPatternFile -and (Test-Path $CustomPatternFile)) {
     $patternsToSearch += $customPatterns
 }
 
-Write-Host "=== GPO COMPLIANCE ANALYSIS ===" -ForegroundColor Cyan
+Write-Host '=== GPO COMPLIANCE ANALYSIS ===' -ForegroundColor Cyan
 Write-Host "Template: $ComplianceTemplate" -ForegroundColor Yellow
 Write-Host "Security Level: $SecurityLevel" -ForegroundColor Yellow
 Write-Host "Patterns to check: $($patternsToSearch.Count)" -ForegroundColor Yellow
-Write-Host ("-" * 50) -ForegroundColor Gray
+Write-Host ('-' * 50) -ForegroundColor Gray
 
 $allResults = @()
 $complianceStats = @{
-    Compliant = 0
-    NonCompliant = 0
-    Risk = 0
+    Compliant      = 0
+    NonCompliant   = 0
+    Risk           = 0
     ReviewRequired = 0
 }
 
@@ -275,7 +275,8 @@ foreach ($pattern in $patternsToSearch) {
             
             $allResults += $result
         }
-    } catch {
+    }
+    catch {
         Write-Warning "Error searching pattern '$pattern': $($_.Exception.Message)"
     }
 }

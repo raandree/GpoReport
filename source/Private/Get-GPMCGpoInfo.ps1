@@ -23,12 +23,12 @@ function Get-GPMCGpoInfo {
     )
     
     $gpoInfo = @{
-        DisplayName = "Unknown"
-        DomainName = "Unknown"  
-        GUID = "Unknown"
-        CreatedTime = $null
-        ModifiedTime = $null
-        ReadTime = $null
+        DisplayName     = 'Unknown'
+        DomainName      = 'Unknown'  
+        GUID            = 'Unknown'
+        CreatedTime     = $null
+        ModifiedTime    = $null
+        ReadTime        = $null
         IncludeComments = $null
     }
     
@@ -49,14 +49,14 @@ function Get-GPMCGpoInfo {
         
         # Try to get the actual GPO name from XML structure
         $nameElement = $XmlDocument.SelectSingleNode("//*[local-name()='Name' and not(*)]")
-        if ($nameElement -and $nameElement.ParentNode.LocalName -eq "GPO") {
+        if ($nameElement -and $nameElement.ParentNode.LocalName -eq 'GPO') {
             $gpoInfo.DisplayName = $nameElement.InnerText
         }
         
         # Try alternative structure for name
         $nElements = $XmlDocument.SelectNodes("//*[local-name()='n']")
         foreach ($elem in $nElements) {
-            if ($elem.ParentNode -and $elem.ParentNode.LocalName -eq "GPO") {
+            if ($elem.ParentNode -and $elem.ParentNode.LocalName -eq 'GPO') {
                 $gpoInfo.DisplayName = $elem.InnerText
                 break
             }

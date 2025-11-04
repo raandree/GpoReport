@@ -62,17 +62,17 @@
 param(
     [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'FilePath')]
     [ValidateScript({
-        if (-not (Test-Path $_)) {
-            throw "Path not found: $_"
-        }
-        if ((Get-Item $_).PSIsContainer) {
-            return $true  # Directory is valid
-        }
-        if ($_ -notmatch '\.xml$') {
-            throw "File must be XML format"
-        }
-        return $true
-    })]
+            if (-not (Test-Path $_)) {
+                throw "Path not found: $_"
+            }
+            if ((Get-Item $_).PSIsContainer) {
+                return $true  # Directory is valid
+            }
+            if ($_ -notmatch '\.xml$') {
+                throw 'File must be XML format'
+            }
+            return $true
+        })]
     [string]$Path,
     
     [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'XmlContent')]
@@ -129,12 +129,12 @@ function Get-GPMCGpoInfo {
     )
     
     $gpoInfo = @{
-        DisplayName = "Unknown"
-        DomainName = "Unknown"  
-        GUID = "Unknown"
-        CreatedTime = $null
-        ModifiedTime = $null
-        ReadTime = $null
+        DisplayName     = 'Unknown'
+        DomainName      = 'Unknown'  
+        GUID            = 'Unknown'
+        CreatedTime     = $null
+        ModifiedTime    = $null
+        ReadTime        = $null
         IncludeComments = $null
     }
     
@@ -149,14 +149,14 @@ function Get-GPMCGpoInfo {
         
         # Try to get the actual GPO name from XML structure
         $nameElement = $XmlDocument.SelectSingleNode("//*[local-name()='Name' and not(*)]")
-        if ($nameElement -and $nameElement.ParentNode.LocalName -eq "GPO") {
+        if ($nameElement -and $nameElement.ParentNode.LocalName -eq 'GPO') {
             $gpoInfo.DisplayName = $nameElement.InnerText
         }
         
         # Try alternative structure for name
         $nElements = $XmlDocument.SelectNodes("//*[local-name()='n']")
         foreach ($elem in $nElements) {
-            if ($elem.ParentNode -and $elem.ParentNode.LocalName -eq "GPO") {
+            if ($elem.ParentNode -and $elem.ParentNode.LocalName -eq 'GPO') {
                 $gpoInfo.DisplayName = $elem.InnerText
                 break
             }
@@ -216,183 +216,192 @@ function Get-SecuritySubcategory {
         if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
             Write-Verbose "Get-SecuritySubcategory: Checking node $($currentNode.LocalName) at depth $searchDepth, namespace: $($currentNode.NamespaceURI)"
             # Check for Security extension namespace
-            if ($currentNode.NamespaceURI -eq "http://www.microsoft.com/GroupPolicy/Settings/Security") {
+            if ($currentNode.NamespaceURI -eq 'http://www.microsoft.com/GroupPolicy/Settings/Security') {
                 Write-Verbose "Get-SecuritySubcategory: Found Security namespace for $($currentNode.LocalName)"
                 switch ($currentNode.LocalName) {
-                    "Account" {
+                    'Account' {
                         # Check the Type element to determine subcategory
                         $typeNode = $currentNode.SelectSingleNode(".//*[local-name()='Type']")
                         if ($typeNode) {
                             switch ($typeNode.InnerText) {
-                                "Password" { return "Account Policies > Password Policy" }
-                                "Kerberos" { return "Account Policies > Kerberos Policy" }
-                                "Lockout" { return "Account Policies > Account Lockout Policy" }
-                                default { return "Account Policies" }
+                                'Password' { return 'Account Policies > Password Policy' }
+                                'Kerberos' { return 'Account Policies > Kerberos Policy' }
+                                'Lockout' { return 'Account Policies > Account Lockout Policy' }
+                                default { return 'Account Policies' }
                             }
                         }
-                        return "Account Policies"
+                        return 'Account Policies'
                     }
                     # Check if this is a child of other Security setting types
-                    "Name" {
-                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Account") {
+                    'Name' {
+                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq 'Account') {
                             $typeNode = $currentNode.ParentNode.SelectSingleNode(".//*[local-name()='Type']")
                             if ($typeNode) {
                                 switch ($typeNode.InnerText) {
-                                    "Password" { return "Account Policies > Password Policy" }
-                                    "Kerberos" { return "Account Policies > Kerberos Policy" }
-                                    "Lockout" { return "Account Policies > Account Lockout Policy" }
-                                    default { return "Account Policies" }
+                                    'Password' { return 'Account Policies > Password Policy' }
+                                    'Kerberos' { return 'Account Policies > Kerberos Policy' }
+                                    'Lockout' { return 'Account Policies > Account Lockout Policy' }
+                                    default { return 'Account Policies' }
                                 }
                             }
-                            return "Account Policies"
+                            return 'Account Policies'
                         }
                         # Check if this Name is inside a SystemServices element
-                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "SystemServices") {
-                            return "System Services"
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq 'SystemServices') {
+                            return 'System Services'
                         }
                         # Check if this Name is inside a Member element under UserRightsAssignment
-                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Member") {
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq 'Member') {
                             # Look up the hierarchy to find UserRightsAssignment
                             $searchNode = $currentNode.ParentNode
-                            while ($null -ne $searchNode -and $searchNode.LocalName -ne "UserRightsAssignment") {
+                            while ($null -ne $searchNode -and $searchNode.LocalName -ne 'UserRightsAssignment') {
                                 $searchNode = $searchNode.ParentNode
                                 if ($null -eq $searchNode) { break }
                             }
-                            if ($null -ne $searchNode -and $searchNode.LocalName -eq "UserRightsAssignment") {
-                                return "Local Policies > User Rights Assignment"
+                            if ($null -ne $searchNode -and $searchNode.LocalName -eq 'UserRightsAssignment') {
+                                return 'Local Policies > User Rights Assignment'
                             }
                         }
                         # Check if this Name is inside a Member element under RestrictedGroups
-                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Member") {
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq 'Member') {
                             # Look up the hierarchy to find RestrictedGroups
                             $searchNode = $currentNode.ParentNode
-                            while ($null -ne $searchNode -and $searchNode.LocalName -ne "RestrictedGroups") {
+                            while ($null -ne $searchNode -and $searchNode.LocalName -ne 'RestrictedGroups') {
                                 $searchNode = $searchNode.ParentNode
                                 if ($null -eq $searchNode) { break }
                             }
-                            if ($null -ne $searchNode -and $searchNode.LocalName -eq "RestrictedGroups") {
-                                return "Restricted Groups"
+                            if ($null -ne $searchNode -and $searchNode.LocalName -eq 'RestrictedGroups') {
+                                return 'Restricted Groups'
                             }
                         }
                         # Check if this Name is inside a Display element under SecurityOptions
-                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "Display") {
-                            if ($currentNode.ParentNode.ParentNode -and $currentNode.ParentNode.ParentNode.LocalName -eq "SecurityOptions") {
+                        elseif ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq 'Display') {
+                            if ($currentNode.ParentNode.ParentNode -and $currentNode.ParentNode.ParentNode.LocalName -eq 'SecurityOptions') {
                                 # Check for Security Options subcategories based on display name
                                 $displayName = $currentNode.InnerText
-                                if ($displayName -like "Devices:*") {
-                                    return "Local Policies > Security Options > Devices"
-                                } elseif ($displayName -like "*SPN target name*") {
+                                if ($displayName -like 'Devices:*') {
+                                    return 'Local Policies > Security Options > Devices'
+                                }
+                                elseif ($displayName -like '*SPN target name*') {
                                     # Special case for Server SPN settings - categorize as "Other"
-                                    return "Local Policies > Security Options > Other"
-                                } elseif ($displayName -like "Domain controller:*") {
+                                    return 'Local Policies > Security Options > Other'
+                                }
+                                elseif ($displayName -like 'Domain controller:*') {
                                     # Special case for Domain Controller settings
-                                    return "Local Policies > Security Options > Domain Controller"
-                                } elseif ($displayName -like "*network client:*" -or $displayName -like "*network server:*") {
-                                    return "Local Policies > Security Options > Network"
-                                } elseif ($displayName -like "Network*") {
-                                    return "Local Policies > Security Options > Network"
-                                } elseif ($displayName -like "Interactive logon:*") {
-                                    return "Local Policies > Security Options > Interactive Logon"
-                                } elseif ($displayName -like "User Account Control:*") {
-                                    return "Local Policies > Security Options > User Account Control"
-                                } elseif ($displayName -like "System cryptography:*") {
-                                    return "Local Policies > Security Options > System Cryptography"
-                                } else {
+                                    return 'Local Policies > Security Options > Domain Controller'
+                                }
+                                elseif ($displayName -like '*network client:*' -or $displayName -like '*network server:*') {
+                                    return 'Local Policies > Security Options > Network'
+                                }
+                                elseif ($displayName -like 'Network*') {
+                                    return 'Local Policies > Security Options > Network'
+                                }
+                                elseif ($displayName -like 'Interactive logon:*') {
+                                    return 'Local Policies > Security Options > Interactive Logon'
+                                }
+                                elseif ($displayName -like 'User Account Control:*') {
+                                    return 'Local Policies > Security Options > User Account Control'
+                                }
+                                elseif ($displayName -like 'System cryptography:*') {
+                                    return 'Local Policies > Security Options > System Cryptography'
+                                }
+                                else {
                                     # Default to "Other" for unmatched Security Options
-                                    return "Local Policies > Security Options > Other"
+                                    return 'Local Policies > Security Options > Other'
                                 }
                             }
                         }
                         # Check if this is inside a text node that might contain domain controller settings keywords
                         else {
                             $nodeText = $currentNode.InnerText
-                            if ($nodeText -like "*signing*" -or $nodeText -like "*LDAP*" -or $nodeText -like "*Require signing*") {
+                            if ($nodeText -like '*signing*' -or $nodeText -like '*LDAP*' -or $nodeText -like '*Require signing*') {
                                 # Look up to see if this is under SecurityOptions
                                 $searchNode = $currentNode
-                                while ($null -ne $searchNode -and $searchNode.LocalName -ne "SecurityOptions") {
+                                while ($null -ne $searchNode -and $searchNode.LocalName -ne 'SecurityOptions') {
                                     $searchNode = $searchNode.ParentNode
                                     if ($null -eq $searchNode) { break }
                                 }
-                                if ($null -ne $searchNode -and $searchNode.LocalName -eq "SecurityOptions") {
-                                    return "Local Policies > Security Options > Domain Controller"
+                                if ($null -ne $searchNode -and $searchNode.LocalName -eq 'SecurityOptions') {
+                                    return 'Local Policies > Security Options > Domain Controller'
                                 }
                             }
                         }
                     }
-                    "DisplayString" {
+                    'DisplayString' {
                         # DisplayString element can contain security option values
                         $displayText = $currentNode.InnerText
-                        if ($displayText -like "*signing*" -or $displayText -like "*LDAP*" -or $displayText -like "*Require signing*") {
+                        if ($displayText -like '*signing*' -or $displayText -like '*LDAP*' -or $displayText -like '*Require signing*') {
                             # Look up to see if this is under SecurityOptions
                             $searchNode = $currentNode
-                            while ($null -ne $searchNode -and $searchNode.LocalName -ne "SecurityOptions") {
+                            while ($null -ne $searchNode -and $searchNode.LocalName -ne 'SecurityOptions') {
                                 $searchNode = $searchNode.ParentNode
                                 if ($null -eq $searchNode) { break }
                             }
-                            if ($null -ne $searchNode -and $searchNode.LocalName -eq "SecurityOptions") {
-                                return "Local Policies > Security Options > Domain Controller"
+                            if ($null -ne $searchNode -and $searchNode.LocalName -eq 'SecurityOptions') {
+                                return 'Local Policies > Security Options > Domain Controller'
                             }
                         }
                     }
-                    "KeyName" {
+                    'KeyName' {
                         # KeyName is a child of SecurityOptions
-                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "SecurityOptions") {
-                            return "Local Policies > Security Options"
+                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq 'SecurityOptions') {
+                            return 'Local Policies > Security Options'
                         }
                     }
-                    "SystemAccessPolicyName" {
+                    'SystemAccessPolicyName' {
                         # SystemAccessPolicyName is a child of SecurityOptions
-                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq "SecurityOptions") {
-                            return "Local Policies > Security Options"
+                        if ($currentNode.ParentNode -and $currentNode.ParentNode.LocalName -eq 'SecurityOptions') {
+                            return 'Local Policies > Security Options'
                         }
                     }
-                    "Path" {
+                    'Path' {
                         # Path element can be a child of Registry or File
                         if ($currentNode.ParentNode) {
-                            if ($currentNode.ParentNode.LocalName -eq "Registry") {
-                                return "Registry"
-                            } elseif ($currentNode.ParentNode.LocalName -eq "File") {
-                                return "File System"
+                            if ($currentNode.ParentNode.LocalName -eq 'Registry') {
+                                return 'Registry'
+                            }
+                            elseif ($currentNode.ParentNode.LocalName -eq 'File') {
+                                return 'File System'
                             }
                         }
                     }
-                    "Audit" {
+                    'Audit' {
                         # Check the audit name to determine if it's Account Policies or Local Policies
                         $auditNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name']")
                         if ($auditNameNode) {
                             $auditName = $auditNameNode.InnerText
                             # AuditDSAccess should be under Account Policies
-                            if ($auditName -like "*DSAccess*" -or $auditName -like "*Directory Service*") {
-                                return "Account Policies > Audit Policy"
+                            if ($auditName -like '*DSAccess*' -or $auditName -like '*Directory Service*') {
+                                return 'Account Policies > Audit Policy'
                             }
                         }
-                        return "Local Policies > Audit Policy"
+                        return 'Local Policies > Audit Policy'
                     }
-                    "UserRightsAssignment" {
-                        return "Local Policies > User Rights Assignment"
+                    'UserRightsAssignment' {
+                        return 'Local Policies > User Rights Assignment'
                     }
-                    "EventLog" {
-                        return "Event Log"
+                    'EventLog' {
+                        return 'Event Log'
                     }
                     # Check if we're in any hierarchy that contains UserRightsAssignment
                     default {
                         # Look for UserRightsAssignment anywhere up the chain
                         $searchNode = $currentNode
                         while ($null -ne $searchNode) {
-                            if ($searchNode.LocalName -eq "UserRightsAssignment") {
-                                return "Local Policies > User Rights Assignment"
+                            if ($searchNode.LocalName -eq 'UserRightsAssignment') {
+                                return 'Local Policies > User Rights Assignment'
                             }
                             $searchNode = $searchNode.ParentNode
                         }
                         # Look for RestrictedGroups anywhere up the chain
                         $searchNode = $currentNode
                         while ($null -ne $searchNode) {
-                            if ($searchNode.LocalName -eq "RestrictedGroups") {
-                                return "Restricted Groups"
+                            if ($searchNode.LocalName -eq 'RestrictedGroups') {
+                                return 'Restricted Groups'
                             }
                             $searchNode = $searchNode.ParentNode
                         }
-                        return "Security Settings"
+                        return 'Security Settings'
                     }
                 }
             }
@@ -418,60 +427,76 @@ function Get-AuditSubcategory {
     while ($null -ne $currentNode -and $searchDepth -lt 10) {
         if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
             # Check for Auditing extension namespace
-            if ($currentNode.NamespaceURI -eq "http://www.microsoft.com/GroupPolicy/Settings/Auditing") {
+            if ($currentNode.NamespaceURI -eq 'http://www.microsoft.com/GroupPolicy/Settings/Auditing') {
                 switch ($currentNode.LocalName) {
-                    "SubcategoryName" {
+                    'SubcategoryName' {
                         # Determine subcategory based on the audit subcategory name
                         $subcategoryName = $currentNode.InnerText
-                        if ($subcategoryName -like "*Kerberos*") {
-                            return "Account Logon"
-                        } elseif ($subcategoryName -like "*Directory Service*") {
-                            return "DS Access"
-                        } elseif ($subcategoryName -like "*Logon*" -or $subcategoryName -like "*Account Logon*") {
-                            return "Account Logon"
-                        } elseif ($subcategoryName -like "*Object Access*") {
-                            return "Object Access"
-                        } elseif ($subcategoryName -like "*Policy Change*") {
-                            return "Policy Change"
-                        } elseif ($subcategoryName -like "*Privilege Use*") {
-                            return "Privilege Use"
-                        } elseif ($subcategoryName -like "*Process*") {
-                            return "Detailed Tracking"
-                        } elseif ($subcategoryName -like "*System*") {
-                            return "System"
-                        } else {
-                            return "Advanced Audit Configuration"
+                        if ($subcategoryName -like '*Kerberos*') {
+                            return 'Account Logon'
+                        }
+                        elseif ($subcategoryName -like '*Directory Service*') {
+                            return 'DS Access'
+                        }
+                        elseif ($subcategoryName -like '*Logon*' -or $subcategoryName -like '*Account Logon*') {
+                            return 'Account Logon'
+                        }
+                        elseif ($subcategoryName -like '*Object Access*') {
+                            return 'Object Access'
+                        }
+                        elseif ($subcategoryName -like '*Policy Change*') {
+                            return 'Policy Change'
+                        }
+                        elseif ($subcategoryName -like '*Privilege Use*') {
+                            return 'Privilege Use'
+                        }
+                        elseif ($subcategoryName -like '*Process*') {
+                            return 'Detailed Tracking'
+                        }
+                        elseif ($subcategoryName -like '*System*') {
+                            return 'System'
+                        }
+                        else {
+                            return 'Advanced Audit Configuration'
                         }
                     }
-                    "AuditSetting" {
+                    'AuditSetting' {
                         # Look for SubcategoryName within AuditSetting
                         $subcategoryNode = $currentNode.SelectSingleNode(".//*[local-name()='SubcategoryName']")
                         if ($subcategoryNode) {
                             $subcategoryName = $subcategoryNode.InnerText
-                            if ($subcategoryName -like "*Kerberos*") {
-                                return "Account Logon"
-                            } elseif ($subcategoryName -like "*Directory Service*") {
-                                return "DS Access"
-                            } elseif ($subcategoryName -like "*Logon*" -or $subcategoryName -like "*Account Logon*") {
-                                return "Account Logon"
-                            } elseif ($subcategoryName -like "*Object Access*") {
-                                return "Object Access"
-                            } elseif ($subcategoryName -like "*Policy Change*") {
-                                return "Policy Change"
-                            } elseif ($subcategoryName -like "*Privilege Use*") {
-                                return "Privilege Use"
-                            } elseif ($subcategoryName -like "*Process*") {
-                                return "Detailed Tracking"
-                            } elseif ($subcategoryName -like "*System*") {
-                                return "System"
-                            } else {
-                                return "Advanced Audit Configuration"
+                            if ($subcategoryName -like '*Kerberos*') {
+                                return 'Account Logon'
+                            }
+                            elseif ($subcategoryName -like '*Directory Service*') {
+                                return 'DS Access'
+                            }
+                            elseif ($subcategoryName -like '*Logon*' -or $subcategoryName -like '*Account Logon*') {
+                                return 'Account Logon'
+                            }
+                            elseif ($subcategoryName -like '*Object Access*') {
+                                return 'Object Access'
+                            }
+                            elseif ($subcategoryName -like '*Policy Change*') {
+                                return 'Policy Change'
+                            }
+                            elseif ($subcategoryName -like '*Privilege Use*') {
+                                return 'Privilege Use'
+                            }
+                            elseif ($subcategoryName -like '*Process*') {
+                                return 'Detailed Tracking'
+                            }
+                            elseif ($subcategoryName -like '*System*') {
+                                return 'System'
+                            }
+                            else {
+                                return 'Advanced Audit Configuration'
                             }
                         }
-                        return "Advanced Audit Configuration"
+                        return 'Advanced Audit Configuration'
                     }
                     default {
-                        return "Advanced Audit Configuration"
+                        return 'Advanced Audit Configuration'
                     }
                 }
             }
@@ -506,7 +531,7 @@ function Get-GPMCCategoryPath {
             # Look for q3:Category element (for Registry extension policies)
             # Only search immediate children, not descendants, to avoid finding unrelated categories
             foreach ($child in $tempNode.ChildNodes) {
-                if ($child.LocalName -eq "Category" -and -not [string]::IsNullOrWhiteSpace($child.InnerText)) {
+                if ($child.LocalName -eq 'Category' -and -not [string]::IsNullOrWhiteSpace($child.InnerText)) {
                     $pathElements += $child.InnerText
                     Write-Verbose "Found Policy category: $($child.InnerText)"
                     break
@@ -541,38 +566,40 @@ function Get-GPMCCategoryPath {
             Write-Verbose "Checking node: $($currentNode.LocalName) at depth $searchDepth"
             
             # Check if we've reached an ExtensionData element
-            if ($currentNode.LocalName -eq "ExtensionData") {
+            if ($currentNode.LocalName -eq 'ExtensionData') {
                 # Look for the <n> element that describes this extension
                 # Check all child nodes since namespaces can be tricky
                 foreach ($child in $currentNode.ChildNodes) {
-                    if (($child.LocalName -eq "n" -or $child.LocalName -eq "Name") -and -not [string]::IsNullOrWhiteSpace($child.InnerText)) {
+                    if (($child.LocalName -eq 'n' -or $child.LocalName -eq 'Name') -and -not [string]::IsNullOrWhiteSpace($child.InnerText)) {
                         $extensionName = $child.InnerText
                         Write-Verbose "Found ExtensionData category: $extensionName"
                         
                         # For Security extension, provide more specific categorization
-                        if ($extensionName -eq "Security" -and $pathElements.Count -eq 0) {
-                            Write-Verbose "Calling Get-SecuritySubcategory for Security extension"
+                        if ($extensionName -eq 'Security' -and $pathElements.Count -eq 0) {
+                            Write-Verbose 'Calling Get-SecuritySubcategory for Security extension'
                             $securityCategory = Get-SecuritySubcategory -Node $Node
                             Write-Verbose "Security subcategory result: '$securityCategory'"
                             if ($securityCategory) {
                                 $pathElements += "Security Settings > $securityCategory"
-                            } else {
-                                $pathElements += "Security Settings"
+                            }
+                            else {
+                                $pathElements += 'Security Settings'
                             }
                         } 
                         # For Advanced Audit Configuration extension, provide specific categorization
-                        elseif ($extensionName -eq "Advanced Audit Configuration" -and $pathElements.Count -eq 0) {
-                            Write-Verbose "Calling Get-AuditSubcategory for Advanced Audit Configuration extension"
+                        elseif ($extensionName -eq 'Advanced Audit Configuration' -and $pathElements.Count -eq 0) {
+                            Write-Verbose 'Calling Get-AuditSubcategory for Advanced Audit Configuration extension'
                             $auditCategory = Get-AuditSubcategory -Node $Node
                             Write-Verbose "Audit subcategory result: '$auditCategory'"
                             if ($auditCategory) {
                                 $pathElements += "Security Settings > Advanced Audit Configuration > $auditCategory"
-                            } else {
-                                $pathElements += "Security Settings > Advanced Audit Configuration"
+                            }
+                            else {
+                                $pathElements += 'Security Settings > Advanced Audit Configuration'
                             }
                         }
                         # For Registry extension, add Administrative Templates prefix to category
-                        elseif ($extensionName -eq "Registry" -and $pathElements.Count -gt 0) {
+                        elseif ($extensionName -eq 'Registry' -and $pathElements.Count -gt 0) {
                             # Category was already found from q3:Category element, add Administrative Templates prefix
                             # Replace / with > for consistency
                             $categoryPath = $pathElements[0] -replace '/', ' > '
@@ -591,13 +618,13 @@ function Get-GPMCCategoryPath {
             }
             
             # Also check for Computer/User section context
-            if ($currentNode.LocalName -eq "Computer") {
-                $pathElements += "Computer Configuration"
-                Write-Verbose "Found Computer Configuration context"
+            if ($currentNode.LocalName -eq 'Computer') {
+                $pathElements += 'Computer Configuration'
+                Write-Verbose 'Found Computer Configuration context'
             }
-            elseif ($currentNode.LocalName -eq "User") {
-                $pathElements += "User Configuration"
-                Write-Verbose "Found User Configuration context"
+            elseif ($currentNode.LocalName -eq 'User') {
+                $pathElements += 'User Configuration'
+                Write-Verbose 'Found User Configuration context'
             }
         }
         $currentNode = $currentNode.ParentNode
@@ -614,7 +641,7 @@ function Get-GPMCCategoryPath {
     # Add specific setting context if available, but not for Security extension settings
     # that already have proper subcategorization
     $settingContext = Get-GPMCSettingContext -Node $Node
-    $hasSecuritySubcategory = ($pathElements.Count -gt 0 -and $pathElements[0] -like "Security Settings > *")
+    $hasSecuritySubcategory = ($pathElements.Count -gt 0 -and $pathElements[0] -like 'Security Settings > *')
     
     if ($settingContext -and -not $hasSecuritySubcategory -and ($pathElements.Count -eq 0 -or $settingContext -ne $pathElements[-1])) {
         $pathElements += $settingContext
@@ -622,9 +649,10 @@ function Get-GPMCCategoryPath {
     }
     
     $result = if ($pathElements.Count -gt 0) { 
-        ($pathElements -join " > ") 
-    } else { 
-        "Unknown" 
+        ($pathElements -join ' > ') 
+    }
+    else { 
+        'Unknown' 
     }
     
     Write-Verbose "Final category path: $result"
@@ -649,57 +677,57 @@ function Get-GPMCSettingContext {
             
             # Check for common GPMC setting types based on element names and attributes
             switch -Regex ($nodeName) {
-                "NTService" { 
-                    $serviceName = $currentNode.GetAttribute("name")
+                'NTService' { 
+                    $serviceName = $currentNode.GetAttribute('name')
                     if ($serviceName) { return "Service: $serviceName" }
-                    return "Windows Service"
+                    return 'Windows Service'
                 }
-                "Task" { 
-                    $taskName = $currentNode.GetAttribute("name")
+                'Task' { 
+                    $taskName = $currentNode.GetAttribute('name')
                     if ($taskName) { return "Scheduled Task: $taskName" }
-                    return "Scheduled Task"
+                    return 'Scheduled Task'
                 }
-                "EnvironmentVariable" { 
-                    $varName = $currentNode.GetAttribute("name")
+                'EnvironmentVariable' { 
+                    $varName = $currentNode.GetAttribute('name')
                     if ($varName) { return "Environment Variable: $varName" }
-                    return "Environment Variable"
+                    return 'Environment Variable'
                 }
-                "File" { 
-                    $fileName = $currentNode.GetAttribute("name")
+                'File' { 
+                    $fileName = $currentNode.GetAttribute('name')
                     if ($fileName) { return "File: $fileName" }
-                    return "File Setting"
+                    return 'File Setting'
                 }
-                "Registry" { 
-                    $regName = $currentNode.GetAttribute("name")
+                'Registry' { 
+                    $regName = $currentNode.GetAttribute('name')
                     if ($regName) { return "Registry: $regName" }
-                    return "Registry Setting"
+                    return 'Registry Setting'
                 }
-                "Group" { 
-                    $groupName = $currentNode.GetAttribute("name")
+                'Group' { 
+                    $groupName = $currentNode.GetAttribute('name')
                     if ($groupName) { return "Local Group: $groupName" }
-                    return "Local Group"
+                    return 'Local Group'
                 }
-                "User" { 
-                    $userName = $currentNode.GetAttribute("name")
+                'User' { 
+                    $userName = $currentNode.GetAttribute('name')
                     if ($userName) { return "Local User: $userName" }
-                    return "Local User"
+                    return 'Local User'
                 }
-                "DataSource" { 
-                    $dsName = $currentNode.GetAttribute("name")
+                'DataSource' { 
+                    $dsName = $currentNode.GetAttribute('name')
                     if ($dsName) { return "ODBC Data Source: $dsName" }
-                    return "ODBC Data Source"
+                    return 'ODBC Data Source'
                 }
-                "Ini" { 
-                    $iniName = $currentNode.GetAttribute("name")
+                'Ini' { 
+                    $iniName = $currentNode.GetAttribute('name')
                     if ($iniName) { return "INI File Setting: $iniName" }
-                    return "INI File Setting"
+                    return 'INI File Setting'
                 }
-                "^(Extension|Properties)$" {
+                '^(Extension|Properties)$' {
                     # Don't use these as context, continue looking
                 }
                 default {
                     # For other elements, check if they have a name attribute
-                    $name = $currentNode.GetAttribute("name")
+                    $name = $currentNode.GetAttribute('name')
                     if ($name -and $name -ne $Node.InnerText) {
                         return "$nodeName`: $name"
                     }
@@ -728,12 +756,13 @@ function Get-GPOSection {
         if ($currentNode.NodeType -eq [System.Xml.XmlNodeType]::Element) {
             Write-Verbose "Get-GPOSection: Checking node $($currentNode.LocalName) at depth $searchDepth"
             
-            if ($currentNode.LocalName -eq "Computer") {
-                Write-Verbose "Get-GPOSection: Found Computer section"
-                return "Computer"
-            } elseif ($currentNode.LocalName -eq "User") {
-                Write-Verbose "Get-GPOSection: Found User section"
-                return "User"
+            if ($currentNode.LocalName -eq 'Computer') {
+                Write-Verbose 'Get-GPOSection: Found Computer section'
+                return 'Computer'
+            }
+            elseif ($currentNode.LocalName -eq 'User') {
+                Write-Verbose 'Get-GPOSection: Found User section'
+                return 'User'
             }
         }
         $currentNode = $currentNode.ParentNode
@@ -741,7 +770,7 @@ function Get-GPOSection {
     }
     
     Write-Verbose "Get-GPOSection: No Computer or User section found after $searchDepth levels"
-    return "Unknown"
+    return 'Unknown'
 }
 
 # Get setting details from the matched node and its context
@@ -752,11 +781,11 @@ function Get-GPMCSettingDetails {
     )
     
     $details = @{
-        Name = "Unknown"
-        State = "Unknown" 
-        Value = $null
-        Action = $null
-        Type = $null
+        Name    = 'Unknown'
+        State   = 'Unknown' 
+        Value   = $null
+        Action  = $null
+        Type    = $null
         Context = $null
         Comment = $null
     }
@@ -775,34 +804,34 @@ function Get-GPMCSettingDetails {
             }
             
             # Extract meaningful attributes
-            if ($attributes.ContainsKey("name") -and $details.Name -eq "Unknown") {
-                $details.Name = $attributes["name"]
+            if ($attributes.ContainsKey('name') -and $details.Name -eq 'Unknown') {
+                $details.Name = $attributes['name']
             }
-            if ($attributes.ContainsKey("status") -and $details.State -eq "Unknown") {
-                $details.State = $attributes["status"]
+            if ($attributes.ContainsKey('status') -and $details.State -eq 'Unknown') {
+                $details.State = $attributes['status']
             }
-            if ($attributes.ContainsKey("action") -and $null -eq $details.Action) {
-                $details.Action = $attributes["action"]
+            if ($attributes.ContainsKey('action') -and $null -eq $details.Action) {
+                $details.Action = $attributes['action']
             }
-            if ($attributes.ContainsKey("value") -and $null -eq $details.Value) {
-                $details.Value = $attributes["value"]
+            if ($attributes.ContainsKey('value') -and $null -eq $details.Value) {
+                $details.Value = $attributes['value']
             }
-            if ($attributes.ContainsKey("type") -and $null -eq $details.Type) {
-                $details.Type = $attributes["type"]
+            if ($attributes.ContainsKey('type') -and $null -eq $details.Type) {
+                $details.Type = $attributes['type']
             }
             
             # Check for specific element types to determine context
             switch ($currentNode.LocalName) {
-                "Policy" {
+                'Policy' {
                     # Look for Policy Name
                     $policyNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($policyNameNode -and $details.Name -eq "Unknown") {
+                    if ($policyNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $policyNameNode.InnerText
                     }
                     
                     # Look for Policy State
                     $policyStateNode = $currentNode.SelectSingleNode(".//*[local-name()='State'][1]")
-                    if ($policyStateNode -and $details.State -eq "Unknown") {
+                    if ($policyStateNode -and $details.State -eq 'Unknown') {
                         $details.State = $policyStateNode.InnerText
                     }
                     
@@ -812,17 +841,17 @@ function Get-GPMCSettingDetails {
                         $details.Comment = $policyCommentNode.InnerText
                     }
                     
-                    $details.Context = "Group Policy Setting"
+                    $details.Context = 'Group Policy Setting'
                 }
-                "Account" {
+                'Account' {
                     # Security Account Policy (Password, Kerberos, etc.)
                     $accountNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($accountNameNode -and $details.Name -eq "Unknown") {
+                    if ($accountNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $accountNameNode.InnerText
                     }
                     
                     $accountNumberNode = $currentNode.SelectSingleNode(".//*[local-name()='SettingNumber'][1]")
-                    if ($accountNumberNode -and $details.State -eq "Unknown") {
+                    if ($accountNumberNode -and $details.State -eq 'Unknown') {
                         $details.State = $accountNumberNode.InnerText
                     }
                     
@@ -831,123 +860,128 @@ function Get-GPMCSettingDetails {
                         $details.Type = $accountTypeNode.InnerText
                     }
                     
-                    $details.Context = "Security Account Policy"
+                    $details.Context = 'Security Account Policy'
                 }
-                "Audit" {
+                'Audit' {
                     # Security Audit Policy
                     $auditNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($auditNameNode -and $details.Name -eq "Unknown") {
+                    if ($auditNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $auditNameNode.InnerText
                     }
                     
                     $successNode = $currentNode.SelectSingleNode(".//*[local-name()='SuccessAttempts'][1]")
                     $failureNode = $currentNode.SelectSingleNode(".//*[local-name()='FailureAttempts'][1]")
-                    if ($successNode -and $failureNode -and $details.State -eq "Unknown") {
-                        $success = $successNode.InnerText.ToLower() -eq "true"
-                        $failure = $failureNode.InnerText.ToLower() -eq "true"
+                    if ($successNode -and $failureNode -and $details.State -eq 'Unknown') {
+                        $success = $successNode.InnerText.ToLower() -eq 'true'
+                        $failure = $failureNode.InnerText.ToLower() -eq 'true'
                         if ($success -and $failure) {
-                            $details.State = "Success and Failure"
-                        } elseif ($success) {
-                            $details.State = "Success"
-                        } elseif ($failure) {
-                            $details.State = "Failure"
-                        } else {
-                            $details.State = "No Auditing"
+                            $details.State = 'Success and Failure'
+                        }
+                        elseif ($success) {
+                            $details.State = 'Success'
+                        }
+                        elseif ($failure) {
+                            $details.State = 'Failure'
+                        }
+                        else {
+                            $details.State = 'No Auditing'
                         }
                     }
                     
-                    $details.Context = "Security Audit Policy"
+                    $details.Context = 'Security Audit Policy'
                 }
-                "UserRightsAssignment" {
+                'UserRightsAssignment' {
                     # Security User Rights Assignment
                     $rightsNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($rightsNameNode -and $details.Name -eq "Unknown") {
+                    if ($rightsNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $rightsNameNode.InnerText
                     }
                     
-                    $details.Context = "Security User Rights"
+                    $details.Context = 'Security User Rights'
                 }
-                "SecurityOptions" {
+                'SecurityOptions' {
                     # Security Options
                     $keyNameNode = $currentNode.SelectSingleNode(".//*[local-name()='KeyName'][1]")
-                    if ($keyNameNode -and $details.Name -eq "Unknown") {
+                    if ($keyNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $keyNameNode.InnerText
                     }
                     
                     $settingStringNode = $currentNode.SelectSingleNode(".//*[local-name()='SettingString'][1]")
                     $settingNumberNode = $currentNode.SelectSingleNode(".//*[local-name()='SettingNumber'][1]")
-                    if ($settingStringNode -and $details.State -eq "Unknown") {
+                    if ($settingStringNode -and $details.State -eq 'Unknown') {
                         $details.State = $settingStringNode.InnerText
-                    } elseif ($settingNumberNode -and $details.State -eq "Unknown") {
+                    }
+                    elseif ($settingNumberNode -and $details.State -eq 'Unknown') {
                         $details.State = $settingNumberNode.InnerText
                     }
                     
                     # Look for Display Name which is more user-friendly
                     $displayNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Display']//*[local-name()='Name'][1]")
-                    if ($displayNameNode -and $details.Name -eq "Unknown") {
+                    if ($displayNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $displayNameNode.InnerText
                     }
                     
-                    $details.Context = "Security Options"
+                    $details.Context = 'Security Options'
                 }
-                "SystemServices" {
+                'SystemServices' {
                     # Security System Services
                     $serviceNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($serviceNameNode -and $details.Name -eq "Unknown") {
+                    if ($serviceNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $serviceNameNode.InnerText
                     }
                     
                     $startupModeNode = $currentNode.SelectSingleNode(".//*[local-name()='StartupMode'][1]")
-                    if ($startupModeNode -and $details.State -eq "Unknown") {
+                    if ($startupModeNode -and $details.State -eq 'Unknown') {
                         $details.State = "Startup: $($startupModeNode.InnerText)"
                     }
                     
-                    $details.Context = "Security System Services"
+                    $details.Context = 'Security System Services'
                 }
-                "File" {
+                'File' {
                     # Security File System
                     $pathNode = $currentNode.SelectSingleNode(".//*[local-name()='Path'][1]")
-                    if ($pathNode -and $details.Name -eq "Unknown") {
+                    if ($pathNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $pathNode.InnerText
                     }
                     
                     $modeNode = $currentNode.SelectSingleNode(".//*[local-name()='Mode'][1]")
-                    if ($modeNode -and $details.State -eq "Unknown") {
+                    if ($modeNode -and $details.State -eq 'Unknown') {
                         $details.State = $modeNode.InnerText
                     }
                     
-                    $details.Context = "Security File System"
+                    $details.Context = 'Security File System'
                 }
-                "EventLog" {
+                'EventLog' {
                     # Security Event Log
                     $eventNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
                     $eventLogNode = $currentNode.SelectSingleNode(".//*[local-name()='Log'][1]")
-                    if ($eventNameNode -and $eventLogNode -and $details.Name -eq "Unknown") {
+                    if ($eventNameNode -and $eventLogNode -and $details.Name -eq 'Unknown') {
                         $details.Name = "$($eventLogNode.InnerText) - $($eventNameNode.InnerText)"
-                    } elseif ($eventNameNode -and $details.Name -eq "Unknown") {
+                    }
+                    elseif ($eventNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $eventNameNode.InnerText
                     }
                     
                     $settingNumberNode = $currentNode.SelectSingleNode(".//*[local-name()='SettingNumber'][1]")
-                    if ($settingNumberNode -and $details.State -eq "Unknown") {
+                    if ($settingNumberNode -and $details.State -eq 'Unknown') {
                         $details.State = $settingNumberNode.InnerText
                     }
                     
-                    $details.Context = "Security Event Log"
+                    $details.Context = 'Security Event Log'
                 }
-                "RestrictedGroups" {
+                'RestrictedGroups' {
                     # Security Restricted Groups
-                    $details.Context = "Security Restricted Groups"
+                    $details.Context = 'Security Restricted Groups'
                 }
-                "DropDownList" {
+                'DropDownList' {
                     # Get dropdown name and selected value
                     $dropdownNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($dropdownNameNode -and $details.Name -eq "Unknown") {
+                    if ($dropdownNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $dropdownNameNode.InnerText
                     }
                     
                     $dropdownStateNode = $currentNode.SelectSingleNode(".//*[local-name()='State'][1]")
-                    if ($dropdownStateNode -and $details.State -eq "Unknown") {
+                    if ($dropdownStateNode -and $details.State -eq 'Unknown') {
                         $details.State = $dropdownStateNode.InnerText
                     }
                     
@@ -957,65 +991,65 @@ function Get-GPMCSettingDetails {
                         $details.Value = $valueNode.InnerText
                     }
                     
-                    $details.Context = "Policy Option"
+                    $details.Context = 'Policy Option'
                 }
-                "CheckBox" {
+                'CheckBox' {
                     $checkboxNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($checkboxNameNode -and $details.Name -eq "Unknown") {
+                    if ($checkboxNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $checkboxNameNode.InnerText
                     }
                     
                     $checkboxStateNode = $currentNode.SelectSingleNode(".//*[local-name()='State'][1]")
-                    if ($checkboxStateNode -and $details.State -eq "Unknown") {
+                    if ($checkboxStateNode -and $details.State -eq 'Unknown') {
                         $details.State = $checkboxStateNode.InnerText
                     }
                     
-                    $details.Context = "Policy Checkbox"
+                    $details.Context = 'Policy Checkbox'
                 }
-                "Text" {
+                'Text' {
                     $textNameNode = $currentNode.SelectSingleNode(".//*[local-name()='Name'][1]")
-                    if ($textNameNode -and $details.Name -eq "Unknown") {
+                    if ($textNameNode -and $details.Name -eq 'Unknown') {
                         $details.Name = $textNameNode.InnerText
                     }
-                    $details.Context = "Policy Text Input"
+                    $details.Context = 'Policy Text Input'
                 }
-                "Explain" {
-                    $details.Context = "Policy Explanation"
+                'Explain' {
+                    $details.Context = 'Policy Explanation'
                 }
-                "NTService" { 
-                    $serviceName = $currentNode.GetAttribute("name")
-                    if ($serviceName -and $details.Name -eq "Unknown") { 
+                'NTService' { 
+                    $serviceName = $currentNode.GetAttribute('name')
+                    if ($serviceName -and $details.Name -eq 'Unknown') { 
                         $details.Name = "Service: $serviceName" 
                     }
-                    $details.Context = "Windows Service"
+                    $details.Context = 'Windows Service'
                 }
-                "Task" { 
-                    $taskName = $currentNode.GetAttribute("name")
-                    if ($taskName -and $details.Name -eq "Unknown") { 
+                'Task' { 
+                    $taskName = $currentNode.GetAttribute('name')
+                    if ($taskName -and $details.Name -eq 'Unknown') { 
                         $details.Name = "Scheduled Task: $taskName" 
                     }
-                    $details.Context = "Scheduled Task"
+                    $details.Context = 'Scheduled Task'
                 }
-                "EnvironmentVariable" { 
-                    $varName = $currentNode.GetAttribute("name")
-                    if ($varName -and $details.Name -eq "Unknown") { 
+                'EnvironmentVariable' { 
+                    $varName = $currentNode.GetAttribute('name')
+                    if ($varName -and $details.Name -eq 'Unknown') { 
                         $details.Name = "Environment Variable: $varName" 
                     }
-                    $details.Context = "Environment Variable"
+                    $details.Context = 'Environment Variable'
                 }
-                "File" { 
-                    $fileName = $currentNode.GetAttribute("name")
-                    if ($fileName -and $details.Name -eq "Unknown") { 
+                'File' { 
+                    $fileName = $currentNode.GetAttribute('name')
+                    if ($fileName -and $details.Name -eq 'Unknown') { 
                         $details.Name = "File: $fileName" 
                     }
-                    $details.Context = "File Setting"
+                    $details.Context = 'File Setting'
                 }
-                "Registry" { 
-                    $regName = $currentNode.GetAttribute("name")
-                    if ($regName -and $details.Name -eq "Unknown") { 
+                'Registry' { 
+                    $regName = $currentNode.GetAttribute('name')
+                    if ($regName -and $details.Name -eq 'Unknown') { 
                         $details.Name = "Registry: $regName" 
                     }
-                    $details.Context = "Registry Setting"
+                    $details.Context = 'Registry Setting'
                 }
             }
             
@@ -1024,21 +1058,21 @@ function Get-GPMCSettingDetails {
             if ($propertiesElement) {
                 foreach ($attr in $propertiesElement.Attributes) {
                     switch ($attr.Name) {
-                        "name" { 
-                            if ($details.Name -eq "Unknown") { $details.Name = $attr.Value }
+                        'name' { 
+                            if ($details.Name -eq 'Unknown') { $details.Name = $attr.Value }
                         }
-                        "value" { 
+                        'value' { 
                             if ($null -eq $details.Value) { $details.Value = $attr.Value }
                         }
-                        "action" { 
+                        'action' { 
                             if ($null -eq $details.Action) { $details.Action = $attr.Value }
                         }
-                        "startupType" {
-                            if ($details.State -eq "Unknown") { $details.State = "Startup: $($attr.Value)" }
+                        'startupType' {
+                            if ($details.State -eq 'Unknown') { $details.State = "Startup: $($attr.Value)" }
                         }
-                        "enabled" {
-                            if ($details.State -eq "Unknown") { 
-                                $details.State = if ($attr.Value -eq "1") { "Enabled" } else { "Disabled" }
+                        'enabled' {
+                            if ($details.State -eq 'Unknown') { 
+                                $details.State = if ($attr.Value -eq '1') { 'Enabled' } else { 'Disabled' }
                             }
                         }
                     }
@@ -1046,7 +1080,7 @@ function Get-GPMCSettingDetails {
             }
             
             # Stop if we found meaningful information
-            if ($details.Name -ne "Unknown" -and $details.State -ne "Unknown" -and $details.Context) { 
+            if ($details.Name -ne 'Unknown' -and $details.State -ne 'Unknown' -and $details.Context) { 
                 break 
             }
         }
@@ -1080,7 +1114,7 @@ function Search-GPMCXmlContent {
         [int]$MaxResults,
         
         [Parameter()]
-        [string]$SourceIdentifier = "Unknown"
+        [string]$SourceIdentifier = 'Unknown'
     )
     
     $results = @()
@@ -1088,13 +1122,13 @@ function Search-GPMCXmlContent {
     
     try {
         Write-Verbose "Processing XML content: $SourceIdentifier"
-        Write-Verbose "=== Main Search-GPMCXmlContent function called ==="
+        Write-Verbose '=== Main Search-GPMCXmlContent function called ==='
         
         # Get GPO information once for the entire XML content
         $gpoInfo = Get-GPMCGpoInfo -XmlDocument $XmlDocument -SourceFilePath $SourceIdentifier
         
         # Get all nodes (both text nodes and elements with attributes) for searching
-        $searchNodes = $XmlDocument.SelectNodes("//*")
+        $searchNodes = $XmlDocument.SelectNodes('//*')
         Write-Verbose "Searching through $($searchNodes.Count) nodes..."
         
         # First pass: collect all potential matches
@@ -1125,7 +1159,7 @@ function Search-GPMCXmlContent {
                 if (-not $hasTextChildren -and $textContent -match $RegexPattern) {
                     $matchFound = $true
                     $matchedValue = $textContent.Trim()
-                    $matchType = "Text Content"
+                    $matchType = 'Text Content'
                 }
             }
             
@@ -1149,7 +1183,7 @@ function Search-GPMCXmlContent {
                 $depth = 0
                 
                 while ($null -ne $currentNode -and $depth -lt $maxDepth) {
-                    if ($currentNode.LocalName -eq "SecurityDescriptor") {
+                    if ($currentNode.LocalName -eq 'SecurityDescriptor') {
                         $isInSecurityDescriptor = $true
                         break
                     }
@@ -1163,10 +1197,10 @@ function Search-GPMCXmlContent {
                 }
 
                 $potentialMatches += @{
-                    Node = $node
+                    Node         = $node
                     MatchedValue = $matchedValue
-                    MatchType = $matchType
-                    TextLength = $textContent.Length
+                    MatchType    = $matchType
+                    TextLength   = $textContent.Length
                 }
             }
         }
@@ -1190,7 +1224,7 @@ function Search-GPMCXmlContent {
                         $otherNodeName = $otherMatch.Node.LocalName
                         
                         # If the longer match is a Name element and shorter is Type, keep the Name
-                        if ($matchNodeName -eq "Name" -and $otherNodeName -eq "Type") {
+                        if ($matchNodeName -eq 'Name' -and $otherNodeName -eq 'Type') {
                             # Don't mark as parent, keep the Name element
                             continue
                         }
@@ -1202,7 +1236,7 @@ function Search-GPMCXmlContent {
                 
                 # Check for exact duplicates but prefer non-attribute matches
                 if ($match -ne $otherMatch -and $match.MatchedValue -eq $otherMatch.MatchedValue) {
-                    if ($match.MatchType -like "Attribute:*" -and $otherMatch.MatchType -eq "Text Content") {
+                    if ($match.MatchType -like 'Attribute:*' -and $otherMatch.MatchType -eq 'Text Content') {
                         $isDuplicateMatch = $true
                         break
                     }
@@ -1210,14 +1244,14 @@ function Search-GPMCXmlContent {
             }
             
             # Special handling for NTDS: prioritize System Services over Security Options
-            if (-not $isParentMatch -and $match.MatchedValue -like "*NTDS*") {
+            if (-not $isParentMatch -and $match.MatchedValue -like '*NTDS*') {
                 $matchCategory = Get-GPMCCategoryPath -Node $match.Node -XmlDocument $XmlDocument
-                if ($matchCategory -like "*Security Options*") {
+                if ($matchCategory -like '*Security Options*') {
                     # Check if there's a System Services match for the same value
                     foreach ($otherMatch in $potentialMatches) {
                         if ($otherMatch.MatchedValue -eq $match.MatchedValue) {
                             $otherCategory = Get-GPMCCategoryPath -Node $otherMatch.Node -XmlDocument $XmlDocument
-                            if ($otherCategory -like "*System Services*") {
+                            if ($otherCategory -like '*System Services*') {
                                 $isDuplicateMatch = $true
                                 break
                             }
@@ -1252,28 +1286,28 @@ function Search-GPMCXmlContent {
             
             # Create result object
             $result = [PSCustomObject]@{
-                MatchedText = $match.MatchedValue
-                MatchType = $match.MatchType
-                GPO = [PSCustomObject]@{
-                    DisplayName = $gpoInfo.DisplayName
-                    DomainName = $gpoInfo.DomainName
-                    GUID = $gpoInfo.GUID
-                    CreatedTime = $gpoInfo.CreatedTime
+                MatchedText  = $match.MatchedValue
+                MatchType    = $match.MatchType
+                GPO          = [PSCustomObject]@{
+                    DisplayName  = $gpoInfo.DisplayName
+                    DomainName   = $gpoInfo.DomainName
+                    GUID         = $gpoInfo.GUID
+                    CreatedTime  = $gpoInfo.CreatedTime
                     ModifiedTime = $gpoInfo.ModifiedTime
                 }
-                Section = $gpoSection
-                CategoryPath = if ($categoryPath) { $categoryPath } else { "Unknown" }
-                Comment = $settingDetails.Comment
-                Setting = [PSCustomObject]@{
-                    Name = $settingDetails.Name
-                    State = $settingDetails.State
-                    Value = $settingDetails.Value
-                    Action = $settingDetails.Action
-                    Type = $settingDetails.Type
+                Section      = $gpoSection
+                CategoryPath = if ($categoryPath) { $categoryPath } else { 'Unknown' }
+                Comment      = $settingDetails.Comment
+                Setting      = [PSCustomObject]@{
+                    Name    = $settingDetails.Name
+                    State   = $settingDetails.State
+                    Value   = $settingDetails.Value
+                    Action  = $settingDetails.Action
+                    Type    = $settingDetails.Type
                     Context = $settingDetails.Context
                 }
-                SourceFile = $SourceIdentifier
-                XPath = $match.Node.OuterXml.Substring(0, [Math]::Min(300, $match.Node.OuterXml.Length)) + "..."
+                SourceFile   = $SourceIdentifier
+                XPath        = $match.Node.OuterXml.Substring(0, [Math]::Min(300, $match.Node.OuterXml.Length)) + '...'
             }
             
             $results += $result
@@ -1281,7 +1315,7 @@ function Search-GPMCXmlContent {
             
             # Show progress for large searches
             if ($resultCount % 10 -eq 0) {
-                Write-Progress -Activity "Searching XML content" -Status "Found $resultCount matches" -PercentComplete -1
+                Write-Progress -Activity 'Searching XML content' -Status "Found $resultCount matches" -PercentComplete -1
             }
         }
     }
@@ -1296,7 +1330,7 @@ function Search-GPMCXmlContent {
 function Search-GPMCXmlFile {
     param(
         [Parameter(Mandatory = $true)]
-        [ValidateScript({Test-Path $_ -PathType Leaf})]
+        [ValidateScript({ Test-Path $_ -PathType Leaf })]
         [string]$FilePath,
         
         [Parameter(Mandatory = $true)]
@@ -1355,7 +1389,7 @@ function Search-GPMCXmlString {
         [int]$MaxResults,
         
         [Parameter()]
-        [string]$SourceIdentifier = "XML String"
+        [string]$SourceIdentifier = 'XML String'
     )
     
     try {
@@ -1399,9 +1433,9 @@ try {
         if ($pathItem.PSIsContainer) {
             # Directory - find all XML files
             $searchParams = @{
-                Path = $Path
-                Filter = "*.xml"
-                File = $true
+                Path   = $Path
+                Filter = '*.xml'
+                File   = $true
             }
             if ($Recurse) {
                 $searchParams.Recurse = $true
@@ -1437,7 +1471,8 @@ try {
         Write-Host "Search Pattern: $SearchString" -ForegroundColor Yellow
         if ($xmlFiles.Count -eq 1) {
             Write-Host "File: $($xmlFiles[0])" -ForegroundColor Yellow
-        } else {
+        }
+        else {
             Write-Host "Files: $($xmlFiles.Count) XML files searched" -ForegroundColor Yellow
         }
     }
@@ -1471,14 +1506,14 @@ try {
         Write-Warning "No matches found for pattern: $SearchString"
         return
     }
-    Write-Host ("-" * 80) -ForegroundColor Gray
+    Write-Host ('-' * 80) -ForegroundColor Gray
     
     $resultNumber = 1
     foreach ($result in $allResults) {
         Write-Host "`n[$resultNumber] MATCH FOUND" -ForegroundColor Green
-        Write-Host "Matched Text: " -NoNewline -ForegroundColor White
+        Write-Host 'Matched Text: ' -NoNewline -ForegroundColor White
         Write-Host "$($result.MatchedText)" -ForegroundColor Yellow
-        Write-Host "Match Type: " -NoNewline -ForegroundColor White
+        Write-Host 'Match Type: ' -NoNewline -ForegroundColor White
         Write-Host "$($result.MatchType)" -ForegroundColor Cyan
         
         Write-Host "`nGPO Details:" -ForegroundColor Cyan
@@ -1512,7 +1547,7 @@ try {
             Write-Host "  Comment: $($result.Comment)" -ForegroundColor Yellow
         }
         
-        if ($result.CategoryPath -ne "Unknown") {
+        if ($result.CategoryPath -ne 'Unknown') {
             Write-Host "`nCategory Path: $($result.CategoryPath)" -ForegroundColor Magenta
         }
         
@@ -1520,7 +1555,7 @@ try {
             Write-Host "`nSource File: $([System.IO.Path]::GetFileName($result.SourceFile))" -ForegroundColor Gray
         }
         
-        Write-Host ("-" * 80) -ForegroundColor Gray
+        Write-Host ('-' * 80) -ForegroundColor Gray
         $resultNumber++
     }
     

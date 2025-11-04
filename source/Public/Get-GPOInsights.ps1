@@ -54,11 +54,11 @@ function Get-GPOInsights {
         Write-Verbose "Starting GPO insights analysis: $AnalysisType"
         $allResults = @()
         $analysisResults = @{
-            Security = @()
-            Compliance = @()
+            Security    = @()
+            Compliance  = @()
             Performance = @()
-            Conflicts = @()
-            Summary = @{}
+            Conflicts   = @()
+            Summary     = @{}
         }
     }
 
@@ -68,7 +68,7 @@ function Get-GPOInsights {
 
     end {
         if ($allResults.Count -eq 0) {
-            Write-Warning "No results to analyze"
+            Write-Warning 'No results to analyze'
             return
         }
 
@@ -77,33 +77,33 @@ function Get-GPOInsights {
         try {
             # Perform requested analysis
             if ($AnalysisType -in @('Security', 'All')) {
-                Write-Verbose "Performing security analysis..."
+                Write-Verbose 'Performing security analysis...'
                 $analysisResults.Security = Get-SecurityAnalysis -Results $allResults
             }
 
             if ($AnalysisType -in @('Compliance', 'All')) {
-                Write-Verbose "Performing compliance analysis..."
+                Write-Verbose 'Performing compliance analysis...'
                 $analysisResults.Compliance = Get-ComplianceAnalysis -Results $allResults
             }
 
             if ($AnalysisType -in @('Performance', 'All')) {
-                Write-Verbose "Performing performance analysis..."
+                Write-Verbose 'Performing performance analysis...'
                 $analysisResults.Performance = Get-PerformanceAnalysis -Results $allResults
             }
 
             if ($AnalysisType -in @('Conflicts', 'All')) {
-                Write-Verbose "Performing conflict analysis..."
+                Write-Verbose 'Performing conflict analysis...'
                 $analysisResults.Conflicts = Get-ConflictAnalysis -Results $allResults
             }
 
             # Generate summary
             $analysisResults.Summary = @{
-                TotalSettings = $allResults.Count
-                SecurityIssues = $analysisResults.Security.Count
-                ComplianceIssues = $analysisResults.Compliance.Count
+                TotalSettings     = $allResults.Count
+                SecurityIssues    = $analysisResults.Security.Count
+                ComplianceIssues  = $analysisResults.Compliance.Count
                 PerformanceIssues = $analysisResults.Performance.Count
-                Conflicts = $analysisResults.Conflicts.Count
-                AnalysisDate = Get-Date
+                Conflicts         = $analysisResults.Conflicts.Count
+                AnalysisDate      = Get-Date
             }
 
             # Generate report if requested
@@ -112,7 +112,7 @@ function Get-GPOInsights {
                     $OutputPath = "GPO-Insights-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
                 }
                 
-                Write-Verbose "Generating analysis report..."
+                Write-Verbose 'Generating analysis report...'
                 New-AnalysisReport -AnalysisResults $analysisResults -OutputPath $OutputPath
             }
 

@@ -59,18 +59,18 @@ function Export-ToHTML {
 "@
 
         if ($IncludeMetadata -and $Metadata) {
-            $html += @"
+            $html += @'
     <div class="metadata">
         <h2>Export Information</h2>
         <ul>
-"@
+'@
             foreach ($key in $Metadata.Keys) {
                 $html += "            <li><strong>$key</strong>: $($Metadata[$key])</li>`n"
             }
-            $html += @"
+            $html += @'
         </ul>
     </div>
-"@
+'@
         }
 
         $html += @"
@@ -105,11 +105,11 @@ function Export-ToHTML {
 "@
         }
 
-        $html += @"
+        $html += @'
     </table>
 </body>
 </html>
-"@
+'@
 
         $html | Out-File -FilePath $OutputPath -Encoding UTF8
         

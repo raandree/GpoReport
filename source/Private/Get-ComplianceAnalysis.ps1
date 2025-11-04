@@ -46,14 +46,14 @@ function Get-ComplianceAnalysis {
             }
             
             $finding = [PSCustomObject]@{
-                GPOName = $result.GPOName
-                CategoryPath = $result.CategoryPath
-                SettingName = $result.SettingName
-                SettingValue = $result.SettingValue
+                GPOName              = $result.GPOName
+                CategoryPath         = $result.CategoryPath
+                SettingName          = $result.SettingName
+                SettingValue         = $result.SettingValue
                 ComplianceFrameworks = ($frameworks -join ', ')
-                ComplianceStatus = $complianceStatus
-                RequiredAction = 'Review against compliance requirements'
-                AnalysisDate = Get-Date
+                ComplianceStatus     = $complianceStatus
+                RequiredAction       = 'Review against compliance requirements'
+                AnalysisDate         = Get-Date
             }
             
             $complianceFindings += $finding

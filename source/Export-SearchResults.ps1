@@ -107,13 +107,13 @@ function Export-ToJSON {
     
     $exportData = @{
         SearchResults = $Results
-        ResultCount = $Results.Count
+        ResultCount   = $Results.Count
     }
     
     if ($IncludeMetadata) {
         $exportData.Metadata = @{
-            ExportTime = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ')
-            ExportedBy = $env:USERNAME
+            ExportTime   = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ')
+            ExportedBy   = $env:USERNAME
             ComputerName = $env:COMPUTERNAME
         }
     }
@@ -127,29 +127,29 @@ function Export-ToCSV {
     param($Results, $OutputPath)
     
     $csvData = $Results | Select-Object @{
-        n='MatchedText'; e={$_.MatchedText}
+        n = 'MatchedText'; e = { $_.MatchedText }
     }, @{
-        n='MatchType'; e={$_.MatchType}
+        n = 'MatchType'; e = { $_.MatchType }
     }, @{
-        n='GPO_Name'; e={$_.GPO.DisplayName}
+        n = 'GPO_Name'; e = { $_.GPO.DisplayName }
     }, @{
-        n='GPO_Domain'; e={$_.GPO.DomainName}
+        n = 'GPO_Domain'; e = { $_.GPO.DomainName }
     }, @{
-        n='GPO_GUID'; e={$_.GPO.GUID}
+        n = 'GPO_GUID'; e = { $_.GPO.GUID }
     }, @{
-        n='Section'; e={$_.Section}
+        n = 'Section'; e = { $_.Section }
     }, @{
-        n='CategoryPath'; e={$_.CategoryPath}
+        n = 'CategoryPath'; e = { $_.CategoryPath }
     }, @{
-        n='Setting_Name'; e={$_.Setting.Name}
+        n = 'Setting_Name'; e = { $_.Setting.Name }
     }, @{
-        n='Setting_State'; e={$_.Setting.State}
+        n = 'Setting_State'; e = { $_.Setting.State }
     }, @{
-        n='Setting_Value'; e={$_.Setting.Value}
+        n = 'Setting_Value'; e = { $_.Setting.Value }
     }, @{
-        n='Setting_Context'; e={$_.Setting.Context}
+        n = 'Setting_Context'; e = { $_.Setting.Context }
     }, @{
-        n='SourceFile'; e={$_.SourceFile}
+        n = 'SourceFile'; e = { $_.SourceFile }
     }
     
     $csvPath = "$OutputPath.csv"
@@ -160,7 +160,7 @@ function Export-ToCSV {
 function Export-ToHTML {
     param($Results, $OutputPath, $IncludeMetadata)
     
-    $html = @"
+    $html = @'
 <!DOCTYPE html>
 <html>
 <head>
@@ -181,7 +181,7 @@ function Export-ToHTML {
 <body>
     <div class="header">
         <h1>GPO Search Results Report</h1>
-"@
+'@
 
     if ($IncludeMetadata) {
         $html += @"
@@ -226,11 +226,11 @@ function Export-ToHTML {
 "@
     }
     
-    $html += @"
+    $html += @'
     </table>
 </body>
 </html>
-"@
+'@
     
     $htmlPath = "$OutputPath.html"
     $html | Out-File -FilePath $htmlPath -Encoding UTF8
@@ -241,36 +241,36 @@ function Export-ToXML {
     param($Results, $OutputPath, $IncludeMetadata)
     
     $xmlDoc = New-Object System.Xml.XmlDocument
-    $root = $xmlDoc.CreateElement("GPOSearchResults")
+    $root = $xmlDoc.CreateElement('GPOSearchResults')
     $xmlDoc.AppendChild($root) | Out-Null
     
     if ($IncludeMetadata) {
-        $metadata = $xmlDoc.CreateElement("Metadata")
-        $metadata.SetAttribute("ExportTime", (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ'))
-        $metadata.SetAttribute("ResultCount", $Results.Count)
+        $metadata = $xmlDoc.CreateElement('Metadata')
+        $metadata.SetAttribute('ExportTime', (Get-Date).ToString('yyyy-MM-ddTHH:mm:ssZ'))
+        $metadata.SetAttribute('ResultCount', $Results.Count)
         $root.AppendChild($metadata) | Out-Null
     }
     
     foreach ($result in $Results) {
-        $resultNode = $xmlDoc.CreateElement("Result")
+        $resultNode = $xmlDoc.CreateElement('Result')
         
-        $resultNode.SetAttribute("MatchedText", $result.MatchedText)
-        $resultNode.SetAttribute("MatchType", $result.MatchType)
-        $resultNode.SetAttribute("Section", $result.Section)
-        $resultNode.SetAttribute("CategoryPath", $result.CategoryPath)
+        $resultNode.SetAttribute('MatchedText', $result.MatchedText)
+        $resultNode.SetAttribute('MatchType', $result.MatchType)
+        $resultNode.SetAttribute('Section', $result.Section)
+        $resultNode.SetAttribute('CategoryPath', $result.CategoryPath)
         
-        $gpoNode = $xmlDoc.CreateElement("GPO")
-        $gpoNode.SetAttribute("DisplayName", $result.GPO.DisplayName)
-        $gpoNode.SetAttribute("Domain", $result.GPO.DomainName)
-        $gpoNode.SetAttribute("GUID", $result.GPO.GUID)
+        $gpoNode = $xmlDoc.CreateElement('GPO')
+        $gpoNode.SetAttribute('DisplayName', $result.GPO.DisplayName)
+        $gpoNode.SetAttribute('Domain', $result.GPO.DomainName)
+        $gpoNode.SetAttribute('GUID', $result.GPO.GUID)
         $resultNode.AppendChild($gpoNode) | Out-Null
         
-        $settingNode = $xmlDoc.CreateElement("Setting")
-        $settingNode.SetAttribute("Name", $result.Setting.Name)
-        $settingNode.SetAttribute("State", $result.Setting.State)
-        $settingNode.SetAttribute("Context", $result.Setting.Context)
+        $settingNode = $xmlDoc.CreateElement('Setting')
+        $settingNode.SetAttribute('Name', $result.Setting.Name)
+        $settingNode.SetAttribute('State', $result.Setting.State)
+        $settingNode.SetAttribute('Context', $result.Setting.Context)
         if ($result.Setting.Value) {
-            $settingNode.SetAttribute("Value", $result.Setting.Value)
+            $settingNode.SetAttribute('Value', $result.Setting.Value)
         }
         $resultNode.AppendChild($settingNode) | Out-Null
         
@@ -289,7 +289,8 @@ try {
         Export-ToCSV -Results $Results -OutputPath $OutputPath
         Export-ToHTML -Results $Results -OutputPath $OutputPath -IncludeMetadata $IncludeMetadata
         Export-ToXML -Results $Results -OutputPath $OutputPath -IncludeMetadata $IncludeMetadata
-    } else {
+    }
+    else {
         switch ($Format) {
             'JSON' { Export-ToJSON -Results $Results -OutputPath $OutputPath -IncludeMetadata $IncludeMetadata }
             'CSV' { Export-ToCSV -Results $Results -OutputPath $OutputPath }
@@ -297,7 +298,8 @@ try {
             'XML' { Export-ToXML -Results $Results -OutputPath $OutputPath -IncludeMetadata $IncludeMetadata }
         }
     }
-} catch {
+}
+catch {
     Write-Error "Export failed: $($_.Exception.Message)"
     throw
 }

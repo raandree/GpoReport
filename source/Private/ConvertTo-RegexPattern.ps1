@@ -26,7 +26,7 @@ function ConvertTo-RegexPattern {
     # Handle empty or whitespace-only patterns
     if ([string]::IsNullOrWhiteSpace($WildcardPattern)) {
         # Return a pattern that matches nothing
-        return "(?!.*)"
+        return '(?!.*)'
     }
     
     # Escape special regex characters except * and ?

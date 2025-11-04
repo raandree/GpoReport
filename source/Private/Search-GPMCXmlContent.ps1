@@ -60,11 +60,11 @@ function Search-GPMCXmlContent {
     try {
         $results = @()
 
-        Write-Verbose "=== Private Search-GPMCXmlContent function called ==="
+        Write-Verbose '=== Private Search-GPMCXmlContent function called ==='
         
         # Handle empty or whitespace-only search strings
         if ([string]::IsNullOrWhiteSpace($SearchString)) {
-            Write-Verbose "Empty search string provided, returning no results"
+            Write-Verbose 'Empty search string provided, returning no results'
             return $results
         }        # Parse XML
         $xmlDoc = New-Object System.Xml.XmlDocument
@@ -78,7 +78,7 @@ function Search-GPMCXmlContent {
         $regex = New-Object System.Text.RegularExpressions.Regex($pattern)
         
         # Search all text nodes
-        $textNodes = $xmlDoc.SelectNodes("//text()")
+        $textNodes = $xmlDoc.SelectNodes('//text()')
 
         foreach ($node in $textNodes) {
             $text = $node.Value.Trim()
@@ -98,9 +98,9 @@ function Search-GPMCXmlContent {
             
             while ($null -ne $currentNode -and $depth -lt $maxDepth) {
                 Write-Verbose "  Checking parent node at depth $depth`: $($currentNode.LocalName)"
-                if ($currentNode.LocalName -eq "SecurityDescriptor") {
+                if ($currentNode.LocalName -eq 'SecurityDescriptor') {
                     $isInSecurityDescriptor = $true
-                    Write-Verbose "  Found SecurityDescriptor ancestor!"
+                    Write-Verbose '  Found SecurityDescriptor ancestor!'
                     break
                 }
                 $currentNode = $currentNode.ParentNode
@@ -110,7 +110,8 @@ function Search-GPMCXmlContent {
             if ($isInSecurityDescriptor) {
                 Write-Verbose "Skipping match in SecurityDescriptor: $text"
                 continue
-            } else {
+            }
+            else {
                 Write-Verbose "Text '$text' is NOT in SecurityDescriptor, proceeding with check"
             }
 
@@ -159,14 +160,14 @@ function Search-GPMCXmlContent {
                 }
                 
                 $xmlNodeInfo = [PSCustomObject]@{
-                    ElementName = $contextElement.LocalName
+                    ElementName       = $contextElement.LocalName
                     ElementAttributes = if ($attributesHash.Count -gt 0) { $attributesHash } else { $null }
-                    XmlPath = $contextElement.Name
-                    OuterXml = $contextElement.OuterXml
-                    ParentHierarchy = @()
-                    ImmediateParent = $parentElement.LocalName
-                    ContextLevel = if ($meaningfulParent -ne $parentElement) { "Policy" } else { "Element" }
-                    ParsedXml = $parsedXml
+                    XmlPath           = $contextElement.Name
+                    OuterXml          = $contextElement.OuterXml
+                    ParentHierarchy   = @()
+                    ImmediateParent   = $parentElement.LocalName
+                    ContextLevel      = if ($meaningfulParent -ne $parentElement) { 'Policy' } else { 'Element' }
+                    ParsedXml         = $parsedXml
                 }
                 
                 # Build parent hierarchy for context (limited to 5 levels for readability)
@@ -186,21 +187,21 @@ function Search-GPMCXmlContent {
                 # Create result object
                 $settingDetails = Get-GPMCSettingDetails -Element $node.ParentNode
                 $result = [PSCustomObject]@{
-                    GPOName = $gpoInfo.DisplayName
-                    GPOId = $gpoInfo.GUID
-                    DomainName = $gpoInfo.DomainName
-                    CategoryPath = Get-GPMCCategoryPath -Element $node.ParentNode
-                    SettingName = if ($settingDetails) { $settingDetails.Name } else { 'Unknown Setting' }
-                    SettingValue = $text
-                    Context = Get-GPMCSettingContext -Element $node.ParentNode
-                    Section = $section
-                    Comment = $comment
-                    SourceFile = $SourceFile
-                    CreatedTime = $gpoInfo.CreatedTime
-                    ModifiedTime = $gpoInfo.ModifiedTime
-                    ReadTime = $gpoInfo.ReadTime
+                    GPOName         = $gpoInfo.DisplayName
+                    GPOId           = $gpoInfo.GUID
+                    DomainName      = $gpoInfo.DomainName
+                    CategoryPath    = Get-GPMCCategoryPath -Element $node.ParentNode
+                    SettingName     = if ($settingDetails) { $settingDetails.Name } else { 'Unknown Setting' }
+                    SettingValue    = $text
+                    Context         = Get-GPMCSettingContext -Element $node.ParentNode
+                    Section         = $section
+                    Comment         = $comment
+                    SourceFile      = $SourceFile
+                    CreatedTime     = $gpoInfo.CreatedTime
+                    ModifiedTime    = $gpoInfo.ModifiedTime
+                    ReadTime        = $gpoInfo.ReadTime
                     IncludeComments = $gpoInfo.IncludeComments
-                    XmlNode = $xmlNodeInfo
+                    XmlNode         = $xmlNodeInfo
                 }
                 
                 # Add to results array - maintains document order
@@ -209,7 +210,7 @@ function Search-GPMCXmlContent {
         }
         
         # Search all XML attributes
-        $allElements = $xmlDoc.SelectNodes("//*[@*]")  # Select all elements that have attributes
+        $allElements = $xmlDoc.SelectNodes('//*[@*]')  # Select all elements that have attributes
         
         foreach ($element in $allElements) {
             # Skip elements that are within SecurityDescriptor elements
@@ -219,7 +220,7 @@ function Search-GPMCXmlContent {
             $depth = 0
             
             while ($null -ne $currentNode -and $depth -lt $maxDepth) {
-                if ($currentNode.LocalName -eq "SecurityDescriptor") {
+                if ($currentNode.LocalName -eq 'SecurityDescriptor') {
                     $isInSecurityDescriptor = $true
                     break
                 }
@@ -274,19 +275,20 @@ function Search-GPMCXmlContent {
                     # Create XML node context information
                     $outerXmlValue = if ($meaningfulParent -and $meaningfulParent.OuterXml) { 
                         $meaningfulParent.OuterXml 
-                    } else { 
-                        "" 
+                    }
+                    else { 
+                        '' 
                     }
                     
                     $xmlNodeInfo = [PSCustomObject]@{
-                        ElementName = if ($meaningfulParent) { $meaningfulParent.LocalName } else { "Unknown" }
+                        ElementName       = if ($meaningfulParent) { $meaningfulParent.LocalName } else { 'Unknown' }
                         ElementAttributes = @{}
-                        XmlPath = if ($meaningfulParent) { $meaningfulParent.LocalName } else { "Unknown" }
-                        OuterXml = $outerXmlValue
-                        ParentHierarchy = @()
-                        ImmediateParent = if ($element) { $element.LocalName } else { "Unknown" }
-                        ContextLevel = if ($meaningfulParent -eq $element) { "Element" } else { "Policy" }
-                        ParsedXml = $null
+                        XmlPath           = if ($meaningfulParent) { $meaningfulParent.LocalName } else { 'Unknown' }
+                        OuterXml          = $outerXmlValue
+                        ParentHierarchy   = @()
+                        ImmediateParent   = if ($element) { $element.LocalName } else { 'Unknown' }
+                        ContextLevel      = if ($meaningfulParent -eq $element) { 'Element' } else { 'Policy' }
+                        ParsedXml         = $null
                     }
                     
                     # Add meaningful parent attributes
@@ -325,21 +327,21 @@ function Search-GPMCXmlContent {
                     # Create result object
                     $settingDetails = Get-GPMCSettingDetails -Element $element
                     $result = [PSCustomObject]@{
-                        GPOName = $gpoInfo.DisplayName
-                        GPOId = $gpoInfo.GUID
-                        DomainName = $gpoInfo.DomainName
-                        CategoryPath = Get-GPMCCategoryPath -Element $element
-                        SettingName = if ($settingDetails) { $settingDetails.Name } else { 'Unknown Setting' }
-                        SettingValue = "$($attribute.Name): $attrValue"
-                        Context = Get-GPMCSettingContext -Element $element
-                        Section = $section
-                        Comment = $comment
-                        SourceFile = $SourceFile
-                        CreatedTime = $gpoInfo.CreatedTime
-                        ModifiedTime = $gpoInfo.ModifiedTime
-                        ReadTime = $gpoInfo.ReadTime
+                        GPOName         = $gpoInfo.DisplayName
+                        GPOId           = $gpoInfo.GUID
+                        DomainName      = $gpoInfo.DomainName
+                        CategoryPath    = Get-GPMCCategoryPath -Element $element
+                        SettingName     = if ($settingDetails) { $settingDetails.Name } else { 'Unknown Setting' }
+                        SettingValue    = "$($attribute.Name): $attrValue"
+                        Context         = Get-GPMCSettingContext -Element $element
+                        Section         = $section
+                        Comment         = $comment
+                        SourceFile      = $SourceFile
+                        CreatedTime     = $gpoInfo.CreatedTime
+                        ModifiedTime    = $gpoInfo.ModifiedTime
+                        ReadTime        = $gpoInfo.ReadTime
                         IncludeComments = $gpoInfo.IncludeComments
-                        XmlNode = $xmlNodeInfo
+                        XmlNode         = $xmlNodeInfo
                     }
                     
                     # Add to results array - maintains document order

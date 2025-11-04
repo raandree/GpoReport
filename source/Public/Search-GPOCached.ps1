@@ -91,19 +91,19 @@ function Search-GPOCached {
 
     begin {
         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-        Write-Verbose "Starting high-performance GPO search"
+        Write-Verbose 'Starting high-performance GPO search'
         
         if ($UseCache) {
             Initialize-CacheDirectories -CacheDirectory $CacheDirectory
         }
         
         $performanceStats = @{
-            StartTime = Get-Date
+            StartTime      = Get-Date
             FilesProcessed = 0
-            CacheHits = 0
-            CacheMisses = 0
-            IndexHits = 0
-            ParallelJobs = 0
+            CacheHits      = 0
+            CacheMisses    = 0
+            IndexHits      = 0
+            ParallelJobs   = 0
         }
     }
 
@@ -112,7 +112,7 @@ function Search-GPOCached {
             $results = @()
             
             # Get list of files to process
-            $files = Get-ChildItem -Path $Path -Filter "*.xml" -Recurse:$Recurse -File
+            $files = Get-ChildItem -Path $Path -Filter '*.xml' -Recurse:$Recurse -File
             $performanceStats.FilesProcessed = $files.Count
             
             Write-Verbose "Processing $($files.Count) XML files"
@@ -123,10 +123,11 @@ function Search-GPOCached {
                 $cachedResults = Get-CachedResults -CacheKey $cacheKey -CacheDirectory $CacheDirectory
                 
                 if ($cachedResults) {
-                    Write-Verbose "Cache hit! Returning cached results"
+                    Write-Verbose 'Cache hit! Returning cached results'
                     $performanceStats.CacheHits++
                     return $cachedResults
-                } else {
+                }
+                else {
                     $performanceStats.CacheMisses++
                 }
             }
@@ -136,7 +137,8 @@ function Search-GPOCached {
                 Write-Verbose "Using parallel processing with $MaxThreads threads"
                 $results = Start-ParallelSearch -Files $files -SearchString $SearchString -MaxThreads $MaxThreads -IndexFiles:$IndexFiles
                 $performanceStats.ParallelJobs = [Math]::Min($MaxThreads, $files.Count)
-            } else {
+            }
+            else {
                 # Sequential processing
                 foreach ($file in $files) {
                     if ($IndexFiles) {
@@ -145,7 +147,8 @@ function Search-GPOCached {
                             $results += $indexResults
                             $performanceStats.IndexHits++
                         }
-                    } else {
+                    }
+                    else {
                         $fileResults = Search-GPMCReports -Path $file.FullName -SearchString $SearchString
                         if ($fileResults) {
                             $results += $fileResults

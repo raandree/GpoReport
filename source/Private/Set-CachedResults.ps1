@@ -29,12 +29,12 @@ function Set-CachedResults {
     )
     
     try {
-        $cacheFile = Join-Path (Join-Path $CacheDirectory "Results") "$CacheKey.json"
+        $cacheFile = Join-Path (Join-Path $CacheDirectory 'Results') "$CacheKey.json"
         
         $cacheData = @{
-            Timestamp = Get-Date
+            Timestamp   = Get-Date
             ResultCount = $Results.Count
-            Results = $Results
+            Results     = $Results
         }
         
         $cacheData | ConvertTo-Json -Depth 10 | Out-File $cacheFile -Encoding UTF8

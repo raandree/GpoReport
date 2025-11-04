@@ -51,13 +51,13 @@ function Get-PerformanceAnalysis {
             }
             
             $finding = [PSCustomObject]@{
-                GPOName = $gpoName
-                SettingCount = $settingCount
-                PerformanceImpact = $impact
-                ProcessingCategory = 'Policy Processing'
-                Recommendation = $recommendation
+                GPOName                 = $gpoName
+                SettingCount            = $settingCount
+                PerformanceImpact       = $impact
+                ProcessingCategory      = 'Policy Processing'
+                Recommendation          = $recommendation
                 OptimizationOpportunity = $settingCount -gt 25
-                AnalysisDate = Get-Date
+                AnalysisDate            = Get-Date
             }
             
             $performanceFindings += $finding

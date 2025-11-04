@@ -66,9 +66,9 @@ function Get-CompliancePatterns {
                     $customPatterns = Import-Csv $CustomFile
                     foreach ($pattern in $customPatterns) {
                         $patterns += @{
-                            Name = $pattern.Name
-                            SearchString = $pattern.SearchString
-                            RiskLevel = $pattern.RiskLevel
+                            Name           = $pattern.Name
+                            SearchString   = $pattern.SearchString
+                            RiskLevel      = $pattern.RiskLevel
                             Recommendation = $pattern.Recommendation
                         }
                     }

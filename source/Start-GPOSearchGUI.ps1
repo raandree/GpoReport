@@ -97,9 +97,9 @@ Add-Type -AssemblyName System.Drawing
 
 # Create the main form
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "GPO Search Tool v2.0"
+$form.Text = 'GPO Search Tool v2.0'
 $form.Size = New-Object System.Drawing.Size(1200, 800)
-$form.StartPosition = "CenterScreen"
+$form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
 $form.MaximizeBox = $false
 
@@ -108,14 +108,14 @@ $menuStrip = New-Object System.Windows.Forms.MenuStrip
 
 # File menu
 $fileMenu = New-Object System.Windows.Forms.ToolStripMenuItem
-$fileMenu.Text = "File"
+$fileMenu.Text = 'File'
 
 $openMenuItem = New-Object System.Windows.Forms.ToolStripMenuItem
-$openMenuItem.Text = "Open XML File(s)..."
+$openMenuItem.Text = 'Open XML File(s)...'
 $openMenuItem.ShortcutKeys = [System.Windows.Forms.Keys]::Control -bor [System.Windows.Forms.Keys]::O
 
 $exportMenuItem = New-Object System.Windows.Forms.ToolStripMenuItem
-$exportMenuItem.Text = "Export Results..."
+$exportMenuItem.Text = 'Export Results...'
 $exportMenuItem.ShortcutKeys = [System.Windows.Forms.Keys]::Control -bor [System.Windows.Forms.Keys]::E
 
 $fileMenu.DropDownItems.Add($openMenuItem)
@@ -123,10 +123,10 @@ $fileMenu.DropDownItems.Add($exportMenuItem)
 
 # Tools menu
 $toolsMenu = New-Object System.Windows.Forms.ToolStripMenuItem
-$toolsMenu.Text = "Tools"
+$toolsMenu.Text = 'Tools'
 
 $complianceMenuItem = New-Object System.Windows.Forms.ToolStripMenuItem
-$complianceMenuItem.Text = "Compliance Analysis..."
+$complianceMenuItem.Text = 'Compliance Analysis...'
 
 $toolsMenu.DropDownItems.Add($complianceMenuItem)
 
@@ -142,14 +142,14 @@ $form.Controls.Add($mainPanel)
 
 # Search controls group
 $searchGroup = New-Object System.Windows.Forms.GroupBox
-$searchGroup.Text = "Search Parameters"
+$searchGroup.Text = 'Search Parameters'
 $searchGroup.Location = New-Object System.Drawing.Point(10, 10)
 $searchGroup.Size = New-Object System.Drawing.Size(1150, 120)
 $mainPanel.Controls.Add($searchGroup)
 
 # Path selection
 $pathLabel = New-Object System.Windows.Forms.Label
-$pathLabel.Text = "XML File(s):"
+$pathLabel.Text = 'XML File(s):'
 $pathLabel.Location = New-Object System.Drawing.Point(10, 25)
 $pathLabel.Size = New-Object System.Drawing.Size(80, 20)
 $searchGroup.Controls.Add($pathLabel)
@@ -160,14 +160,14 @@ $pathTextBox.Size = New-Object System.Drawing.Size(900, 20)
 $searchGroup.Controls.Add($pathTextBox)
 
 $browseButton = New-Object System.Windows.Forms.Button
-$browseButton.Text = "Browse..."
+$browseButton.Text = 'Browse...'
 $browseButton.Location = New-Object System.Drawing.Point(1010, 22)
 $browseButton.Size = New-Object System.Drawing.Size(80, 23)
 $searchGroup.Controls.Add($browseButton)
 
 # Search pattern
 $patternLabel = New-Object System.Windows.Forms.Label
-$patternLabel.Text = "Search Pattern:"
+$patternLabel.Text = 'Search Pattern:'
 $patternLabel.Location = New-Object System.Drawing.Point(10, 55)
 $patternLabel.Size = New-Object System.Drawing.Size(80, 20)
 $searchGroup.Controls.Add($patternLabel)
@@ -179,20 +179,20 @@ $searchGroup.Controls.Add($patternTextBox)
 
 # Options
 $caseSensitiveCheckBox = New-Object System.Windows.Forms.CheckBox
-$caseSensitiveCheckBox.Text = "Case Sensitive"
+$caseSensitiveCheckBox.Text = 'Case Sensitive'
 $caseSensitiveCheckBox.Location = New-Object System.Drawing.Point(420, 55)
 $caseSensitiveCheckBox.Size = New-Object System.Drawing.Size(100, 20)
 $searchGroup.Controls.Add($caseSensitiveCheckBox)
 
 $recurseCheckBox = New-Object System.Windows.Forms.CheckBox
-$recurseCheckBox.Text = "Recursive"
+$recurseCheckBox.Text = 'Recursive'
 $recurseCheckBox.Location = New-Object System.Drawing.Point(530, 55)
 $recurseCheckBox.Size = New-Object System.Drawing.Size(80, 20)
 $searchGroup.Controls.Add($recurseCheckBox)
 
 # Section filter
 $sectionLabel = New-Object System.Windows.Forms.Label
-$sectionLabel.Text = "Section:"
+$sectionLabel.Text = 'Section:'
 $sectionLabel.Location = New-Object System.Drawing.Point(630, 55)
 $sectionLabel.Size = New-Object System.Drawing.Size(50, 20)
 $searchGroup.Controls.Add($sectionLabel)
@@ -201,13 +201,13 @@ $sectionComboBox = New-Object System.Windows.Forms.ComboBox
 $sectionComboBox.Location = New-Object System.Drawing.Point(690, 53)
 $sectionComboBox.Size = New-Object System.Drawing.Size(100, 20)
 $sectionComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-$sectionComboBox.Items.AddRange(@("All", "Computer", "User"))
+$sectionComboBox.Items.AddRange(@('All', 'Computer', 'User'))
 $sectionComboBox.SelectedIndex = 0
 $searchGroup.Controls.Add($sectionComboBox)
 
 # Search button
 $searchButton = New-Object System.Windows.Forms.Button
-$searchButton.Text = "Search"
+$searchButton.Text = 'Search'
 $searchButton.Location = New-Object System.Drawing.Point(1010, 52)
 $searchButton.Size = New-Object System.Drawing.Size(80, 25)
 $searchButton.BackColor = [System.Drawing.Color]::LightGreen
@@ -223,7 +223,7 @@ $searchGroup.Controls.Add($progressBar)
 
 # Results group
 $resultsGroup = New-Object System.Windows.Forms.GroupBox
-$resultsGroup.Text = "Search Results"
+$resultsGroup.Text = 'Search Results'
 $resultsGroup.Location = New-Object System.Drawing.Point(10, 140)
 $resultsGroup.Size = New-Object System.Drawing.Size(1150, 450)
 $mainPanel.Controls.Add($resultsGroup)
@@ -247,46 +247,46 @@ $mainPanel.Controls.Add($summaryPanel)
 
 # Summary labels
 $summaryTitle = New-Object System.Windows.Forms.Label
-$summaryTitle.Text = "Summary"
+$summaryTitle.Text = 'Summary'
 $summaryTitle.Location = New-Object System.Drawing.Point(10, 10)
 $summaryTitle.Size = New-Object System.Drawing.Size(100, 20)
-$summaryTitle.Font = New-Object System.Drawing.Font("Arial", 10, [System.Drawing.FontStyle]::Bold)
+$summaryTitle.Font = New-Object System.Drawing.Font('Arial', 10, [System.Drawing.FontStyle]::Bold)
 $summaryPanel.Controls.Add($summaryTitle)
 
 $totalLabel = New-Object System.Windows.Forms.Label
-$totalLabel.Text = "Total Results: 0"
+$totalLabel.Text = 'Total Results: 0'
 $totalLabel.Location = New-Object System.Drawing.Point(10, 35)
 $totalLabel.Size = New-Object System.Drawing.Size(150, 20)
 $summaryPanel.Controls.Add($totalLabel)
 
 $computerLabel = New-Object System.Windows.Forms.Label
-$computerLabel.Text = "Computer Section: 0"
+$computerLabel.Text = 'Computer Section: 0'
 $computerLabel.Location = New-Object System.Drawing.Point(10, 55)
 $computerLabel.Size = New-Object System.Drawing.Size(150, 20)
 $summaryPanel.Controls.Add($computerLabel)
 
 $userLabel = New-Object System.Windows.Forms.Label
-$userLabel.Text = "User Section: 0"
+$userLabel.Text = 'User Section: 0'
 $userLabel.Location = New-Object System.Drawing.Point(10, 75)
 $userLabel.Size = New-Object System.Drawing.Size(150, 20)
 $summaryPanel.Controls.Add($userLabel)
 
 $gpoCountLabel = New-Object System.Windows.Forms.Label
-$gpoCountLabel.Text = "Unique GPOs: 0"
+$gpoCountLabel.Text = 'Unique GPOs: 0'
 $gpoCountLabel.Location = New-Object System.Drawing.Point(180, 35)
 $gpoCountLabel.Size = New-Object System.Drawing.Size(150, 20)
 $summaryPanel.Controls.Add($gpoCountLabel)
 
 # Action buttons
 $exportButton = New-Object System.Windows.Forms.Button
-$exportButton.Text = "Export Results"
+$exportButton.Text = 'Export Results'
 $exportButton.Location = New-Object System.Drawing.Point(950, 30)
 $exportButton.Size = New-Object System.Drawing.Size(100, 30)
 $exportButton.Enabled = $false
 $summaryPanel.Controls.Add($exportButton)
 
 $clearButton = New-Object System.Windows.Forms.Button
-$clearButton.Text = "Clear Results"
+$clearButton.Text = 'Clear Results'
 $clearButton.Location = New-Object System.Drawing.Point(950, 70)
 $clearButton.Size = New-Object System.Drawing.Size(100, 30)
 $clearButton.Enabled = $false
@@ -297,148 +297,151 @@ $script:currentResults = @()
 
 # Event handlers
 $browseButton.Add_Click({
-    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $openFileDialog.Title = "Select GPO XML Files"
-    $openFileDialog.Filter = "XML Files (*.xml)|*.xml|All Files (*.*)|*.*"
-    $openFileDialog.Multiselect = $true
+        $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+        $openFileDialog.Title = 'Select GPO XML Files'
+        $openFileDialog.Filter = 'XML Files (*.xml)|*.xml|All Files (*.*)|*.*'
+        $openFileDialog.Multiselect = $true
     
-    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $pathTextBox.Text = $openFileDialog.FileNames -join "; "
-    }
-})
+        if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $pathTextBox.Text = $openFileDialog.FileNames -join '; '
+        }
+    })
 
 $searchButton.Add_Click({
-    if ([string]::IsNullOrWhiteSpace($pathTextBox.Text)) {
-        [System.Windows.Forms.MessageBox]::Show("Please select XML file(s) to search.", "Missing Files", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
-        return
-    }
+        if ([string]::IsNullOrWhiteSpace($pathTextBox.Text)) {
+            [System.Windows.Forms.MessageBox]::Show('Please select XML file(s) to search.', 'Missing Files', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+            return
+        }
     
-    if ([string]::IsNullOrWhiteSpace($patternTextBox.Text)) {
-        [System.Windows.Forms.MessageBox]::Show("Please enter a search pattern.", "Missing Pattern", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
-        return
-    }
+        if ([string]::IsNullOrWhiteSpace($patternTextBox.Text)) {
+            [System.Windows.Forms.MessageBox]::Show('Please enter a search pattern.', 'Missing Pattern', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+            return
+        }
     
-    # Show progress
-    $progressBar.Visible = $true
-    $searchButton.Enabled = $false
-    $form.Refresh()
+        # Show progress
+        $progressBar.Visible = $true
+        $searchButton.Enabled = $false
+        $form.Refresh()
     
-    try {
-        # Prepare search parameters
-        $searchParams = @{
-            Path = $pathTextBox.Text.Split(';')[0].Trim() # Use first file for now
-            SearchString = $patternTextBox.Text
+        try {
+            # Prepare search parameters
+            $searchParams = @{
+                Path         = $pathTextBox.Text.Split(';')[0].Trim() # Use first file for now
+                SearchString = $patternTextBox.Text
+            }
+        
+            if ($caseSensitiveCheckBox.Checked) {
+                $searchParams.CaseSensitive = $true
+            }
+        
+            if ($recurseCheckBox.Checked) {
+                $searchParams.Recurse = $true
+            }
+        
+            # Execute search
+            $script:currentResults = & "$PSScriptRoot\Search-GPMCReports.ps1" @searchParams
+        
+            # Filter by section if needed
+            if ($sectionComboBox.SelectedItem -ne 'All') {
+                $script:currentResults = $script:currentResults | Where-Object { $_.Section -eq $sectionComboBox.SelectedItem }
+            }
+        
+            # Update DataGrid
+            $dataTable = New-Object System.Data.DataTable
+            $dataTable.Columns.Add('Matched Text') | Out-Null
+            $dataTable.Columns.Add('Section') | Out-Null
+            $dataTable.Columns.Add('GPO Name') | Out-Null
+            $dataTable.Columns.Add('Category Path') | Out-Null
+            $dataTable.Columns.Add('Setting Name') | Out-Null
+            $dataTable.Columns.Add('State') | Out-Null
+        
+            foreach ($result in $script:currentResults) {
+                $row = $dataTable.NewRow()
+                $row['Matched Text'] = $result.MatchedText
+                $row['Section'] = $result.Section
+                $row['GPO Name'] = $result.GPO.DisplayName
+                $row['Category Path'] = $result.CategoryPath
+                $row['Setting Name'] = $result.Setting.Name
+                $row['State'] = $result.Setting.State
+                $dataTable.Rows.Add($row)
+            }
+        
+            $resultsDataGrid.DataSource = $dataTable
+        
+            # Update summary
+            $totalLabel.Text = "Total Results: $($script:currentResults.Count)"
+            $computerCount = ($script:currentResults | Where-Object { $_.Section -eq 'Computer' }).Count
+            $userCount = ($script:currentResults | Where-Object { $_.Section -eq 'User' }).Count
+            $gpoCount = ($script:currentResults | Select-Object -ExpandProperty GPO | Select-Object -ExpandProperty DisplayName -Unique).Count
+        
+            $computerLabel.Text = "Computer Section: $computerCount"
+            $userLabel.Text = "User Section: $userCount"
+            $gpoCountLabel.Text = "Unique GPOs: $gpoCount"
+        
+            # Enable action buttons
+            $exportButton.Enabled = $script:currentResults.Count -gt 0
+            $clearButton.Enabled = $script:currentResults.Count -gt 0
+        
         }
-        
-        if ($caseSensitiveCheckBox.Checked) {
-            $searchParams.CaseSensitive = $true
+        catch {
+            [System.Windows.Forms.MessageBox]::Show("Search failed: $($_.Exception.Message)", 'Search Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
         }
-        
-        if ($recurseCheckBox.Checked) {
-            $searchParams.Recurse = $true
+        finally {
+            $progressBar.Visible = $false
+            $searchButton.Enabled = $true
         }
-        
-        # Execute search
-        $script:currentResults = & "$PSScriptRoot\Search-GPMCReports.ps1" @searchParams
-        
-        # Filter by section if needed
-        if ($sectionComboBox.SelectedItem -ne "All") {
-            $script:currentResults = $script:currentResults | Where-Object { $_.Section -eq $sectionComboBox.SelectedItem }
-        }
-        
-        # Update DataGrid
-        $dataTable = New-Object System.Data.DataTable
-        $dataTable.Columns.Add("Matched Text") | Out-Null
-        $dataTable.Columns.Add("Section") | Out-Null
-        $dataTable.Columns.Add("GPO Name") | Out-Null
-        $dataTable.Columns.Add("Category Path") | Out-Null
-        $dataTable.Columns.Add("Setting Name") | Out-Null
-        $dataTable.Columns.Add("State") | Out-Null
-        
-        foreach ($result in $script:currentResults) {
-            $row = $dataTable.NewRow()
-            $row["Matched Text"] = $result.MatchedText
-            $row["Section"] = $result.Section
-            $row["GPO Name"] = $result.GPO.DisplayName
-            $row["Category Path"] = $result.CategoryPath
-            $row["Setting Name"] = $result.Setting.Name
-            $row["State"] = $result.Setting.State
-            $dataTable.Rows.Add($row)
-        }
-        
-        $resultsDataGrid.DataSource = $dataTable
-        
-        # Update summary
-        $totalLabel.Text = "Total Results: $($script:currentResults.Count)"
-        $computerCount = ($script:currentResults | Where-Object { $_.Section -eq 'Computer' }).Count
-        $userCount = ($script:currentResults | Where-Object { $_.Section -eq 'User' }).Count
-        $gpoCount = ($script:currentResults | Select-Object -ExpandProperty GPO | Select-Object -ExpandProperty DisplayName -Unique).Count
-        
-        $computerLabel.Text = "Computer Section: $computerCount"
-        $userLabel.Text = "User Section: $userCount"
-        $gpoCountLabel.Text = "Unique GPOs: $gpoCount"
-        
-        # Enable action buttons
-        $exportButton.Enabled = $script:currentResults.Count -gt 0
-        $clearButton.Enabled = $script:currentResults.Count -gt 0
-        
-    } catch {
-        [System.Windows.Forms.MessageBox]::Show("Search failed: $($_.Exception.Message)", "Search Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-    } finally {
-        $progressBar.Visible = $false
-        $searchButton.Enabled = $true
-    }
-})
+    })
 
 $exportButton.Add_Click({
-    if ($script:currentResults.Count -eq 0) {
-        return
-    }
-    
-    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
-    $saveFileDialog.Title = "Export Search Results"
-    $saveFileDialog.Filter = "JSON Files (*.json)|*.json|CSV Files (*.csv)|*.csv|HTML Reports (*.html)|*.html|XML Files (*.xml)|*.xml"
-    $saveFileDialog.DefaultExt = "json"
-    
-    if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        try {
-            $extension = [System.IO.Path]::GetExtension($saveFileDialog.FileName).ToLower()
-            $basePath = [System.IO.Path]::GetFileNameWithoutExtension($saveFileDialog.FileName)
-            $directory = [System.IO.Path]::GetDirectoryName($saveFileDialog.FileName)
-            $outputPath = Join-Path $directory $basePath
-            
-            $format = switch ($extension) {
-                '.json' { 'JSON' }
-                '.csv' { 'CSV' }
-                '.html' { 'HTML' }
-                '.xml' { 'XML' }
-                default { 'JSON' }
-            }
-            
-            & "$PSScriptRoot\Export-SearchResults.ps1" -Results $script:currentResults -OutputPath $outputPath -Format $format -IncludeMetadata
-            
-            [System.Windows.Forms.MessageBox]::Show("Results exported successfully to: $($saveFileDialog.FileName)", "Export Complete", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-            
-        } catch {
-            [System.Windows.Forms.MessageBox]::Show("Export failed: $($_.Exception.Message)", "Export Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        if ($script:currentResults.Count -eq 0) {
+            return
         }
-    }
-})
+    
+        $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+        $saveFileDialog.Title = 'Export Search Results'
+        $saveFileDialog.Filter = 'JSON Files (*.json)|*.json|CSV Files (*.csv)|*.csv|HTML Reports (*.html)|*.html|XML Files (*.xml)|*.xml'
+        $saveFileDialog.DefaultExt = 'json'
+    
+        if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            try {
+                $extension = [System.IO.Path]::GetExtension($saveFileDialog.FileName).ToLower()
+                $basePath = [System.IO.Path]::GetFileNameWithoutExtension($saveFileDialog.FileName)
+                $directory = [System.IO.Path]::GetDirectoryName($saveFileDialog.FileName)
+                $outputPath = Join-Path $directory $basePath
+            
+                $format = switch ($extension) {
+                    '.json' { 'JSON' }
+                    '.csv' { 'CSV' }
+                    '.html' { 'HTML' }
+                    '.xml' { 'XML' }
+                    default { 'JSON' }
+                }
+            
+                & "$PSScriptRoot\Export-SearchResults.ps1" -Results $script:currentResults -OutputPath $outputPath -Format $format -IncludeMetadata
+            
+                [System.Windows.Forms.MessageBox]::Show("Results exported successfully to: $($saveFileDialog.FileName)", 'Export Complete', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            
+            }
+            catch {
+                [System.Windows.Forms.MessageBox]::Show("Export failed: $($_.Exception.Message)", 'Export Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            }
+        }
+    })
 
 $clearButton.Add_Click({
-    $script:currentResults = @()
-    $resultsDataGrid.DataSource = $null
-    $totalLabel.Text = "Total Results: 0"
-    $computerLabel.Text = "Computer Section: 0"
-    $userLabel.Text = "User Section: 0"
-    $gpoCountLabel.Text = "Unique GPOs: 0"
-    $exportButton.Enabled = $false
-    $clearButton.Enabled = $false
-})
+        $script:currentResults = @()
+        $resultsDataGrid.DataSource = $null
+        $totalLabel.Text = 'Total Results: 0'
+        $computerLabel.Text = 'Computer Section: 0'
+        $userLabel.Text = 'User Section: 0'
+        $gpoCountLabel.Text = 'Unique GPOs: 0'
+        $exportButton.Enabled = $false
+        $clearButton.Enabled = $false
+    })
 
 $complianceMenuItem.Add_Click({
-    [System.Windows.Forms.MessageBox]::Show("Compliance analysis feature coming soon!", "Feature Preview", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-})
+        [System.Windows.Forms.MessageBox]::Show('Compliance analysis feature coming soon!', 'Feature Preview', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+    })
 
 # Show the form
 $form.ShowDialog() | Out-Null

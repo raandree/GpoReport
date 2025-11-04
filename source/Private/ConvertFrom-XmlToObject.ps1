@@ -39,7 +39,8 @@ function ConvertFrom-XmlToObject {
         # Get the clean element name (without namespace prefix)
         $elementName = if ($RemoveNamespaces -and $XmlElement.LocalName) { 
             $XmlElement.LocalName 
-        } else { 
+        }
+        else { 
             $XmlElement.Name 
         }
         
@@ -72,12 +73,14 @@ function ConvertFrom-XmlToObject {
                         # Has child elements OR attributes - convert recursively to preserve structure
                         $childObject = ConvertFrom-XmlToObject -XmlElement $childElement -RemoveNamespaces:$RemoveNamespaces
                         $resultObject | Add-Member -NotePropertyName $childName -NotePropertyValue $childObject
-                    } else {
+                    }
+                    else {
                         # Text content only, no attributes
                         $textValue = $childElement.InnerText.Trim()
                         $resultObject | Add-Member -NotePropertyName $childName -NotePropertyValue $textValue
                     }
-                } else {
+                }
+                else {
                     # Multiple child elements with same name - create array
                     $childArray = @()
                     foreach ($childElement in $group.Group) {
@@ -85,18 +88,20 @@ function ConvertFrom-XmlToObject {
                         
                         if ($grandChildren -or ($childElement.Attributes -and $childElement.Attributes.Count -gt 0)) {
                             $childArray += ConvertFrom-XmlToObject -XmlElement $childElement -RemoveNamespaces:$RemoveNamespaces
-                        } else {
+                        }
+                        else {
                             $childArray += $childElement.InnerText.Trim()
                         }
                     }
                     $resultObject | Add-Member -NotePropertyName $childName -NotePropertyValue $childArray
                 }
             }
-        } else {
+        }
+        else {
             # No child elements - this element contains only text and/or attributes
             $textValue = $XmlElement.InnerText.Trim()
             if (-not [string]::IsNullOrEmpty($textValue)) {
-                $resultObject | Add-Member -NotePropertyName "Text" -NotePropertyValue $textValue
+                $resultObject | Add-Member -NotePropertyName 'Text' -NotePropertyValue $textValue
             }
         }
         

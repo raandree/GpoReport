@@ -65,7 +65,7 @@ function New-AnalysisReport {
 
         # Add security analysis section
         if ($AnalysisResults.Security.Count -gt 0) {
-            $html += @"
+            $html += @'
     <div class="section">
         <h2>Security Analysis</h2>
         <table>
@@ -75,7 +75,7 @@ function New-AnalysisReport {
                 <th>Risk Level</th>
                 <th>Recommendation</th>
             </tr>
-"@
+'@
             foreach ($finding in $AnalysisResults.Security) {
                 $riskClass = switch ($finding.RiskLevel) {
                     'High' { 'high-risk' }
@@ -92,15 +92,15 @@ function New-AnalysisReport {
             </tr>
 "@
             }
-            $html += @"
+            $html += @'
         </table>
     </div>
-"@
+'@
         }
 
         # Add performance analysis section
         if ($AnalysisResults.Performance.Count -gt 0) {
-            $html += @"
+            $html += @'
     <div class="section">
         <h2>Performance Analysis</h2>
         <table>
@@ -110,7 +110,7 @@ function New-AnalysisReport {
                 <th>Performance Impact</th>
                 <th>Recommendation</th>
             </tr>
-"@
+'@
             foreach ($finding in $AnalysisResults.Performance) {
                 $impactClass = switch ($finding.PerformanceImpact) {
                     'High' { 'high-risk' }
@@ -127,16 +127,16 @@ function New-AnalysisReport {
             </tr>
 "@
             }
-            $html += @"
+            $html += @'
         </table>
     </div>
-"@
+'@
         }
 
-        $html += @"
+        $html += @'
 </body>
 </html>
-"@
+'@
 
         $html | Out-File -FilePath $htmlPath -Encoding UTF8
         

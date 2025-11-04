@@ -91,7 +91,8 @@ function Get-GPMCSettingDetails {
                 if ($nameNode -and $nameNode.InnerText) {
                     if ($logNode -and $logNode.InnerText) {
                         $details.Name = "$($nameNode.InnerText) ($($logNode.InnerText))"
-                    } else {
+                    }
+                    else {
                         $details.Name = $nameNode.InnerText
                     }
                     $details.Type = 'Event Log'

@@ -146,41 +146,41 @@ param(
     [switch]$GenerateReport,
     
     [Parameter()]
-    [string]$OutputPath = "GPO-Analysis-Report"
+    [string]$OutputPath = 'GPO-Analysis-Report'
 )
 
 # Security pattern definitions for risk assessment
 $SecurityPatterns = @{
     Critical = @{
-        'Disabled Firewall' = @('*firewall*', '*disable*')
+        'Disabled Firewall'     = @('*firewall*', '*disable*')
         'Guest Account Enabled' = @('*guest*', '*enable*')
-        'Weak Password Policy' = @('*password*', '*0*', '*1*')
-        'No Account Lockout' = @('*lockout*', '*0*')
-        'Admin Rights' = @('*administrator*', '*rights*')
+        'Weak Password Policy'  = @('*password*', '*0*', '*1*')
+        'No Account Lockout'    = @('*lockout*', '*0*')
+        'Admin Rights'          = @('*administrator*', '*rights*')
     }
-    High = @{
-        'Audit Disabled' = @('*audit*', '*disable*')
-        'Remote Desktop' = @('*remote*desktop*', '*enable*')
+    High     = @{
+        'Audit Disabled'   = @('*audit*', '*disable*')
+        'Remote Desktop'   = @('*remote*desktop*', '*enable*')
         'USB Restrictions' = @('*removable*storage*', '*disable*')
         'Script Execution' = @('*powershell*', '*unrestricted*')
     }
-    Medium = @{
+    Medium   = @{
         'Password Complexity' = @('*password*complex*', '*disable*')
-        'Screen Saver' = @('*screen*saver*', '*disable*')
-        'AutoRun Disabled' = @('*autorun*', '*disable*')
+        'Screen Saver'        = @('*screen*saver*', '*disable*')
+        'AutoRun Disabled'    = @('*autorun*', '*disable*')
     }
 }
 
 # Compliance frameworks mapping
 $ComplianceFrameworks = @{
-    'CIS' = @{
+    'CIS'  = @{
         'Password Policy' = 'CIS Control 4.1'
         'Account Lockout' = 'CIS Control 4.2'
-        'Audit Policy' = 'CIS Control 6.2'
-        'Firewall' = 'CIS Control 9.1'
+        'Audit Policy'    = 'CIS Control 6.2'
+        'Firewall'        = 'CIS Control 9.1'
     }
     'NIST' = @{
-        'Access Control' = 'NIST 800-53 AC-2'
+        'Access Control'           = 'NIST 800-53 AC-2'
         'Audit and Accountability' = 'NIST 800-53 AU-2'
         'Configuration Management' = 'NIST 800-53 CM-6'
     }
@@ -189,13 +189,13 @@ $ComplianceFrameworks = @{
 function Get-SecurityAnalysis {
     param($Results)
     
-    Write-Host "=== SECURITY ANALYSIS ===" -ForegroundColor Red
+    Write-Host '=== SECURITY ANALYSIS ===' -ForegroundColor Red
     
     $securityFindings = @{
         Critical = @()
-        High = @()
-        Medium = @()
-        Low = @()
+        High     = @()
+        Medium   = @()
+        Low      = @()
     }
     
     foreach ($result in $Results) {
@@ -215,8 +215,8 @@ function Get-SecurityAnalysis {
                 
                 if ($matchesAll) {
                     $securityFindings[$severity] += @{
-                        Pattern = $patternName
-                        Result = $result
+                        Pattern        = $patternName
+                        Result         = $result
                         Recommendation = Get-SecurityRecommendation -PatternName $patternName
                     }
                 }
@@ -251,8 +251,8 @@ function Get-ComplianceAnalysis {
     Write-Host "`n=== COMPLIANCE ANALYSIS ===" -ForegroundColor Blue
     
     $complianceScore = @{
-        CIS = 0
-        NIST = 0
+        CIS   = 0
+        NIST  = 0
         Total = 0
     }
     
@@ -284,13 +284,14 @@ function Get-ComplianceAnalysis {
             if ($hasCompliantSetting) {
                 $metControls++
                 Write-Host "  ✓ $controlId - $controlName" -ForegroundColor Green
-            } else {
+            }
+            else {
                 Write-Host "  ✗ $controlId - $controlName" -ForegroundColor Red
             }
             
             $complianceDetails += @{
                 Framework = $framework
-                Control = $controlName
+                Control   = $controlName
                 ControlId = $controlId
                 Compliant = $hasCompliantSetting
             }
@@ -302,7 +303,7 @@ function Get-ComplianceAnalysis {
     }
     
     return @{
-        Scores = $complianceScore
+        Scores  = $complianceScore
         Details = $complianceDetails
     }
 }
@@ -324,9 +325,9 @@ function Get-ConflictAnalysis {
         if ($uniqueStates.Count -gt 1 -and $uniqueGPOs.Count -gt 1) {
             $conflicts += @{
                 SettingName = $group.Name
-                States = $uniqueStates
-                GPOs = $uniqueGPOs
-                Instances = $group.Group
+                States      = $uniqueStates
+                GPOs        = $uniqueGPOs
+                Instances   = $group.Group
             }
             
             Write-Host "  ⚠️  Conflicting setting: $($group.Name)" -ForegroundColor Yellow
@@ -336,7 +337,7 @@ function Get-ConflictAnalysis {
     }
     
     if ($conflicts.Count -eq 0) {
-        Write-Host "  ✓ No setting conflicts detected" -ForegroundColor Green
+        Write-Host '  ✓ No setting conflicts detected' -ForegroundColor Green
     }
     
     return $conflicts
@@ -348,21 +349,21 @@ function Get-PerformanceAnalysis {
     Write-Host "`n=== PERFORMANCE ANALYSIS ===" -ForegroundColor Green
     
     $performanceInsights = @{
-        LargeGPOs = @()
-        ComplexSettings = @()
+        LargeGPOs                = @()
+        ComplexSettings          = @()
         RecommendedOptimizations = @()
     }
     
     # Analyze GPO size by result count
     $gpoGroups = $Results | Group-Object { $_.GPO.DisplayName } | Sort-Object Count -Descending
     
-    Write-Host "GPO Complexity Analysis:" -ForegroundColor Cyan
+    Write-Host 'GPO Complexity Analysis:' -ForegroundColor Cyan
     foreach ($gpo in $gpoGroups | Select-Object -First 5) {
         Write-Host "  $($gpo.Name): $($gpo.Count) settings" -ForegroundColor White
         
         if ($gpo.Count -gt 100) {
             $performanceInsights.LargeGPOs += $gpo.Name
-            Write-Host "    └─ Consider splitting this GPO for better performance" -ForegroundColor Yellow
+            Write-Host '    └─ Consider splitting this GPO for better performance' -ForegroundColor Yellow
         }
     }
     
@@ -380,10 +381,10 @@ function Get-PerformanceAnalysis {
     # Performance recommendations
     $recommendations = @()
     if ($performanceInsights.LargeGPOs.Count -gt 0) {
-        $recommendations += "Consider splitting large GPOs (>100 settings) into smaller, focused ones"
+        $recommendations += 'Consider splitting large GPOs (>100 settings) into smaller, focused ones'
     }
     if (($Results | Where-Object { $_.Section -eq 'User' }).Count -gt ($Results | Where-Object { $_.Section -eq 'Computer' }).Count) {
-        $recommendations += "High number of User settings detected - consider Computer-side configuration where possible"
+        $recommendations += 'High number of User settings detected - consider Computer-side configuration where possible'
     }
     
     $performanceInsights.RecommendedOptimizations = $recommendations
@@ -402,20 +403,21 @@ function Get-SecurityRecommendation {
     param($PatternName)
     
     $recommendations = @{
-        'Disabled Firewall' = 'Enable Windows Firewall and configure appropriate rules'
+        'Disabled Firewall'     = 'Enable Windows Firewall and configure appropriate rules'
         'Guest Account Enabled' = 'Disable the Guest account for security'
-        'Weak Password Policy' = 'Implement strong password requirements (12+ chars, complexity)'
-        'No Account Lockout' = 'Configure account lockout policy (5 attempts, 30 min lockout)'
-        'Admin Rights' = 'Review and minimize administrative privileges'
-        'Audit Disabled' = 'Enable comprehensive audit logging'
-        'Remote Desktop' = 'Secure Remote Desktop with NLA and strong authentication'
-        'Password Complexity' = 'Enable password complexity requirements'
+        'Weak Password Policy'  = 'Implement strong password requirements (12+ chars, complexity)'
+        'No Account Lockout'    = 'Configure account lockout policy (5 attempts, 30 min lockout)'
+        'Admin Rights'          = 'Review and minimize administrative privileges'
+        'Audit Disabled'        = 'Enable comprehensive audit logging'
+        'Remote Desktop'        = 'Secure Remote Desktop with NLA and strong authentication'
+        'Password Complexity'   = 'Enable password complexity requirements'
     }
     
     if ($recommendations.ContainsKey($PatternName)) {
         return $recommendations[$PatternName]
-    } else {
-        return "Review this setting for security implications"
+    }
+    else {
+        return 'Review this setting for security implications'
     }
 }
 
@@ -465,20 +467,20 @@ function Generate-AnalysisReport {
 "@
 
     if ($SecurityFindings.Critical.Count -gt 0) {
-        $html += "<h3>Critical Security Issues</h3><ul>"
+        $html += '<h3>Critical Security Issues</h3><ul>'
         foreach ($finding in $SecurityFindings.Critical) {
             $html += "<li><strong>$($finding.Pattern)</strong> in $($finding.Result.GPO.DisplayName)<br>"
             $html += "<div class='recommendation'>$($finding.Recommendation)</div></li>"
         }
-        $html += "</ul>"
+        $html += '</ul>'
     }
 
-    $html += @"
+    $html += @'
         </div>
         
         <div class="section compliance">
             <h2>📋 Compliance Analysis</h2>
-"@
+'@
 
     foreach ($framework in $ComplianceAnalysis.Scores.Keys) {
         if ($framework -ne 'Total') {
@@ -497,12 +499,13 @@ function Generate-AnalysisReport {
 "@
 
     if ($Conflicts.Count -gt 0) {
-        $html += "<table><tr><th>Setting</th><th>Conflicting States</th><th>Affected GPOs</th></tr>"
+        $html += '<table><tr><th>Setting</th><th>Conflicting States</th><th>Affected GPOs</th></tr>'
         foreach ($conflict in $Conflicts) {
             $html += "<tr><td>$($conflict.SettingName)</td><td>$($conflict.States -join ', ')</td><td>$($conflict.GPOs -join ', ')</td></tr>"
         }
-        $html += "</table>"
-    } else {
+        $html += '</table>'
+    }
+    else {
         $html += "<p class='good'>✓ No configuration conflicts detected</p>"
     }
 
@@ -515,19 +518,19 @@ function Generate-AnalysisReport {
 "@
 
     if ($PerformanceAnalysis.RecommendedOptimizations.Count -gt 0) {
-        $html += "<h3>Optimization Recommendations</h3><ul>"
+        $html += '<h3>Optimization Recommendations</h3><ul>'
         foreach ($rec in $PerformanceAnalysis.RecommendedOptimizations) {
             $html += "<li>$rec</li>"
         }
-        $html += "</ul>"
+        $html += '</ul>'
     }
 
-    $html += @"
+    $html += @'
         </div>
     </div>
 </body>
 </html>
-"@
+'@
 
     $html | Out-File -FilePath $reportPath -Encoding UTF8
     Write-Host "`nComprehensive analysis report generated: $reportPath" -ForegroundColor Green
@@ -535,10 +538,10 @@ function Generate-AnalysisReport {
 
 # Main execution
 try {
-    Write-Host "=== GPO INTELLIGENT ANALYSIS ===" -ForegroundColor Cyan
+    Write-Host '=== GPO INTELLIGENT ANALYSIS ===' -ForegroundColor Cyan
     Write-Host "Analysis Type: $AnalysisType" -ForegroundColor Yellow
     Write-Host "Total Results: $($Results.Count)" -ForegroundColor Yellow
-    Write-Host ("-" * 50) -ForegroundColor Gray
+    Write-Host ('-' * 50) -ForegroundColor Gray
     
     $securityFindings = $null
     $complianceAnalysis = $null
@@ -567,7 +570,8 @@ try {
     
     Write-Host "`n=== ANALYSIS COMPLETE ===" -ForegroundColor Green
     
-} catch {
+}
+catch {
     Write-Error "Analysis failed: $($_.Exception.Message)"
     throw
 }

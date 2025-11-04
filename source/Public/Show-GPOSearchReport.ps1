@@ -90,7 +90,7 @@ function Show-GPOSearchReport {
         Write-Host "Querying Active Directory for GPOs matching filter: '$GpoFilter'..." -ForegroundColor Cyan
         
         $searchParams = @{
-            GpoFilter = $GpoFilter
+            GpoFilter    = $GpoFilter
             SearchString = $SearchString
         }
         if ($Domain) {
@@ -109,8 +109,9 @@ function Show-GPOSearchReport {
 
         # Determine if path is a file or directory
         $xmlFiles = if ((Get-Item $Path).PSIsContainer) {
-            Get-ChildItem -Path $Path -Filter "*.xml" -File
-        } else {
+            Get-ChildItem -Path $Path -Filter '*.xml' -File
+        }
+        else {
             Get-Item -Path $Path
         }
 
@@ -526,7 +527,7 @@ function Show-GPOSearchReport {
         $htmlDocument | Out-File -FilePath $OutputPath -Force -Encoding utf8
 
         # Open report in browser
-        Write-Verbose "Opening report in browser"
+        Write-Verbose 'Opening report in browser'
         Start-Process 'msedge.exe' -ArgumentList $OutputPath
     }
 
@@ -543,197 +544,198 @@ function Show-GPOSearchReport {
         # Get GPO information from Active Directory if available
         $gpo = $null
         if (Get-Command -Name Get-GPO -ErrorAction SilentlyContinue) {
-        try {
-            $gpo = Get-GPO -Name $result.GPOName -ErrorAction Stop
-        }
-        catch {
-            Write-Verbose "Could not retrieve GPO '$($result.GPOName)' from Active Directory"
-        }
-    }
-
-    # Extract timestamps
-    $creationTime = $result.CreatedTime
-    $modificationTime = $result.ModifiedTime
-
-    # GPO Header Information
-    $tableOfResults += "<tr><th>GPO name:</th><th>$($result.GPOName)</th></tr>"
-
-    $gpoDescription = if ($gpo) {
-        $gpo.Description -replace ';', '<br>'
-    }
-    else {
-        'Description not available'
-    }
-
-    $tableOfResults += "<tr><td><b>GPO description:</b></td><td>$gpoDescription</td></tr>"
-    $tableOfResults += "<tr><td><b>GPO created:</b></td><td>$creationTime</td></tr>"
-    $tableOfResults += "<tr><td><b>GPO modified:</b></td><td>$modificationTime</td></tr>"
-
-    # Setting Details
-    $tableOfResults += "<tr><td><b>Setting Path:</b></td><td>$($result.Section) > $($result.CategoryPath)</td></tr>"
-
-    if ($result.XmlNode.ParsedXml.Name) {
-        $tableOfResults += "<tr><td><b>Policy Name:</b></td><td>$($result.XmlNode.ParsedXml.Name)</td></tr>"
-    }
-
-    # Local Security Settings - Members
-    if ($result.XmlNode.parsedXml.Member) {
-        $member = ($result.XmlNode.parsedXml.Member.Name.Text) -join '<br>'
-        $tableOfResults += "<tr><td><b>Policy Member:</b></td><td>$member</td></tr>"
-    }
-
-    # Certificate Settings
-    if ($result.XmlNode.ElementName -eq 'IssuedTo') {
-        $tableOfResults += "<tr><td><b>Certificate Name:</b></td><td>$($result.XmlNode.ParsedXml.Text)</td></tr>"
-        $certificationType = ($result.XmlNode.ParentHierarchy)[($result.XmlNode.ParentHierarchy.Count - 1)]
-        $tableOfResults += "<tr><td><b>Certification Type:</b></td><td>$certificationType</td></tr>"
-    }
-
-    # Policy Settings
-    if ($result.XmlNode.ElementName -eq 'Policy') {
-        if ($result.XmlNode.ParsedXml.State) {
-            $tableOfResults += "<tr><td><b>State:</b></td><td>$($result.XmlNode.ParsedXml.State)</td></tr>"
+            try {
+                $gpo = Get-GPO -Name $result.GPOName -ErrorAction Stop
+            }
+            catch {
+                Write-Verbose "Could not retrieve GPO '$($result.GPOName)' from Active Directory"
+            }
         }
 
-        # Policy with ListBox
-        if ($result.XmlNode.ParsedXml.ListBox) {
-            $listBoxString = ($result.XmlNode.ParsedXml.ListBox.Value.Element.Data) -join '<br>'
-            $tableOfResults += "<tr><td><b>ListBox:</b></td><td>$listBoxString</td></tr>"
-        }
-    }
+        # Extract timestamps
+        $creationTime = $result.CreatedTime
+        $modificationTime = $result.ModifiedTime
 
-    # Group Policy Preferences - General Name
-    if ($result.xmlnode.ParsedXml._name) {
-        $tableOfResults += "<tr><td><b>Name:</b></td><td>$($result.xmlnode.ParsedXml._name)</td></tr>"
-    }
+        # GPO Header Information
+        $tableOfResults += "<tr><th>GPO name:</th><th>$($result.GPOName)</th></tr>"
 
-    # File Settings
-    if ($result.XmlNode.ParentHierarchy -contains 'FilesSettings') {
-        $tableOfResults += '<tr><td><b>Source file:</b></td><td>Not yet implemented</td></tr>'
-        if ($result.xmlnode.ParsedXml.Properties._targetPath) {
-            $tableOfResults += "<tr><td><b>Target File:</b></td><td>$($result.xmlnode.ParsedXml.Properties._targetPath)</td></tr>"
+        $gpoDescription = if ($gpo) {
+            $gpo.Description -replace ';', '<br>'
         }
-    }
+        else {
+            'Description not available'
+        }
 
-    # Folder Settings
-    if ($result.XmlNode.ParentHierarchy -contains 'Folder') {
-        $tableOfResults += "<tr><td><b>Setting Name:</b></td><td>$($result.SettingName)</td></tr>"
-        if ($result.xmlnode.ParsedXml._Path) {
-            $tableOfResults += "<tr><td><b>Folder Path:</b></td><td>$($result.xmlnode.ParsedXml._Path)</td></tr>"
-        }
-    }
+        $tableOfResults += "<tr><td><b>GPO description:</b></td><td>$gpoDescription</td></tr>"
+        $tableOfResults += "<tr><td><b>GPO created:</b></td><td>$creationTime</td></tr>"
+        $tableOfResults += "<tr><td><b>GPO modified:</b></td><td>$modificationTime</td></tr>"
 
-    # Registry Settings
-    if ($result.XmlNode.ParentHierarchy -contains 'Registry') {
-        if ($result.xmlnode.ParsedXml.Properties._hive) {
-            $tableOfResults += "<tr><td><b>Hive:</b></td><td>$($result.xmlnode.ParsedXml.Properties._hive)</td></tr>"
-        }
-        if ($result.xmlnode.ParsedXml.Properties._key) {
-            $tableOfResults += "<tr><td><b>Key:</b></td><td>$($result.xmlnode.ParsedXml.Properties._key)</td></tr>"
-        }
-        if ($result.xmlnode.ParsedXml.Properties._type) {
-            $tableOfResults += "<tr><td><b>Type:</b></td><td>$($result.xmlnode.ParsedXml.Properties._type)</td></tr>"
-        }
-        if ($result.xmlnode.ParsedXml.Properties._value) {
-            $tableOfResults += "<tr><td><b>Value:</b></td><td>$($result.xmlnode.ParsedXml.Properties._value)</td></tr>"
-        }
-    }
+        # Setting Details
+        $tableOfResults += "<tr><td><b>Setting Path:</b></td><td>$($result.Section) > $($result.CategoryPath)</td></tr>"
 
-    # Shortcut Settings
-    if ($result.XmlNode.ParentHierarchy -contains 'Shortcut') {
+        if ($result.XmlNode.ParsedXml.Name) {
+            $tableOfResults += "<tr><td><b>Policy Name:</b></td><td>$($result.XmlNode.ParsedXml.Name)</td></tr>"
+        }
+
+        # Local Security Settings - Members
+        if ($result.XmlNode.parsedXml.Member) {
+            $member = ($result.XmlNode.parsedXml.Member.Name.Text) -join '<br>'
+            $tableOfResults += "<tr><td><b>Policy Member:</b></td><td>$member</td></tr>"
+        }
+
+        # Certificate Settings
+        if ($result.XmlNode.ElementName -eq 'IssuedTo') {
+            $tableOfResults += "<tr><td><b>Certificate Name:</b></td><td>$($result.XmlNode.ParsedXml.Text)</td></tr>"
+            $certificationType = ($result.XmlNode.ParentHierarchy)[($result.XmlNode.ParentHierarchy.Count - 1)]
+            $tableOfResults += "<tr><td><b>Certification Type:</b></td><td>$certificationType</td></tr>"
+        }
+
+        # Policy Settings
+        if ($result.XmlNode.ElementName -eq 'Policy') {
+            if ($result.XmlNode.ParsedXml.State) {
+                $tableOfResults += "<tr><td><b>State:</b></td><td>$($result.XmlNode.ParsedXml.State)</td></tr>"
+            }
+
+            # Policy with ListBox
+            if ($result.XmlNode.ParsedXml.ListBox) {
+                $listBoxString = ($result.XmlNode.ParsedXml.ListBox.Value.Element.Data) -join '<br>'
+                $tableOfResults += "<tr><td><b>ListBox:</b></td><td>$listBoxString</td></tr>"
+            }
+        }
+
+        # Group Policy Preferences - General Name
+        if ($result.xmlnode.ParsedXml._name) {
+            $tableOfResults += "<tr><td><b>Name:</b></td><td>$($result.xmlnode.ParsedXml._name)</td></tr>"
+        }
+
+        # File Settings
+        if ($result.XmlNode.ParentHierarchy -contains 'FilesSettings') {
+            $tableOfResults += '<tr><td><b>Source file:</b></td><td>Not yet implemented</td></tr>'
+            if ($result.xmlnode.ParsedXml.Properties._targetPath) {
+                $tableOfResults += "<tr><td><b>Target File:</b></td><td>$($result.xmlnode.ParsedXml.Properties._targetPath)</td></tr>"
+            }
+        }
+
+        # Folder Settings
+        if ($result.XmlNode.ParentHierarchy -contains 'Folder') {
+            $tableOfResults += "<tr><td><b>Setting Name:</b></td><td>$($result.SettingName)</td></tr>"
+            if ($result.xmlnode.ParsedXml._Path) {
+                $tableOfResults += "<tr><td><b>Folder Path:</b></td><td>$($result.xmlnode.ParsedXml._Path)</td></tr>"
+            }
+        }
+
+        # Registry Settings
+        if ($result.XmlNode.ParentHierarchy -contains 'Registry') {
+            if ($result.xmlnode.ParsedXml.Properties._hive) {
+                $tableOfResults += "<tr><td><b>Hive:</b></td><td>$($result.xmlnode.ParsedXml.Properties._hive)</td></tr>"
+            }
+            if ($result.xmlnode.ParsedXml.Properties._key) {
+                $tableOfResults += "<tr><td><b>Key:</b></td><td>$($result.xmlnode.ParsedXml.Properties._key)</td></tr>"
+            }
+            if ($result.xmlnode.ParsedXml.Properties._type) {
+                $tableOfResults += "<tr><td><b>Type:</b></td><td>$($result.xmlnode.ParsedXml.Properties._type)</td></tr>"
+            }
+            if ($result.xmlnode.ParsedXml.Properties._value) {
+                $tableOfResults += "<tr><td><b>Value:</b></td><td>$($result.xmlnode.ParsedXml.Properties._value)</td></tr>"
+            }
+        }
+
+        # Shortcut Settings
+        if ($result.XmlNode.ParentHierarchy -contains 'Shortcut') {
+            $tableOfResults += "<tr><td><b>Element Type:</b></td><td>$($result.XmlNode.ElementName)</td></tr>"
+            if ($result.xmlnode.ParsedXml.Properties._shortcutPath) {
+                $tableOfResults += "<tr><td><b>Shortcut Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._shortcutPath)</td></tr>"
+            }
+            if ($result.xmlnode.ParsedXml.Properties._targetPath) {
+                $tableOfResults += "<tr><td><b>Target Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._targetPath)</td></tr>"
+            }
+            if ($result.xmlnode.ParsedXml.Properties._arguments) {
+                $tableOfResults += "<tr><td><b>Arguments:</b></td><td>$($result.xmlnode.ParsedXml.Properties._arguments)</td></tr>"
+            }
+        }
+
+        # Scheduled Tasks
+        if ($result.XmlNode.ParentHierarchy -contains 'ScheduledTasks') {
+            if ($result.XmlNode.parsedXml.task.triggers.LogonTrigger) {
+                $tableOfResults += '<tr><td><b>Trigger:</b></td><td>Logon</td></tr>'
+            }
+            if ($result.XmlNode.parsedXml.task.triggers.EventTrigger) {
+                $tableOfResults += "<tr><td><b>Trigger:</b></td><td>Event: $($result.XmlNode.parsedXml.task.Triggers.EventTrigger.Subscription)</td></tr>"
+            }
+            if ($result.XmlNode.parsedXml.task.triggers.CalendarTrigger) {
+                $tableOfResults += "<tr><td><b>Trigger:</b></td><td>Calendar: $($result.XmlNode.parsedXml.task.Triggers.CalendarTrigger)</td></tr>"
+            }
+            if ($result.XmlNode.parsedXml.task.Actions.exec.command) {
+                $tableOfResults += "<tr><td><b>Command:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.command)</td></tr>"
+            }
+            if ($result.XmlNode.parsedXml.task.Actions.exec.Arguments) {
+                $tableOfResults += "<tr><td><b>Arguments:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.Arguments)</td></tr>"
+            }
+        }
+
+        # Element Type (for debugging)
         $tableOfResults += "<tr><td><b>Element Type:</b></td><td>$($result.XmlNode.ElementName)</td></tr>"
-        if ($result.xmlnode.ParsedXml.Properties._shortcutPath) {
-            $tableOfResults += "<tr><td><b>Shortcut Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._shortcutPath)</td></tr>"
-        }
-        if ($result.xmlnode.ParsedXml.Properties._targetPath) {
-            $tableOfResults += "<tr><td><b>Target Path:</b></td><td>$($result.xmlnode.ParsedXml.Properties._targetPath)</td></tr>"
-        }
-        if ($result.xmlnode.ParsedXml.Properties._arguments) {
-            $tableOfResults += "<tr><td><b>Arguments:</b></td><td>$($result.xmlnode.ParsedXml.Properties._arguments)</td></tr>"
-        }
-    }
 
-    # Scheduled Tasks
-    if ($result.XmlNode.ParentHierarchy -contains 'ScheduledTasks') {
-        if ($result.XmlNode.parsedXml.task.triggers.LogonTrigger) {
-            $tableOfResults += '<tr><td><b>Trigger:</b></td><td>Logon</td></tr>'
+        # GPP-specific Information
+        if ($result.xmlnode.ParsedXml._desc) {
+            $description = ($result.xmlnode.ParsedXml._desc) -replace ';', '<br>'
+            $tableOfResults += "<tr><td><b>Description:</b></td><td>$description</td></tr>"
         }
-        if ($result.XmlNode.parsedXml.task.triggers.EventTrigger) {
-            $tableOfResults += "<tr><td><b>Trigger:</b></td><td>Event: $($result.XmlNode.parsedXml.task.Triggers.EventTrigger.Subscription)</td></tr>"
+
+        # Action Type
+        $actionValue = if ($result.XmlNode.parsedXml._action) { 
+            $result.XmlNode.parsedXml._action 
         }
-        if ($result.XmlNode.parsedXml.task.triggers.CalendarTrigger) {
-            $tableOfResults += "<tr><td><b>Trigger:</b></td><td>Calendar: $($result.XmlNode.parsedXml.task.Triggers.CalendarTrigger)</td></tr>"
+        elseif ($result.xmlnode.ParsedXml.Properties._action) { 
+            $result.xmlnode.ParsedXml.Properties._action 
         }
-        if ($result.XmlNode.parsedXml.task.Actions.exec.command) {
-            $tableOfResults += "<tr><td><b>Command:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.command)</td></tr>"
+        if ($actionValue) {
+            $actionText = switch ($actionValue) {
+                'R' { 'Replace' }
+                'U' { 'Update' }
+                'D' { 'Delete' }
+                default { $actionValue }
+            }
+            $tableOfResults += "<tr><td><b>Action:</b></td><td>$actionText</td></tr>"
         }
-        if ($result.XmlNode.parsedXml.task.Actions.exec.Arguments) {
-            $tableOfResults += "<tr><td><b>Arguments:</b></td><td>$($result.XmlNode.parsedXml.task.Actions.exec.Arguments)</td></tr>"
+
+        # Last Changed
+        if ($result.xmlnode.ParsedXml._changed) {
+            $tableOfResults += "<tr><td><b>Last Changed:</b></td><td>$($result.xmlnode.ParsedXml._changed)</td></tr>"
         }
-    }
 
-    # Element Type (for debugging)
-    $tableOfResults += "<tr><td><b>Element Type:</b></td><td>$($result.XmlNode.ElementName)</td></tr>"
-
-    # GPP-specific Information
-    if ($result.xmlnode.ParsedXml._desc) {
-        $description = ($result.xmlnode.ParsedXml._desc) -replace ';', '<br>'
-        $tableOfResults += "<tr><td><b>Description:</b></td><td>$description</td></tr>"
-    }
-
-    # Action Type
-    $actionValue = if ($result.XmlNode.parsedXml._action) { 
-        $result.XmlNode.parsedXml._action 
-    } elseif ($result.xmlnode.ParsedXml.Properties._action) { 
-        $result.xmlnode.ParsedXml.Properties._action 
-    }
-    if ($actionValue) {
-        $actionText = switch ($actionValue) {
-            'R' { 'Replace' }
-            'U' { 'Update' }
-            'D' { 'Delete' }
-            default { $actionValue }
+        # Policy Comment
+        if ($result.XmlNode.ParsedXml.Comment) {
+            $comment = ($result.XmlNode.ParsedXml.Comment) -replace ';', '<br>'
+            $tableOfResults += "<tr><td><b>Comment:</b></td><td>$comment</td></tr>"
         }
-        $tableOfResults += "<tr><td><b>Action:</b></td><td>$actionText</td></tr>"
-    }
 
-    # Last Changed
-    if ($result.xmlnode.ParsedXml._changed) {
-        $tableOfResults += "<tr><td><b>Last Changed:</b></td><td>$($result.xmlnode.ParsedXml._changed)</td></tr>"
-    }
+        # Policy Explanation
+        if ($result.XmlNode.ParsedXml.Explain) {
+            $tableOfResults += "<tr><td><b>Explanation:</b></td><td>$($result.XmlNode.ParsedXml.Explain)</td></tr>"
+        }
 
-    # Policy Comment
-    if ($result.XmlNode.ParsedXml.Comment) {
-        $comment = ($result.XmlNode.ParsedXml.Comment) -replace ';', '<br>'
-        $tableOfResults += "<tr><td><b>Comment:</b></td><td>$comment</td></tr>"
-    }
+        # Add expand/collapse button before property sections
+        $tableOfResults += '<tr><td></td><td><button class="toggle-all-btn" onclick="toggleAllInGroup(this)" style="font-size: 11px; padding: 4px 8px; background-color: #f5f5f5; color: #333; border: 1px solid #ddd; cursor: pointer;">Expand All Properties</button></td></tr>'
 
-    # Policy Explanation
-    if ($result.XmlNode.ParsedXml.Explain) {
-        $tableOfResults += "<tr><td><b>Explanation:</b></td><td>$($result.XmlNode.ParsedXml.Explain)</td></tr>"
-    }
-
-    # Add expand/collapse button before property sections
-    $tableOfResults += '<tr><td></td><td><button class="toggle-all-btn" onclick="toggleAllInGroup(this)" style="font-size: 11px; padding: 4px 8px; background-color: #f5f5f5; color: #333; border: 1px solid #ddd; cursor: pointer;">Expand All Properties</button></td></tr>'
-
-    # Add collapsible sections within the table
-    # Add collapsible section for ParsedXml
-    if ($result.XmlNode.ParsedXml) {
-        $parsedXmlTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml -MaxDepth 2
-        $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
-        $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml Properties</button>'
-        $tableOfResults += "<div class='content'>$parsedXmlTable</div>"
-        $tableOfResults += '</td></tr>'
-    }
+        # Add collapsible sections within the table
+        # Add collapsible section for ParsedXml
+        if ($result.XmlNode.ParsedXml) {
+            $parsedXmlTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml -MaxDepth 2
+            $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
+            $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml Properties</button>'
+            $tableOfResults += "<div class='content'>$parsedXmlTable</div>"
+            $tableOfResults += '</td></tr>'
+        }
     
-    # Add collapsible section for ParsedXml.Properties
-    if ($result.XmlNode.ParsedXml.Properties) {
-        $propertiesTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml.Properties -MaxDepth 2
-        $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
-        $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml.Properties</button>'
-        $tableOfResults += "<div class='content'>$propertiesTable</div>"
-        $tableOfResults += '</td></tr>'
-    }
+        # Add collapsible section for ParsedXml.Properties
+        if ($result.XmlNode.ParsedXml.Properties) {
+            $propertiesTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml.Properties -MaxDepth 2
+            $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
+            $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml.Properties</button>'
+            $tableOfResults += "<div class='content'>$propertiesTable</div>"
+            $tableOfResults += '</td></tr>'
+        }
 
         # Close table for this result
         $tableOfResults += '</table>'

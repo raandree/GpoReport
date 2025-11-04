@@ -36,16 +36,16 @@ function Export-ToXML {
     
     try {
         $xmlDoc = New-Object System.Xml.XmlDocument
-        $xmlDecl = $xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", $null)
+        $xmlDecl = $xmlDoc.CreateXmlDeclaration('1.0', 'UTF-8', $null)
         $xmlDoc.AppendChild($xmlDecl) | Out-Null
         
         # Create root element
-        $root = $xmlDoc.CreateElement("GPOSearchResults")
+        $root = $xmlDoc.CreateElement('GPOSearchResults')
         $xmlDoc.AppendChild($root) | Out-Null
         
         # Add metadata if requested
         if ($IncludeMetadata -and $Metadata) {
-            $metadataElement = $xmlDoc.CreateElement("Metadata")
+            $metadataElement = $xmlDoc.CreateElement('Metadata')
             foreach ($key in $Metadata.Keys) {
                 $element = $xmlDoc.CreateElement($key)
                 $element.InnerText = $Metadata[$key].ToString()
@@ -55,10 +55,10 @@ function Export-ToXML {
         }
         
         # Add results
-        $resultsElement = $xmlDoc.CreateElement("Results")
+        $resultsElement = $xmlDoc.CreateElement('Results')
         
         foreach ($result in $Results) {
-            $resultElement = $xmlDoc.CreateElement("Result")
+            $resultElement = $xmlDoc.CreateElement('Result')
             
             foreach ($property in $result.PSObject.Properties) {
                 $propElement = $xmlDoc.CreateElement($property.Name)

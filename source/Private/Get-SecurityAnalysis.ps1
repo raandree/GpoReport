@@ -39,14 +39,14 @@ function Get-SecurityAnalysis {
             }
             
             $finding = [PSCustomObject]@{
-                GPOName = $result.GPOName
-                CategoryPath = $result.CategoryPath
-                SettingName = $result.SettingName
-                SettingValue = $result.SettingValue
-                RiskLevel = $riskLevel
+                GPOName        = $result.GPOName
+                CategoryPath   = $result.CategoryPath
+                SettingName    = $result.SettingName
+                SettingValue   = $result.SettingValue
+                RiskLevel      = $riskLevel
                 SecurityDomain = 'Access Control'
                 Recommendation = $recommendation
-                AnalysisDate = Get-Date
+                AnalysisDate   = Get-Date
             }
             
             $securityFindings += $finding

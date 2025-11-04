@@ -92,17 +92,17 @@ function Search-GPMCReports {
     param(
         [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'FilePath')]
         [ValidateScript({
-            if (-not (Test-Path $_)) {
-                throw "Path not found: $_"
-            }
-            if ((Get-Item $_).PSIsContainer) {
-                return $true  # Directory is valid
-            }
-            if ($_ -notmatch '\.xml$') {
-                throw "File must be an XML file: $_"
-            }
-            return $true
-        })]
+                if (-not (Test-Path $_)) {
+                    throw "Path not found: $_"
+                }
+                if ((Get-Item $_).PSIsContainer) {
+                    return $true  # Directory is valid
+                }
+                if ($_ -notmatch '\.xml$') {
+                    throw "File must be an XML file: $_"
+                }
+                return $true
+            })]
         [string]$Path,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'GpoFilter')]
@@ -113,24 +113,24 @@ function Search-GPMCReports {
         [AllowEmptyCollection()]
         [AllowEmptyString()]
         [ValidateScript({
-            # Allow empty arrays and handle them gracefully in the function
-            if ($null -eq $_) {
-                throw "XmlContent cannot be null"
-            }
-            # Allow empty arrays and empty strings to pass validation - we'll handle them in the function logic
-            return $true
-        })]
+                # Allow empty arrays and handle them gracefully in the function
+                if ($null -eq $_) {
+                    throw 'XmlContent cannot be null'
+                }
+                # Allow empty arrays and empty strings to pass validation - we'll handle them in the function logic
+                return $true
+            })]
         [string[]]$XmlContent,
 
         [Parameter(Mandatory = $true)]
         [AllowEmptyString()]
         [ValidateScript({
-            if ($null -eq $_) {
-                throw "SearchString cannot be null"
-            }
-            # Allow empty strings to pass validation - we'll handle them in the function logic
-            return $true
-        })]
+                if ($null -eq $_) {
+                    throw 'SearchString cannot be null'
+                }
+                # Allow empty strings to pass validation - we'll handle them in the function logic
+                return $true
+            })]
         [string]$SearchString,
 
         [Parameter()]
@@ -158,7 +158,7 @@ function Search-GPMCReports {
         # Handle empty search string gracefully
         $script:shouldSkipProcessing = [string]::IsNullOrWhiteSpace($SearchString)
         if ($script:shouldSkipProcessing) {
-            Write-Warning "Search string is empty or whitespace-only"
+            Write-Warning 'Search string is empty or whitespace-only'
         }
         
         $results = @()
@@ -181,7 +181,7 @@ function Search-GPMCReports {
                 
                 # Check if GroupPolicy module is available
                 if (-not (Get-Command -Name Get-GPO -ErrorAction SilentlyContinue)) {
-                    throw "GroupPolicy module is not available. Please install RSAT Group Policy Management Tools."
+                    throw 'GroupPolicy module is not available. Please install RSAT Group Policy Management Tools.'
                 }
                 
                 # Create temporary directory for GPO exports
@@ -193,7 +193,7 @@ function Search-GPMCReports {
                 try {
                     # Get all GPOs and filter by display name (Get-GPO doesn't support wildcards in -Name)
                     $getAllParams = @{
-                        All = $true
+                        All         = $true
                         ErrorAction = 'Stop'
                     }
                     if ($Domain) {
@@ -205,7 +205,8 @@ function Search-GPMCReports {
                     
                     if ($gpos.Count -gt 0) {
                         Write-Host "Found $($gpos.Count) GPO(s) matching filter"
-                    } else {
+                    }
+                    else {
                         Write-Warning "No GPOs found matching filter: $GpoFilter"
                         return
                     }
@@ -219,9 +220,9 @@ function Search-GPMCReports {
                         
                         try {
                             $reportParams = @{
-                                Guid = $gpo.Id
-                                ReportType = 'Xml'
-                                Path = $xmlPath
+                                Guid        = $gpo.Id
+                                ReportType  = 'Xml'
+                                Path        = $xmlPath
                                 ErrorAction = 'Stop'
                             }
                             if ($Domain) {
@@ -239,7 +240,7 @@ function Search-GPMCReports {
                     }
                     
                     if ($exportedXmlFiles.Count -eq 0) {
-                        Write-Warning "No GPOs were successfully exported"
+                        Write-Warning 'No GPOs were successfully exported'
                         return
                     }
                     
@@ -259,7 +260,7 @@ function Search-GPMCReports {
                                 Write-Verbose "Found $($fileResults.Count) matches in $(Split-Path $file -Leaf)"
                                 
                                 if ($MaxResults -gt 0 -and $results.Count -ge $MaxResults) {
-                                    $results = $results[0..($MaxResults-1)]
+                                    $results = $results[0..($MaxResults - 1)]
                                     Write-Warning "Maximum results ($MaxResults) reached. Stopping search."
                                     break
                                 }
@@ -281,10 +282,11 @@ function Search-GPMCReports {
                 
                 if ((Get-Item $Path).PSIsContainer) {
                     # Directory path
-                    $searchPath = Join-Path $Path "*.xml"
+                    $searchPath = Join-Path $Path '*.xml'
                     if ($Recurse) {
                         $files = Get-ChildItem -Path $searchPath -Recurse -File
-                    } else {
+                    }
+                    else {
                         $files = Get-ChildItem -Path $searchPath -File
                     }
                     
@@ -294,7 +296,8 @@ function Search-GPMCReports {
                     }
                     
                     Write-Verbose "Found $($files.Count) XML files to process"
-                } else {
+                }
+                else {
                     # Single file
                     $files = @(Get-Item $Path)
                 }
@@ -312,7 +315,7 @@ function Search-GPMCReports {
                             Write-Verbose "Found $($fileResults.Count) matches in $($file.Name)"
                             
                             if ($MaxResults -gt 0 -and $results.Count -ge $MaxResults) {
-                                $results = $results[0..($MaxResults-1)]
+                                $results = $results[0..($MaxResults - 1)]
                                 Write-Warning "Maximum results ($MaxResults) reached. Stopping search."
                                 break
                             }
@@ -328,7 +331,7 @@ function Search-GPMCReports {
             else {
                 # Process XML content directly
                 if ($XmlContent.Count -eq 0) {
-                    Write-Warning "No XML content provided"
+                    Write-Warning 'No XML content provided'
                     return @()
                 }
                 
@@ -351,7 +354,7 @@ function Search-GPMCReports {
                             Write-Verbose "Found $($contentResults.Count) matches in XML content block $($i + 1)"
                             
                             if ($MaxResults -gt 0 -and $results.Count -ge $MaxResults) {
-                                $results = $results[0..($MaxResults-1)]
+                                $results = $results[0..($MaxResults - 1)]
                                 Write-Warning "Maximum results ($MaxResults) reached. Stopping search."
                                 break
                             }
@@ -377,7 +380,7 @@ function Search-GPMCReports {
             try {
                 Write-Verbose "Cleaning up temporary directory: $tempDirectory"
                 Remove-Item -Path $tempDirectory -Recurse -Force -ErrorAction Stop
-                Write-Verbose "Temporary directory removed successfully"
+                Write-Verbose 'Temporary directory removed successfully'
             }
             catch {
                 Write-Warning "Failed to remove temporary directory '$tempDirectory': $($_.Exception.Message)"
