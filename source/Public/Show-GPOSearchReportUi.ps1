@@ -66,21 +66,21 @@ This tool allows you to search Group Policy Objects and generate comprehensive
 HTML reports. Choose between searching local XML files or querying Active Directory.
 "@
             $headerLabel.Location = New-Object System.Drawing.Point(20, 20)
-            $headerLabel.Size = New-Object System.Drawing.Size(590, 60)
+            $headerLabel.Size = New-Object System.Drawing.Size(590, 80)
             $headerLabel.Font = New-Object System.Drawing.Font('Segoe UI', 9)
             $form.Controls.Add($headerLabel)
 
             # Create separator line
             $separator1 = New-Object System.Windows.Forms.Label
             $separator1.BorderStyle = 'Fixed3D'
-            $separator1.Location = New-Object System.Drawing.Point(20, 85)
+            $separator1.Location = New-Object System.Drawing.Point(20, 105)
             $separator1.Size = New-Object System.Drawing.Size(590, 2)
             $form.Controls.Add($separator1)
 
             # Create search mode group box
             $modeGroupBox = New-Object System.Windows.Forms.GroupBox
             $modeGroupBox.Text = 'Search Mode'
-            $modeGroupBox.Location = New-Object System.Drawing.Point(20, 100)
+            $modeGroupBox.Location = New-Object System.Drawing.Point(20, 120)
             $modeGroupBox.Size = New-Object System.Drawing.Size(590, 70)
             $form.Controls.Add($modeGroupBox)
 
@@ -106,7 +106,7 @@ HTML reports. Choose between searching local XML files or querying Active Direct
             # Create input fields group box
             $inputGroupBox = New-Object System.Windows.Forms.GroupBox
             $inputGroupBox.Text = 'Search Parameters'
-            $inputGroupBox.Location = New-Object System.Drawing.Point(20, 180)
+            $inputGroupBox.Location = New-Object System.Drawing.Point(20, 200)
             $inputGroupBox.Size = New-Object System.Drawing.Size(590, 200)
             $form.Controls.Add($inputGroupBox)
 
@@ -166,12 +166,14 @@ HTML reports. Choose between searching local XML files or querying Active Direct
             $domainLabel.Location = New-Object System.Drawing.Point(20, 135)
             $domainLabel.Size = New-Object System.Drawing.Size(100, 20)
             $domainLabel.Enabled = $false
+            $domainLabel.Visible = $false
             $inputGroupBox.Controls.Add($domainLabel)
 
             $domainTextBox = New-Object System.Windows.Forms.TextBox
             $domainTextBox.Location = New-Object System.Drawing.Point(130, 133)
             $domainTextBox.Size = New-Object System.Drawing.Size(340, 25)
             $domainTextBox.Enabled = $false
+            $domainTextBox.Visible = $false
             $inputGroupBox.Controls.Add($domainTextBox)
 
             $tooltip.SetToolTip($domainTextBox, 'Optional: Specify domain (leave empty for current domain)')
