@@ -766,5 +766,8 @@ function Show-GPOSearchReport {
     Write-Host "`nReport generated successfully!" -ForegroundColor Green
     Write-Host "Report saved to: $OutputPath" -ForegroundColor Green
 
+    # Return the output path for programmatic use
+    return $OutputPath
+
     #endregion Generate and Display Report
 }
