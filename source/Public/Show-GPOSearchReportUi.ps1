@@ -220,186 +220,209 @@ HTML reports. Choose between searching local XML files or querying Active Direct
             $statusLabel.ForeColor = [System.Drawing.Color]::DarkBlue
             $form.Controls.Add($statusLabel)
 
-            # Create progress bar
-            $progressBar = New-Object System.Windows.Forms.ProgressBar
-            $progressBar.Location = New-Object System.Drawing.Point(20, 440)
-            $progressBar.Size = New-Object System.Drawing.Size(590, 20)
-            $progressBar.Style = 'Marquee'
-            $progressBar.MarqueeAnimationSpeed = 0
-            $progressBar.Visible = $false
-            $form.Controls.Add($progressBar)
-
             # Event handlers
             $fileRadio.Add_CheckedChanged({
-                if ($fileRadio.Checked) {
-                    $pathLabel.Enabled = $true
-                    $pathTextBox.Enabled = $true
-                    $browseButton.Enabled = $true
-                    $gpoFilterLabel.Enabled = $false
-                    $gpoFilterTextBox.Enabled = $false
-                    $domainLabel.Enabled = $false
-                    $domainTextBox.Enabled = $false
-                    $pathLabel.Text = 'XML Path/File:'
-                    $statusLabel.Text = 'Ready to generate report from local XML files'
+                param($ctrl, $evt)
+                try {
+                    if ($fileRadio.Checked) {
+                        $pathLabel.Enabled = $true
+                        $pathTextBox.Enabled = $true
+                        $browseButton.Enabled = $true
+                        $gpoFilterLabel.Enabled = $false
+                        $gpoFilterTextBox.Enabled = $false
+                        $domainLabel.Enabled = $false
+                        $domainTextBox.Enabled = $false
+                        $pathLabel.Text = 'XML Path/File:'
+                        $statusLabel.Text = 'Ready to generate report from local XML files'
+                    }
                 }
-            })
+                catch {
+                    Write-Verbose "Error in fileRadio CheckedChanged: $_"
+                }
+            }.GetNewClosure())
 
             $adRadio.Add_CheckedChanged({
-                if ($adRadio.Checked) {
-                    $pathLabel.Enabled = $false
-                    $pathTextBox.Enabled = $false
-                    $browseButton.Enabled = $false
-                    $gpoFilterLabel.Enabled = $true
-                    $gpoFilterTextBox.Enabled = $true
-                    $domainLabel.Enabled = $true
-                    $domainTextBox.Enabled = $true
-                    $statusLabel.Text = 'Ready to generate report from Active Directory'
+                param($ctrl, $evt)
+                try {
+                    if ($adRadio.Checked) {
+                        $pathLabel.Enabled = $false
+                        $pathTextBox.Enabled = $false
+                        $browseButton.Enabled = $false
+                        $gpoFilterLabel.Enabled = $true
+                        $gpoFilterTextBox.Enabled = $true
+                        $domainLabel.Enabled = $true
+                        $domainTextBox.Enabled = $true
+                        $statusLabel.Text = 'Ready to generate report from Active Directory'
+                    }
                 }
-            })
+                catch {
+                    Write-Verbose "Error in adRadio CheckedChanged: $_"
+                }
+            }.GetNewClosure())
 
             $browseButton.Add_Click({
-                $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
-                $folderBrowser.Description = 'Select folder containing GPO XML files or select a specific XML file'
-                $folderBrowser.ShowNewFolderButton = $false
-                
-                # Also allow file selection
-                $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-                $openFileDialog.Filter = 'XML Files (*.xml)|*.xml|All Files (*.*)|*.*'
-                $openFileDialog.Title = 'Select GPO XML File or Cancel to Select Folder'
-                
-                $result = [System.Windows.Forms.MessageBox]::Show(
-                    'Do you want to select a specific XML file? Click No to select a folder.',
-                    'File or Folder?',
-                    'YesNoCancel',
-                    'Question'
-                )
-                
-                if ($result -eq 'Yes') {
-                    if ($openFileDialog.ShowDialog() -eq 'OK') {
-                        $pathTextBox.Text = $openFileDialog.FileName
+                param($ctrl, $evt)
+                try {
+                    $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+                    $folderBrowser.Description = 'Select folder containing GPO XML files or select a specific XML file'
+                    $folderBrowser.ShowNewFolderButton = $false
+                    
+                    # Also allow file selection
+                    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+                    $openFileDialog.Filter = 'XML Files (*.xml)|*.xml|All Files (*.*)|*.*'
+                    $openFileDialog.Title = 'Select GPO XML File or Cancel to Select Folder'
+                    
+                    $result = [System.Windows.Forms.MessageBox]::Show(
+                        'Do you want to select a specific XML file? Click No to select a folder.',
+                        'File or Folder?',
+                        'YesNoCancel',
+                        'Question'
+                    )
+                    
+                    if ($result -eq 'Yes') {
+                        if ($openFileDialog.ShowDialog() -eq 'OK') {
+                            $pathTextBox.Text = $openFileDialog.FileName
+                        }
+                    }
+                    elseif ($result -eq 'No') {
+                        if ($folderBrowser.ShowDialog() -eq 'OK') {
+                            $pathTextBox.Text = $folderBrowser.SelectedPath
+                        }
                     }
                 }
-                elseif ($result -eq 'No') {
-                    if ($folderBrowser.ShowDialog() -eq 'OK') {
-                        $pathTextBox.Text = $folderBrowser.SelectedPath
-                    }
+                catch {
+                    Write-Verbose "Error in browseButton Click: $_"
                 }
-            })
+            }.GetNewClosure())
 
             $outputBrowseButton.Add_Click({
-                $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
-                $saveFileDialog.Filter = 'HTML Files (*.html)|*.html'
-                $saveFileDialog.Title = 'Save Report As'
-                $saveFileDialog.FileName = "GPO-Report-$(Get-Date -Format 'yyyyMMdd-HHmmss').html"
-                
-                if ($saveFileDialog.ShowDialog() -eq 'OK') {
-                    $outputTextBox.Text = $saveFileDialog.FileName
+                param($ctrl, $evt)
+                try {
+                    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+                    $saveFileDialog.Filter = 'HTML Files (*.html)|*.html'
+                    $saveFileDialog.Title = 'Save Report As'
+                    $saveFileDialog.FileName = "GPO-Report-$(Get-Date -Format 'yyyyMMdd-HHmmss').html"
+                    
+                    if ($saveFileDialog.ShowDialog() -eq 'OK') {
+                        $outputTextBox.Text = $saveFileDialog.FileName
+                    }
                 }
-            })
+                catch {
+                    Write-Verbose "Error in outputBrowseButton Click: $_"
+                }
+            }.GetNewClosure())
 
             $generateButton.Add_Click({
-                # Validate inputs
-                if ($fileRadio.Checked) {
-                    if ([string]::IsNullOrWhiteSpace($pathTextBox.Text)) {
+                param($ctrl, $evt)
+                try {
+                    # Validate inputs
+                    if ($fileRadio.Checked) {
+                        if ([string]::IsNullOrWhiteSpace($pathTextBox.Text)) {
+                            [System.Windows.Forms.MessageBox]::Show(
+                                'Please specify a path to XML files or folder.',
+                                'Missing Path',
+                                'OK',
+                                'Warning'
+                            )
+                            return
+                        }
+                        if (-not (Test-Path $pathTextBox.Text)) {
+                            [System.Windows.Forms.MessageBox]::Show(
+                                'The specified path does not exist.',
+                                'Invalid Path',
+                                'OK',
+                                'Error'
+                            )
+                            return
+                        }
+                    }
+                    
+                    if ([string]::IsNullOrWhiteSpace($searchTextBox.Text)) {
                         [System.Windows.Forms.MessageBox]::Show(
-                            'Please specify a path to XML files or folder.',
-                            'Missing Path',
+                            'Please enter a search string.',
+                            'Missing Search String',
                             'OK',
                             'Warning'
                         )
                         return
                     }
-                    if (-not (Test-Path $pathTextBox.Text)) {
+
+                    # Disable controls during generation
+                    $generateButton.Enabled = $false
+                    $statusLabel.Text = 'Generating report...'
+                    $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+
+                    try {
+                        # Build parameters
+                        $params = @{
+                            SearchString = $searchTextBox.Text
+                        }
+
+                        if ($fileRadio.Checked) {
+                            $params['Path'] = $pathTextBox.Text
+                        }
+                        else {
+                            $params['GpoFilter'] = $gpoFilterTextBox.Text
+                            if (-not [string]::IsNullOrWhiteSpace($domainTextBox.Text)) {
+                                $params['Domain'] = $domainTextBox.Text
+                            }
+                        }
+
+                        if (-not [string]::IsNullOrWhiteSpace($outputTextBox.Text)) {
+                            $params['OutputPath'] = $outputTextBox.Text
+                        }
+
+                        # Generate report
+                        $outputFile = Show-GPOSearchReport @params
+
+                        if ($outputFile -and (Test-Path $outputFile)) {
+                            $statusLabel.Text = 'Report generated successfully!'
+                            $statusLabel.ForeColor = [System.Drawing.Color]::Green
+                            
+                            $result = [System.Windows.Forms.MessageBox]::Show(
+                                "Report generated successfully!`n`nPath: $outputFile`n`nWould you like to open it now?",
+                                'Success',
+                                'YesNo',
+                                'Information'
+                            )
+                            
+                            if ($result -eq 'Yes') {
+                                Start-Process $outputFile
+                            }
+                        }
+                        else {
+                            throw 'Report generation failed - no output file created'
+                        }
+                    }
+                    catch {
+                        $statusLabel.Text = 'Report generation failed'
+                        $statusLabel.ForeColor = [System.Drawing.Color]::Red
                         [System.Windows.Forms.MessageBox]::Show(
-                            'The specified path does not exist.',
-                            'Invalid Path',
+                            "Failed to generate report:`n`n$($_.Exception.Message)",
+                            'Error',
                             'OK',
                             'Error'
                         )
-                        return
                     }
-                }
-                
-                if ([string]::IsNullOrWhiteSpace($searchTextBox.Text)) {
-                    [System.Windows.Forms.MessageBox]::Show(
-                        'Please enter a search string.',
-                        'Missing Search String',
-                        'OK',
-                        'Warning'
-                    )
-                    return
-                }
-
-                # Disable controls during generation
-                $generateButton.Enabled = $false
-                $progressBar.Visible = $true
-                $progressBar.MarqueeAnimationSpeed = 30
-                $statusLabel.Text = 'Generating report...'
-                $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
-
-                try {
-                    # Build parameters
-                    $params = @{
-                        SearchString = $searchTextBox.Text
-                    }
-
-                    if ($fileRadio.Checked) {
-                        $params['Path'] = $pathTextBox.Text
-                    }
-                    else {
-                        $params['GpoFilter'] = $gpoFilterTextBox.Text
-                        if (-not [string]::IsNullOrWhiteSpace($domainTextBox.Text)) {
-                            $params['Domain'] = $domainTextBox.Text
-                        }
-                    }
-
-                    if (-not [string]::IsNullOrWhiteSpace($outputTextBox.Text)) {
-                        $params['OutputPath'] = $outputTextBox.Text
-                    }
-
-                    # Generate report
-                    $outputFile = Show-GPOSearchReport @params
-
-                    if ($outputFile -and (Test-Path $outputFile)) {
-                        $statusLabel.Text = 'Report generated successfully!'
-                        $statusLabel.ForeColor = [System.Drawing.Color]::Green
-                        
-                        $result = [System.Windows.Forms.MessageBox]::Show(
-                            "Report generated successfully!`n`nPath: $outputFile`n`nWould you like to open it now?",
-                            'Success',
-                            'YesNo',
-                            'Information'
-                        )
-                        
-                        if ($result -eq 'Yes') {
-                            Start-Process $outputFile
-                        }
-                    }
-                    else {
-                        throw 'Report generation failed - no output file created'
+                    finally {
+                        $generateButton.Enabled = $true
+                        $form.Cursor = [System.Windows.Forms.Cursors]::Default
                     }
                 }
                 catch {
-                    $statusLabel.Text = 'Report generation failed'
-                    $statusLabel.ForeColor = [System.Drawing.Color]::Red
-                    [System.Windows.Forms.MessageBox]::Show(
-                        "Failed to generate report:`n`n$($_.Exception.Message)",
-                        'Error',
-                        'OK',
-                        'Error'
-                    )
+                    Write-Verbose "Error in generateButton Click: $_"
                 }
-                finally {
-                    $generateButton.Enabled = $true
-                    $progressBar.Visible = $false
-                    $progressBar.MarqueeAnimationSpeed = 0
-                    $form.Cursor = [System.Windows.Forms.Cursors]::Default
-                }
-            })
+            }.GetNewClosure())
 
             $closeButton.Add_Click({
-                $form.Close()
-            })
+                param($ctrl, $evt)
+                try {
+                    $form.Close()
+                }
+                catch {
+                    Write-Verbose "Error in closeButton Click: $_"
+                }
+            }.GetNewClosure())
 
             # Show the form
             [void]$form.ShowDialog()
