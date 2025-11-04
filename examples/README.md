@@ -10,8 +10,7 @@ examples/
 ├── Demo-GPOEnhancements.ps1           # Comprehensive feature demonstrations
 ├── Demo-XMLNodeContext.ps1            # XML node context feature demo
 ├── Demo-EnhancedXMLContext.ps1        # Enhanced XML context improvements
-└── tests/
-    └── Test-XMLNodeContextFeature.ps1  # Validation tests for XML context features
+└── Demo-ShowGPOSearchReportUi.ps1     # GUI demo for GPO search report generator
 ```
 
 ## 🚀 Demo Scripts
@@ -58,21 +57,34 @@ examples/
 .\examples\Demo-EnhancedXMLContext.ps1
 ```
 
-## 🧪 Test Scripts
-
-### tests/Test-XMLNodeContextFeature.ps1
-**Purpose**: Validation script for XML node context feature functionality  
-**Tests Performed**:
-- XmlNode property inclusion verification
-- Required XmlNode sub-properties validation
-- Meaningful parent element detection testing
-- ParentHierarchy array type verification
-- Immediate vs meaningful parent distinction
-- Complete XML policy block capture validation
+### Demo-ShowGPOSearchReportUi.ps1
+**Purpose**: Interactive demonstration of the GUI for generating GPO search reports  
+**Features Demonstrated**:
+- User-friendly graphical interface
+- Two search modes: Local XML files and Active Directory queries
+- Guided input fields with validation
+- Browse dialogs for file and folder selection
+- Automatic HTML report generation
+- Progress indicators and status feedback
 
 **Usage**:
 ```powershell
-.\examples\tests\Test-XMLNodeContextFeature.ps1
+.\examples\Demo-ShowGPOSearchReportUi.ps1
+```
+
+## 🧪 Test Scripts
+
+Test scripts have been moved to the `.\tests\` folder at the repository root.
+
+See `.\tests\` for:
+- `Test-XMLNodeContextFeature.ps1` - XML node context feature validation
+- `Test-GpoFilterParameter.ps1` - GPO filter parameter validation
+- `Test-ShowGPOSearchReportUi.ps1` - UI launcher test script
+
+**Usage**:
+```powershell
+.\tests\Test-XMLNodeContextFeature.ps1
+.\tests\Test-GpoFilterParameter.ps1
 ```
 
 ## 📋 Prerequisites
@@ -97,8 +109,11 @@ To run all demonstrations:
 # Run comprehensive feature demo
 .\examples\Demo-GPOEnhancements.ps1
 
+# Launch the GPO Search Report UI demo
+.\examples\Demo-ShowGPOSearchReportUi.ps1
+
 # Test XML context features
-.\examples\tests\Test-XMLNodeContextFeature.ps1
+.\tests\Test-XMLNodeContextFeature.ps1
 
 # Explore XML node context capabilities
 .\examples\Demo-XMLNodeContext.ps1
