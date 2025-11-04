@@ -71,7 +71,10 @@ function Show-GPOSearchReport {
         [string]$OutputPath,
 
         [Parameter(ParameterSetName = 'GpoFilter')]
-        [string]$Domain
+        [string]$Domain,
+
+        [Parameter()]
+        [switch]$ShowReport
     )
 
     # Generate output path if not specified
@@ -528,7 +531,9 @@ function Show-GPOSearchReport {
 
         # Open report in browser
         Write-Verbose 'Opening report in browser'
-        Start-Process 'msedge.exe' -ArgumentList $OutputPath
+        if ($ShowReport) {
+            Start-Process $OutputPath
+        }
     }
 
     #endregion Helper Functions
