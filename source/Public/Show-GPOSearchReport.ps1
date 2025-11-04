@@ -721,13 +721,13 @@ function Show-GPOSearchReport {
         }
 
         # Add expand/collapse button before property sections
-        $tableOfResults += '<tr><td></td><td><button class="toggle-all-btn" onclick="toggleAllInGroup(this)" style="font-size: 11px; padding: 4px 8px; background-color: #f5f5f5; color: #333; border: 1px solid #ddd; cursor: pointer;">Expand All Properties</button></td></tr>'
+        $tableOfResults += '<tr><td colspan="2"><button class="toggle-all-btn" onclick="toggleAllInGroup(this)" style="font-size: 11px; padding: 4px 8px; background-color: #f5f5f5; color: #333; border: 1px solid #ddd; cursor: pointer;">Expand All Properties</button></td><td></td></tr>'
 
         # Add collapsible sections within the table
         # Add collapsible section for ParsedXml
         if ($result.XmlNode.ParsedXml) {
             $parsedXmlTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml -MaxDepth 2
-            $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
+            $tableOfResults += '<tr class="property-row" style="display: none;"><td colspan="2">'
             $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml Properties</button>'
             $tableOfResults += "<div class='content'>$parsedXmlTable</div>"
             $tableOfResults += '</td></tr>'
@@ -736,7 +736,7 @@ function Show-GPOSearchReport {
         # Add collapsible section for ParsedXml.Properties
         if ($result.XmlNode.ParsedXml.Properties) {
             $propertiesTable = ConvertTo-PropertyTable -Object $result.XmlNode.ParsedXml.Properties -MaxDepth 2
-            $tableOfResults += '<tr class="property-row" style="display: none;"><td></td><td>'
+            $tableOfResults += '<tr class="property-row" style="display: none;"><td colspan="2">'
             $tableOfResults += '<button class="collapsible" onclick="toggleCollapsible(this)">All ParsedXml.Properties</button>'
             $tableOfResults += "<div class='content'>$propertiesTable</div>"
             $tableOfResults += '</td></tr>'
