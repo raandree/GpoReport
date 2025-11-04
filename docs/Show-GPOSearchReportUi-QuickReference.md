@@ -90,9 +90,8 @@ Show-GPOSearchReportUi
 
 ## Related Commands
 
-- `Show-GPOSearchReport`: Underlying command-line function
-- `Search-GPMCReports`: Core search functionality
-- `Start-GPOSearchGUI`: Interactive search interface (different purpose)
+- `Show-GPOSearchReport`: Underlying command-line function that generates HTML reports
+- `Search-GPMCReports`: Core search functionality for finding GPO settings
 
 ## Requirements
 

@@ -75,7 +75,6 @@
         'Get-GPOInsights',
         'Search-GPOCompliance',
         'Search-GPOCached',
-        'Start-GPOSearchGUI',
         'Show-GPOSearchReport',
         'Show-GPOSearchReportUi'
     )
@@ -127,7 +126,8 @@
 - **Get-GPOInsights**: AI-powered analysis for security, compliance, and performance insights
 - **Search-GPOCompliance**: Compliance-focused search with pre-built templates (CIS, NIST, SOX, HIPAA)
 - **Search-GPOCached**: High-performance search with intelligent caching and parallel processing
-- **Start-GPOSearchGUI**: Interactive Windows Forms GUI for user-friendly GPO searching
+- **Show-GPOSearchReport**: Generate comprehensive HTML reports from GPO search results
+- **Show-GPOSearchReportUi**: User-friendly GUI for HTML report generation
 
 ### Capabilities
 - Wildcard pattern search across GPO XML files

@@ -152,19 +152,15 @@ function Demo-GUIInterface {
         Write-Host "Starting Windows Forms GUI interface..." -ForegroundColor Green
         Write-Host "Features demonstrated:" -ForegroundColor White
         Write-Host "  • Drag-and-drop XML file selection" -ForegroundColor Gray
-        Write-Host "  • Real-time search filtering" -ForegroundColor Gray
-        Write-Host "  • Interactive results grid" -ForegroundColor Gray
-        Write-Host "  • One-click export functionality" -ForegroundColor Gray
-        Write-Host "  • Visual summary statistics" -ForegroundColor Gray
+        Write-Host "  • Intuitive file/AD search modes" -ForegroundColor Gray
+        Write-Host "  • Browse dialogs for easy selection" -ForegroundColor Gray
+        Write-Host "  • Search term validation" -ForegroundColor Gray
+        Write-Host "  • HTML report generation" -ForegroundColor Gray
         
-        # Launch GUI (non-blocking for demo)
-        try {
-            Start-Process powershell -ArgumentList "-File `"$PSScriptRoot\Start-GPOSearchGUI.ps1`"" -WindowStyle Normal
-            Write-Host "`n✅ GUI launched in separate window!" -ForegroundColor Green
-        } catch {
-            Write-Host "`n❌ GUI launch failed: $($_.Exception.Message)" -ForegroundColor Red
-            Write-Host "   Note: GUI requires Windows with PowerShell and Windows Forms support" -ForegroundColor Yellow
-        }
+        # Note: Show-GPOSearchReportUi is the recommended GUI interface
+        Write-Host "`nℹ️  Launch the GUI with:" -ForegroundColor Cyan
+        Write-Host "   Show-GPOSearchReportUi" -ForegroundColor White
+        Write-Host "`n   See examples/Demo-ShowGPOSearchReportUi.ps1 for complete demo" -ForegroundColor Gray
     } else {
         Write-Host "❌ GUI not available in this PowerShell environment" -ForegroundColor Red
         Write-Host "   GUI requires Windows PowerShell with Windows Forms support" -ForegroundColor Yellow

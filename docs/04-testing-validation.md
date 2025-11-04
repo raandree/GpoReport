@@ -181,9 +181,9 @@ Test Categories:
 **Enhanced Scripts Validation**:
 - ✅ **Export-SearchResults.ps1**: Multi-format export tested (JSON, CSV, HTML, XML)
 - ✅ **Search-GPOCompliance.ps1**: Compliance templates validated (CIS, NIST, HIPAA)
-- ✅ **Start-GPOSearchGUI.ps1**: GUI functionality manually validated
 - ✅ **Search-GPOCached.ps1**: Caching and performance optimization tested
 - ✅ **Get-GPOInsights.ps1**: AI analysis and scoring manually validated
+- ✅ **Show-GPOSearchReportUi.ps1**: HTML report generation GUI tested
 - ✅ **Demo-GPOEnhancements.ps1**: Complete demonstration suite tested
 
 ### Historical Test Results Evolution

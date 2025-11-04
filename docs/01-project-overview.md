@@ -32,11 +32,11 @@ This project provides a comprehensive PowerShell-based Group Policy Object (GPO)
 - **Group Policy Preferences CategoryPath Mapping**: Complete namespace-to-category mapping for all 12 preferences types
 
 ### ✅ Enhanced Capabilities Package
-- **Start-GPOSearchGUI.ps1**: Interactive Windows Forms GUI with drag-drop and real-time filtering
 - **Export-SearchResults.ps1**: Multi-format export (JSON, CSV, HTML, XML) with professional reporting
 - **Search-GPOCompliance.ps1**: Security-focused search with pre-built compliance templates
 - **Search-GPOCached.ps1**: High-performance search with caching and parallel processing
 - **Get-GPOInsights.ps1**: AI-powered analysis with security scoring and recommendations
+- **Show-GPOSearchReportUi.ps1**: GUI for generating HTML reports from search results
 - **Demo-GPOEnhancements.ps1**: Complete demonstration showcasing all capabilities
 
 ### ✅ Comprehensive Search Capabilities
@@ -158,8 +158,7 @@ This project provides a comprehensive PowerShell-based Group Policy Object (GPO)
 - `Search-GPOSettings.ps1` - PowerShell XML processing
 - `Search-GPMCReports.ps1` - GPMC XML processing (primary)
 
-### Enhanced Capabilities (5)
-- `Start-GPOSearchGUI.ps1` - Interactive Windows Forms GUI
+### Enhanced Capabilities (4)
 - `Export-SearchResults.ps1` - Multi-format professional reporting  
 - `Search-GPOCompliance.ps1` - Security compliance analysis
 - `Search-GPOCached.ps1` - High-performance caching system

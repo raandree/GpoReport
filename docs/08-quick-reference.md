@@ -59,13 +59,6 @@ Get-Content "*.xml" -Raw | ForEach-Object {
 
 ## Enhanced Capabilities Quick Reference (✨ NEW)
 
-### GUI Interface
-```powershell
-# Launch interactive GUI
-.\Start-GPOSearchGUI.ps1
-# Features: drag-drop, real-time search, export integration
-```
-
 ### Professional Export
 ```powershell
 # Export in all formats (JSON, CSV, HTML, XML)

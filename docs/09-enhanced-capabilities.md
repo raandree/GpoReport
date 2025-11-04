@@ -2,13 +2,12 @@
 
 ## Overview
 
-The Enhanced GPO Search System extends the core search functionality with five major capability packages:
+The Enhanced GPO Search System extends the core search functionality with four major capability packages:
 
-1. **Export & Reporting** - Professional multi-format output
+1. **Export & Reporting** - Professional multi-format output and HTML report generation
 2. **Compliance Analysis** - Security framework validation
-3. **Interactive GUI** - User-friendly desktop interface
-4. **Performance Optimization** - Caching and parallel processing
-5. **AI-Powered Insights** - Intelligent analysis and recommendations
+3. **Performance Optimization** - Caching and parallel processing
+4. **AI-Powered Insights** - Intelligent analysis and recommendations
 
 ---
 
@@ -96,56 +95,7 @@ The script includes predefined patterns for:
 
 ---
 
-## 3. Start-GPOSearchGUI.ps1
-
-### Purpose
-Provides an interactive Windows Forms desktop interface for GPO searching with real-time filtering and integrated export functionality.
-
-### How It Works
-1. **Form Initialization**: Creates Windows Forms interface with menus and controls
-2. **File Selection**: Drag-drop or browse dialog for XML file selection
-3. **Search Execution**: Real-time search with progress indication
-4. **Results Display**: Interactive data grid with sorting and filtering
-5. **Export Integration**: One-click export in multiple formats
-
-### Interface Components
-- **Menu System**: File operations and tool access
-- **Search Panel**: Pattern input, options, and execution controls
-- **Results Grid**: Sortable, filterable data display
-- **Summary Panel**: Real-time statistics and action buttons
-- **Progress Indication**: Visual feedback during operations
-
-### Key Features
-- **Drag-and-Drop**: Direct XML file selection
-- **Real-Time Filtering**: Immediate results as you type
-- **Section Filtering**: Computer/User section toggle
-- **Visual Summaries**: Count displays and statistics
-- **Integrated Export**: Direct export from results
-- **Error Handling**: User-friendly error messages
-
-### Usage
-```powershell
-# Launch interactive GUI
-.\Start-GPOSearchGUI.ps1
-
-# Features available in GUI:
-# - Browse or drag-drop XML files
-# - Enter search patterns with wildcards
-# - Toggle case sensitivity and recursion
-# - Filter by Computer/User sections
-# - View results in sortable grid
-# - Export results in chosen format
-# - Clear and restart searches
-```
-
-### System Requirements
-- Windows PowerShell or PowerShell Core on Windows
-- .NET Framework with Windows Forms support
-- Desktop environment (not suitable for Server Core)
-
----
-
-## 4. Search-GPOCached.ps1
+## 3. Search-GPOCached.ps1
 
 ### Purpose
 High-performance GPO search with intelligent caching, parallel processing, and file indexing for large-scale deployments.
@@ -193,7 +143,7 @@ High-performance GPO search with intelligent caching, parallel processing, and f
 
 ---
 
-## 5. Get-GPOInsights.ps1
+## 4. Get-GPOInsights.ps1
 
 ### Purpose
 AI-powered analysis engine that provides intelligent security, compliance, and operational insights from GPO configurations.
@@ -277,8 +227,8 @@ $complianceResults = .\Search-GPOCompliance.ps1 -Path "*.xml" -ComplianceTemplat
 # 4. Generate intelligent insights
 .\Get-GPOInsights.ps1 -Results $results -AnalysisType All -GenerateReport -OutputPath "comprehensive-analysis"
 
-# 5. Use GUI for interactive exploration
-.\Start-GPOSearchGUI.ps1
+# 5. Generate HTML report with GUI
+Show-GPOSearchReportUi  # Interactive report generation
 ```
 
 ### Performance Workflow
@@ -299,9 +249,9 @@ $results = .\Search-GPOCached.ps1 -Path "\\server\gpo-reports\*.xml" -SearchStri
 ### Enhancement Files
 - **Export-SearchResults.ps1**: Standalone export utility
 - **Search-GPOCompliance.ps1**: Uses Search-GPMCReports.ps1 internally
-- **Start-GPOSearchGUI.ps1**: Calls other scripts via shell execution
 - **Search-GPOCached.ps1**: Wraps Search-GPMCReports.ps1 with optimizations
 - **Get-GPOInsights.ps1**: Analyzes results from any search script
+- **Show-GPOSearchReportUi.ps1**: GUI for HTML report generation
 
 ### Generated Files
 - **Cache Directory**: `%TEMP%\GPOSearchCache\` (created automatically)
@@ -324,7 +274,7 @@ $results = .\Search-GPOCached.ps1 -Path "\\server\gpo-reports\*.xml" -SearchStri
 3. Build indexes for faster subsequent searches
 
 ### For Regular Users
-1. Start with the GUI (`Start-GPOSearchGUI.ps1`) for interactive exploration
+1. Use `Show-GPOSearchReportUi` for easy HTML report generation
 2. Export results in preferred format for documentation
 3. Use core search script for automation and scripting
 

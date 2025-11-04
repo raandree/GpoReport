@@ -47,18 +47,6 @@ Get-Content "*.xml" -Raw | ForEach-Object {
 
 ## Enhanced Capabilities Quick Start
 
-### GUI Interface (✨ NEW)
-```powershell
-# Launch interactive GUI
-.\Start-GPOSearchGUI.ps1
-
-# Features:
-# - Drag-drop XML files
-# - Real-time search filtering
-# - Export results directly
-# - Visual result browsing
-```
-
 ### Professional Reporting (✨ NEW)
 ```powershell
 # Export search results in multiple formats
