@@ -78,7 +78,7 @@ Write-Host ""
 
 # Test 4: Test with example XML files (existing functionality)
 Write-Host "Test 4: Testing existing file-based functionality..." -ForegroundColor Yellow
-$testXmlPath = ".\Test Reports\AllSettings1.xml"
+$testXmlPath = ".\tests\TestData\AllSettings1.xml"
 if (Test-Path $testXmlPath) {
     try {
         $results = Search-GPMCReports -Path $testXmlPath -SearchString "Test*" -ErrorAction Stop

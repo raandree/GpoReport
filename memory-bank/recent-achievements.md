@@ -155,14 +155,14 @@ $xmlNodeInfo.ParsedXml = ConvertFrom-XmlToObject -XmlElement $contextElement
 **Real-World Usage Examples**:
 ```powershell
 # Access UserRightsAssignment privilege name
-$results = Search-GPMCReports -Path "Test Reports" -SearchString "SeCreateGlobalPrivilege"
+$results = Search-GPMCReports -Path "tests/TestData" -SearchString "SeCreateGlobalPrivilege"
 $r = $results[0]
 $r.XmlNode.ParsedXml.Name         # Returns: "SeCreateGlobalPrivilege"
 $r.XmlNode.ParsedXml.Member.Name  # Returns: "contoso\Uruguay"
 $r.XmlNode.ParsedXml.Member.SID   # Returns: "S-1-5-21-2541002744..."
 
 # Access policy settings
-$policyResults = Search-GPMCReports -Path "Test Reports" -SearchString "Turn off notifications"
+$policyResults = Search-GPMCReports -Path "tests/TestData" -SearchString "Turn off notifications"
 $policy = $policyResults[0]
 $policy.XmlNode.ParsedXml.Name   # Returns: "Turn off notifications network usage"
 $policy.XmlNode.ParsedXml.State  # Returns: "Enabled"

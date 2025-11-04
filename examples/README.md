@@ -92,7 +92,7 @@ See `.\tests\` for:
 Before running these scripts, ensure:
 
 1. **Module Built**: Run `.\build.ps1` to build the GpoReport module
-2. **Test Data Available**: Ensure `.\Test Reports\AllSettings1.xml` exists
+2. **Test Data Available**: Ensure `.\tests/TestData\AllSettings1.xml` exists
 3. **PowerShell Execution Policy**: Set to allow script execution:
    ```powershell
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -136,7 +136,7 @@ To run all demonstrations:
 **Common Issues**:
 
 1. **Module Import Errors**: Ensure the module is built first with `.\build.ps1`
-2. **Missing Test Data**: Verify `.\Test Reports\AllSettings1.xml` exists
+2. **Missing Test Data**: Verify `.\tests/TestData\AllSettings1.xml` exists
 3. **Path Issues**: Run scripts from the repository root directory
 4. **Execution Policy**: Ensure PowerShell allows script execution
 

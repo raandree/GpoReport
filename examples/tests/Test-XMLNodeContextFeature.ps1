@@ -9,7 +9,7 @@ Import-Module ..\..\output\module\GpoReport\0.1.0\GpoReport.psd1 -Force
 
 # Test 1: Verify XmlNode property is included
 Write-Host "Test 1: XmlNode Property Inclusion" -ForegroundColor Yellow
-$results = Search-GPMCReports -Path "..\..\Test Reports\AllSettings1.xml" -SearchString "Chile"
+$results = Search-GPMCReports -Path "..\..\tests\TestData\AllSettings1.xml" -SearchString "Chile"
 if ($results -and $results[0].PSObject.Properties.Name -contains "XmlNode") {
     Write-Host "✅ PASS: XmlNode property is included in search results" -ForegroundColor Green
 } else {
@@ -33,7 +33,7 @@ if ($results) {
 
 # Test 3: Verify meaningful parent detection for policies
 Write-Host "`nTest 3: Meaningful Parent Detection" -ForegroundColor Yellow
-$policyResults = Search-GPMCReports -Path "..\..\Test Reports\AllSettings1.xml" -SearchString "Turn off notifications network usage"
+$policyResults = Search-GPMCReports -Path "..\..\tests\TestData\AllSettings1.xml" -SearchString "Turn off notifications network usage"
 if ($policyResults) {
     $xmlNode = $policyResults[0].XmlNode
     if ($xmlNode.ElementName -eq "Policy" -and $xmlNode.ContextLevel -eq "Policy") {

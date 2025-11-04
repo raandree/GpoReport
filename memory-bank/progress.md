@@ -111,7 +111,7 @@ Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
 ### **GROUP POLICY PREFERENCES MILESTONE ACHIEVED** ✅
 
 **User's Original Requirement Fulfilled**:
-- ✅ **CategoryPath Enhancement**: `Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'fileserver\software'` now returns CategoryPath `Preferences > Windows Settings > Drive Maps`
+- ✅ **CategoryPath Enhancement**: `Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'fileserver\software'` now returns CategoryPath `Preferences > Windows Settings > Drive Maps`
 - ✅ **Mapping.txt Integration**: All 11 Group Policy Preferences categories implemented based on mapping.txt definitions
 - ✅ **Human-Readable Categories**: Replaced generic "User Configuration" with specific meaningful categories
 
@@ -145,15 +145,15 @@ Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
 **Validation Success**:
 ```powershell
 # User's Original Requirement - FULFILLED
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'fileserver\software'
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'fileserver\software'
 # Returns: CategoryPath = "Preferences > Windows Settings > Drive Maps"
 
 # Scheduled Tasks CategoryPath
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1' 
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'Scheduled Task 1' 
 # Returns: CategoryPath = "Preferences > Control Panel Settings > Scheduled Tasks"
 
 # Environment Variables CategoryPath
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'environment'
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'environment'
 # Returns results with CategoryPath = "Preferences > Windows Settings > Environment Variables"
 ```
 
@@ -177,10 +177,10 @@ Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'enviro
 **Validation Success**:
 ```powershell
 # Default behavior (deduplicated) - Returns 1 result
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1'
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'Scheduled Task 1'
 
 # With parameter (include duplicates) - Returns 2 results  
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1' -IncludeChildDuplicates
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'Scheduled Task 1' -IncludeChildDuplicates
 ```
 
 ## 🔧 Current State: **PROJECT FULLY COMPLETE**
@@ -202,9 +202,9 @@ Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Schedu
 **XML Attribute Search Usage Examples**:
 ```powershell
 # Search for shortcut settings by any attribute value
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Test'                    # 3 results
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'AdditionalDisksOnline'  # 1 result
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'FILESYSTEM'            # 1 result
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'Test'                    # 3 results
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'AdditionalDisksOnline'  # 1 result
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'FILESYSTEM'            # 1 result
 
 # Access shortcut properties via dot notation
 $result.XmlNode.ParsedXml.Properties._targetPath    # "C:\AdditionalDisksOnline.ps1"

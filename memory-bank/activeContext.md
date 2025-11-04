@@ -84,7 +84,7 @@ Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
 ### **PREVIOUS ACHIEVEMENT: GROUP POLICY PREFERENCES CATEGORIZATION** ✅
 
 **User's Original Requirement**:
-- ✅ **CategoryPath Enhancement**: `Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'fileserver\software'` now returns CategoryPath `Preferences > Windows Settings > Drive Maps`
+- ✅ **CategoryPath Enhancement**: `Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'fileserver\software'` now returns CategoryPath `Preferences > Windows Settings > Drive Maps`
 - ✅ **Comprehensive Mapping**: All 11 Group Policy Preferences categories implemented based on mapping.txt file
 - ✅ **Human-Readable Categories**: Replaced generic "User Configuration" with specific preference categories
 
@@ -113,18 +113,18 @@ Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2
 **Validation Results**:
 ```powershell
 # Drive Maps CategoryPath (User's Original Requirement)
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'fileserver\software'
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'fileserver\software'
 # Returns: CategoryPath = "Preferences > Windows Settings > Drive Maps"
 
 # Scheduled Tasks CategoryPath  
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1'
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'Scheduled Task 1'
 # Returns: CategoryPath = "Preferences > Control Panel Settings > Scheduled Tasks"
 
 # Deduplication Working
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1'
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'Scheduled Task 1'
 # Returns: 1 result (deduplicated)
 
-Search-GPMCReports -Path '.\Test Reports\AllSettings1.xml' -SearchString 'Scheduled Task 1' -IncludeChildDuplicates
+Search-GPMCReports -Path '.\tests/TestData\AllSettings1.xml' -SearchString 'Scheduled Task 1' -IncludeChildDuplicates
 # Returns: 2 results (includes child duplicates)
 ```
 
@@ -202,7 +202,7 @@ examples/
 **Usage Examples**:
 ```powershell
 # Search for privilege assignments
-$results = Search-GPMCReports -Path "Test Reports" -SearchString "SeCreateGlobalPrivilege"
+$results = Search-GPMCReports -Path "tests/TestData" -SearchString "SeCreateGlobalPrivilege"
 $r = $results[0]
 
 # Access privilege name via dot notation
@@ -213,7 +213,7 @@ $memberName = $r.XmlNode.ParsedXml.Member.Name  # Returns: "contoso\Uruguay"
 $memberSID = $r.XmlNode.ParsedXml.Member.SID   # Returns: "S-1-5-21-2541002744..."
 
 # For policy settings
-$policyResults = Search-GPMCReports -Path "Test Reports" -SearchString "Turn off notifications"
+$policyResults = Search-GPMCReports -Path "tests/TestData" -SearchString "Turn off notifications"
 $policy = $policyResults[0]
 $policyName = $policy.XmlNode.ParsedXml.Name   # Returns: "Turn off notifications network usage"
 $policyState = $policy.XmlNode.ParsedXml.State # Returns: "Enabled"

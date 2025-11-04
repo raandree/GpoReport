@@ -48,8 +48,8 @@ BeforeAll {
     }
     
     # Set up test data paths
-    $TestDataPath = Join-Path $PSScriptRoot "..\..\Test Reports\AllSettings1.xml"
-    $PreferencesDataPath = Join-Path $PSScriptRoot "..\..\Test Reports\AllPreferences1.xml"
+    $TestDataPath = Join-Path $PSScriptRoot "..\TestData\AllSettings1.xml"
+    $PreferencesDataPath = Join-Path $PSScriptRoot "..\TestData\AllPreferences1.xml"
     
     # Verify test data exists
     if (-not (Test-Path $TestDataPath)) {
