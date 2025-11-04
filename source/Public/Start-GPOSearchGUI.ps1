@@ -61,7 +61,9 @@ function Start-GPOSearchGUI {
             $exitMenuItem = New-Object System.Windows.Forms.ToolStripMenuItem
             $exitMenuItem.Text = 'E&xit'
             
-            $fileMenu.DropDownItems.AddRange(@($openMenuItem, '-', $exitMenuItem))
+            $separator = New-Object System.Windows.Forms.ToolStripSeparator
+            
+            $fileMenu.DropDownItems.AddRange(@($openMenuItem, $separator, $exitMenuItem))
             $menuStrip.Items.Add($fileMenu)
             
             $form.MainMenuStrip = $menuStrip

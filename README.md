@@ -12,8 +12,14 @@ A comprehensive PowerShell-based Group Policy Object (GPO) search and analysis s
 $xmlContent = Get-Content "MyGPO.xml" -Raw
 .\Search-GPMCReports.ps1 -XmlContent @($xmlContent) -SearchString "*security*"
 
-# Launch interactive GUI
+# Launch interactive search GUI
 .\Start-GPOSearchGUI.ps1
+
+# Generate HTML report (GUI)
+Show-GPOSearchReportUi
+
+# Generate HTML report (command-line)
+Show-GPOSearchReport -Path "C:\GPOReports" -SearchString "*audit*"
 
 # Generate compliance report
 .\Search-GPOCompliance.ps1 -Path "*.xml" -Framework CIS
@@ -48,8 +54,10 @@ $xmlContent = Get-Content "MyGPO.xml" -Raw
 - `Search-GPMCReports.ps1` - Primary GPMC XML processing (1,270 lines)
 - `Search-GPOSettings.ps1` - PowerShell XML processing (secondary)
 
-### Enhanced Capabilities (5)
-- `Start-GPOSearchGUI.ps1` - Interactive Windows Forms GUI
+### Enhanced Capabilities (7)
+- `Start-GPOSearchGUI.ps1` - Interactive Windows Forms GUI for searching
+- `Show-GPOSearchReport.ps1` - Generate comprehensive HTML reports from search results
+- `Show-GPOSearchReportUi.ps1` - User-friendly GUI for HTML report generation
 - `Export-SearchResults.ps1` - Multi-format professional reporting
 - `Search-GPOCompliance.ps1` - Security compliance analysis
 - `Search-GPOCached.ps1` - High-performance caching system  

@@ -4,9 +4,47 @@
 
 ### Project Status: **PRODUCTION READY - ALL CORE FUNCTIONALITY VALIDATED AND DEPLOYED** 
 
-The GPO Report Search System is fully operational with comprehensive Group Policy Preferences CategoryPath mapping, corrected hierarchical deduplication, and extensive test coverage. Recent bug fix resolves duplicate result issue discovered in production usage.
+The GPO Report Search System is fully operational with comprehensive Group Policy Preferences CategoryPath mapping, corrected hierarchical deduplication, extensive test coverage, and user-friendly GUI interfaces for report generation. Recent enhancements include HTML report generator UI.
 
-### **LATEST ACHIEVEMENT: DEDUPLICATION BUG FIX (November 3, 2025)** ✅
+### **LATEST ACHIEVEMENT: GUI FOR HTML REPORT GENERATION (November 4, 2025)** ✅
+
+**New Feature Implemented**:
+- ✅ **Show-GPOSearchReportUi**: User-friendly graphical interface for generating GPO search HTML reports
+- ✅ **Two Search Modes**: Local XML files or Active Directory queries with radio button selection
+- ✅ **Guided Input**: Browse dialogs, tooltips, and validation for all parameters
+- ✅ **Progress Feedback**: Visual progress indicators and status messages during report generation
+- ✅ **Auto-Open Reports**: Option to automatically open generated HTML reports in browser
+
+**Implementation Details**:
+```powershell
+# Launch the GUI
+Show-GPOSearchReportUi
+
+# Features:
+# - File mode: Browse for XML files/folders
+# - AD mode: Query GPOs with filter patterns
+# - Search string with wildcard support
+# - Optional domain specification
+# - Custom output path or auto-generated temp file
+```
+
+**Files Created**:
+- ✅ **source/Public/Show-GPOSearchReportUi.ps1**: Main UI function (412 lines)
+- ✅ **docs/Show-GPOSearchReportUi-QuickReference.md**: User documentation
+- ✅ **examples/Demo-ShowGPOSearchReportUi.ps1**: Interactive demo script
+- ✅ **tests/Test-ShowGPOSearchReportUi.ps1**: Test launcher
+
+**Module Updates**:
+- ✅ **Added Show-GPOSearchReportUi** to FunctionsToExport in GpoReport.psd1
+- ✅ **Added Show-GPOSearchReport** to exports (was missing)
+- ✅ **Modified Show-GPOSearchReport** to return output file path for UI integration
+
+**Repository Cleanup**:
+- ✅ **Moved demo scripts** from root to examples/ folder
+- ✅ **Moved test scripts** from root to tests/ folder
+- ✅ **Updated examples/README.md** with new structure and UI demo documentation
+
+### **PREVIOUS ACHIEVEMENT: DEDUPLICATION BUG FIX (November 3, 2025)** ✅
 
 **Problem Discovered**:
 - ❌ **Search Issue**: `Search-GPMCReports -Path .\AllPreferences1.xml -SearchString TestTask2` returned 3 duplicate results instead of 1
@@ -269,7 +307,7 @@ XmlNode = @{
 **Sampler Framework Implementation** (Previous Achievement):
 - ✅ **Build Infrastructure**: Created build.ps1, build.yaml, RequiredModules.psd1, and Resolve-Dependency files
 - ✅ **Function Separation**: Moved all functions to individual files in Public/ and Private/ folders
-- ✅ **Public Functions**: Created 6 main public functions (Search-GPMCReports, Export-SearchResults, Get-GPOInsights, Search-GPOCompliance, Search-GPOCached, Start-GPOSearchGUI)
+- ✅ **Public Functions**: Created 8 main public functions (Search-GPMCReports, Export-SearchResults, Get-GPOInsights, Search-GPOCompliance, Search-GPOCached, Start-GPOSearchGUI, Show-GPOSearchReport, Show-GPOSearchReportUi)
 - ✅ **Private Functions**: Created 20+ private helper functions supporting the public interface
 - ✅ **Module Structure**: Proper source/ directory with Public/, Private/, Classes/, en-US/ folders
 - ✅ **Module Manifest**: Created comprehensive GpoReport.psd1 with proper metadata and exports
