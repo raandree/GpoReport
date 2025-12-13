@@ -649,6 +649,284 @@ Main-Function
 - Test on both Windows PowerShell and PowerShell 7+
 - Avoid platform-specific features unless necessary
 
+## PowerShell Format Files (ps1xml)
+
+### Overview
+PowerShell format files (`.ps1xml`) define how objects are displayed in the console. They control the default formatting for `Format-Table`, `Format-List`, and `Format-Wide` outputs.
+
+### Creating Format Definition Files
+
+#### Basic Structure
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <ViewDefinitions>
+        <View>
+            <Name>MyCustomView</Name>
+            <ViewSelectedBy>
+                <TypeName>MyModule.MyClass</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Property Name</Label>
+                        <Width>20</Width>
+                        <Alignment>Left</Alignment>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>PropertyName</PropertyName>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>
+```
+
+### Table Format Example
+```xml
+<View>
+    <Name>ProcessTableView</Name>
+    <ViewSelectedBy>
+        <TypeName>System.Diagnostics.Process</TypeName>
+    </ViewSelectedBy>
+    <TableControl>
+        <TableHeaders>
+            <TableColumnHeader>
+                <Label>Name</Label>
+                <Width>25</Width>
+            </TableColumnHeader>
+            <TableColumnHeader>
+                <Label>ID</Label>
+                <Width>8</Width>
+                <Alignment>Right</Alignment>
+            </TableColumnHeader>
+            <TableColumnHeader>
+                <Label>CPU(s)</Label>
+                <Width>10</Width>
+                <Alignment>Right</Alignment>
+            </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+            <TableRowEntry>
+                <TableColumnItems>
+                    <TableColumnItem>
+                        <PropertyName>ProcessName</PropertyName>
+                    </TableColumnItem>
+                    <TableColumnItem>
+                        <PropertyName>Id</PropertyName>
+                    </TableColumnItem>
+                    <TableColumnItem>
+                        <ScriptBlock>
+                            [math]::Round($_.TotalProcessorTime.TotalSeconds, 2)
+                        </ScriptBlock>
+                    </TableColumnItem>
+                </TableColumnItems>
+            </TableRowEntry>
+        </TableRowEntries>
+    </TableControl>
+</View>
+```
+
+### List Format Example
+```xml
+<View>
+    <Name>ProcessListView</Name>
+    <ViewSelectedBy>
+        <TypeName>System.Diagnostics.Process</TypeName>
+    </ViewSelectedBy>
+    <ListControl>
+        <ListEntries>
+            <ListEntry>
+                <ListItems>
+                    <ListItem>
+                        <PropertyName>ProcessName</PropertyName>
+                        <Label>Process Name</Label>
+                    </ListItem>
+                    <ListItem>
+                        <PropertyName>Id</PropertyName>
+                        <Label>Process ID</Label>
+                    </ListItem>
+                    <ListItem>
+                        <ScriptBlock>
+                            "{0:N2} MB" -f ($_.WorkingSet64 / 1MB)
+                        </ScriptBlock>
+                        <Label>Memory Usage</Label>
+                    </ListItem>
+                </ListItems>
+            </ListEntry>
+        </ListEntries>
+    </ListControl>
+</View>
+```
+
+### Loading Format Files
+```powershell
+# Load format file for current session
+Update-FormatData -PrependPath "C:\Path\To\MyFormat.ps1xml"
+
+# Load in module manifest (.psd1)
+@{
+    FormatsToProcess = @('MyModule.Format.ps1xml')
+}
+
+# Load in module (.psm1)
+$formatFile = Join-Path $PSScriptRoot 'MyModule.Format.ps1xml'
+if (Test-Path $formatFile) {
+    Update-FormatData -PrependPath $formatFile
+}
+```
+
+### Best Practices for Format Files
+
+#### File Organization
+- Name format files with `.Format.ps1xml` suffix (e.g., `MyModule.Format.ps1xml`)
+- Place in module root or `Formats/` subdirectory
+- One format file per module or logical grouping
+
+#### Performance Considerations
+- Use `PropertyName` instead of `ScriptBlock` when possible
+- Limit complex calculations in ScriptBlocks
+- Consider caching expensive operations
+
+#### Responsive Design
+```xml
+<!-- Responsive table that adapts to console width -->
+<TableControl>
+    <AutoSize/>
+    <TableHeaders>
+        <TableColumnHeader>
+            <Label>Name</Label>
+        </TableColumnHeader>
+        <TableColumnHeader>
+            <Label>Status</Label>
+            <Width>10</Width>
+        </TableColumnHeader>
+        <TableColumnHeader>
+            <Label>Details</Label>
+        </TableColumnHeader>
+    </TableHeaders>
+    <!-- ... -->
+</TableControl>
+```
+
+#### Conditional Formatting
+```xml
+<TableRowEntry>
+    <EntrySelectedBy>
+        <SelectionCondition>
+            <SelectionSetName>ProcessWithHighCPU</SelectionSetName>
+        </SelectionCondition>
+    </EntrySelectedBy>
+    <TableColumnItems>
+        <TableColumnItem>
+            <PropertyName>ProcessName</PropertyName>
+        </TableColumnItem>
+        <TableColumnItem>
+            <ScriptBlock>
+                if ($_.CPU -gt 50) { 
+                    [ConsoleColor]::Red 
+                } else { 
+                    [ConsoleColor]::Green 
+                }
+            </ScriptBlock>
+        </TableColumnItem>
+    </TableColumnItems>
+</TableRowEntry>
+```
+
+### Custom Object Formatting
+
+#### PSCustomObject with TypeName
+```powershell
+function New-FormattedObject {
+    param($Name, $Value)
+    
+    $obj = [PSCustomObject]@{
+        Name = $Name
+        Value = $Value
+        Timestamp = Get-Date
+    }
+    
+    # Add custom type name for formatting
+    $obj.PSObject.TypeNames.Insert(0, 'MyModule.FormattedObject')
+    return $obj
+}
+```
+
+#### ETS (Extended Type System) Properties
+```xml
+<Types>
+    <Type>
+        <Name>MyModule.MyClass</Name>
+        <Members>
+            <ScriptProperty>
+                <Name>DisplayName</Name>
+                <GetScriptBlock>
+                    "{0} ({1})" -f $this.Name, $this.Type
+                </GetScriptBlock>
+            </ScriptProperty>
+            <AliasProperty>
+                <Name>FullName</Name>
+                <ReferencedMemberName>CompletePathName</ReferencedMemberName>
+            </AliasProperty>
+        </Members>
+    </Type>
+</Types>
+```
+
+### Testing Format Files
+```powershell
+# Test format file before deployment
+try {
+    Update-FormatData -PrependPath $formatFilePath -ErrorAction Stop
+    Write-Host "Format file loaded successfully" -ForegroundColor Green
+    
+    # Test with sample object
+    $testObject = [PSCustomObject]@{
+        PSTypeName = 'MyModule.MyClass'
+        Name = 'Test'
+        Value = 42
+    }
+    
+    $testObject | Format-Table
+    $testObject | Format-List
+} catch {
+    Write-Error "Format file validation failed: $_"
+}
+```
+
+### Common Format Elements Reference
+
+#### Table Elements
+- `<TableControl>` - Defines table format
+- `<AutoSize/>` - Auto-size columns to content
+- `<HideTableHeaders/>` - Hide column headers
+- `<TableHeaders>` - Column header definitions
+- `<TableRowEntries>` - Row data definitions
+
+#### List Elements
+- `<ListControl>` - Defines list format
+- `<ListEntries>` - List entry definitions
+- `<ListItems>` - Individual list items
+
+#### Wide Elements
+- `<WideControl>` - Defines wide format (like `Format-Wide`)
+- `<WideEntries>` - Wide entry definitions
+- `<WideItem>` - Individual wide items
+
+#### Selection Elements
+- `<ViewSelectedBy>` - Determines when view applies
+- `<TypeName>` - Apply to specific type
+- `<SelectionSetName>` - Apply to selection set
+- `<SelectionCondition>` - Conditional application
+
 ## Summary Checklist
 
 - ✅ Use approved verbs

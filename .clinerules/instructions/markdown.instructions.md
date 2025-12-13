@@ -569,9 +569,90 @@ This is *italic* and this is *also italic*.
 This is **bold** and this is **also bold**.
 ```
 
-## Documentation Patterns
+## Documentation Organization and Structure
+
+### Documentation Placement Requirements
+
+#### Root README.md (Mandatory)
+Every project **must** have a `README.md` file in the project root directory. This is the primary entry point for anyone discovering your project.
+
+**Required Content:**
+- **Project Title** - Clear, concise name of the project
+- **Project Description** - Brief explanation of what the project does and why it exists
+- **Installation Instructions** - How to install/setup the project
+- **Getting Started** - Basic usage examples to help users start quickly
+- **Optional but Recommended:**
+  - Features list
+  - Prerequisites
+  - Configuration options
+  - Examples section with common use cases
+  - Contributing guidelines
+  - License information
+  - Links to detailed documentation
+
+**When to Create:**
+- At project initialization
+- Before first commit
+- If missing from an existing project, create immediately
+
+#### Folder-Level README.md (Best Practice)
+Each folder that serves a general purpose **should** have its own `README.md` file to explain:
+- **Purpose** - Why this folder exists
+- **Contents** - What type of files/modules belong here
+- **Usage** - How to use or interact with the folder's contents
+- **Structure** - Organization of files within the folder (if complex)
+- **Examples** - Sample usage relevant to this folder's purpose
+
+**When to Create Folder READMEs:**
+- ✅ Source/module directories (`source/`, `src/`)
+- ✅ Test directories (`tests/`, `test/`)
+- ✅ Documentation directories (`docs/`, `documentation/`)
+- ✅ Script directories (`scripts/`, `tools/`)
+- ✅ Configuration directories (`config/`, `configs/`)
+- ✅ Any folder with multiple subdirectories or complex structure
+- ✅ Any folder that users or contributors will navigate to
+
+**When Folder READMEs Are Optional:**
+- ❌ Simple output/build directories
+- ❌ Node_modules or dependency directories
+- ❌ Temporary/cache directories
+- ❌ Folders with obvious single purpose and few files
+
+**Folder README Example:**
+```markdown
+# Tests
+
+This folder contains all unit and integration tests for the module.
+
+## Structure
+
+- `general/` - Tests covering overall module compliance (PSScriptAnalyzer, help documentation)
+- `functions/` - Function-specific tests organized by function name
+- `integration/` - Integration tests for end-to-end scenarios
+
+## Running Tests
+
+Execute all tests:
+\```powershell
+.\tests\pester.ps1
+\```
+
+Run specific tests:
+\```powershell
+.\tests\pester.ps1 -Include "Get-Example.Tests.ps1"
+\```
+
+## Test Coverage
+
+We aim for 80%+ code coverage. Each public function must have:
+- Parameter validation tests
+- Functional tests for all code paths
+- Error handling tests
+\```
 
 ### README Structure
+
+#### Root README.md Template
 ```markdown
 # Project Name
 
@@ -612,27 +693,214 @@ Guidelines for contributors.
 License information.
 ```
 
-### Changelog Structure
-```markdown
-# Changelog
+### Changelog Management Best Practices
 
-All notable changes to this project will be documented in this file.
+#### When to Update the Changelog
+
+**MANDATORY**: The changelog **must** be updated with **every** pull request that changes functionality, fixes bugs, adds features, or makes breaking changes.
+
+**Update the changelog when:**
+- ✅ Adding new features or functionality
+- ✅ Changing existing behavior
+- ✅ Fixing bugs or issues
+- ✅ Making breaking changes
+- ✅ Deprecating features
+- ✅ Removing features
+- ✅ Improving security
+- ✅ Updating dependencies (if significant)
+
+**Do NOT update for:**
+- ❌ Documentation-only changes (README updates, comment changes)
+- ❌ Code formatting/style changes with no functional impact
+- ❌ CI/CD pipeline changes that don't affect the module
+- ❌ Test-only changes (unless fixing test bugs)
+
+#### Changelog Structure and Format
+
+Follow the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+
+```markdown
+# Change log for ProjectName
+
+The format is based on and uses the types of changes according to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
-- New feature description
+- New feature description with context
+- Links to relevant issues: [issue #123](https://github.com/owner/repo/issues/123)
 
 ### Changed
-- Changed feature description
+- Modified behavior description
+- **BREAKING CHANGE**: Description of breaking change
+
+### Deprecated
+- Features that will be removed in future versions
+
+### Removed
+- **BREAKING CHANGE**: Removed feature description
 
 ### Fixed
 - Bug fix description
+- Fixes [Issue #456](https://github.com/owner/repo/issues/456)
+
+### Security
+- Security vulnerability fixes
 
 ## [1.0.0] - 2025-01-03
 
 ### Added
-- Initial release
+- Initial release with core features
+```
+
+#### Change Categories (Use Standard Headers)
+
+Use these categories in this order:
+
+1. **Removed** - For removed features (usually breaking changes)
+2. **Added** - For new features
+3. **Changed** - For changes in existing functionality  
+4. **Deprecated** - For soon-to-be removed features
+5. **Fixed** - For bug fixes
+6. **Security** - For security fixes
+
+**Category Guidelines:**
+- **Breaking Changes**: ALWAYS prefix with `BREAKING CHANGE:` and place under `Removed` or `Changed`
+- **Issue References**: Link to GitHub issues using format `[issue #123](link)` or `Fixes [Issue #123](link)`
+- **Resource/Component Name**: Start entries with the affected component/resource name
+- **Be Descriptive**: Explain what changed and why, not just what was done
+
+#### Example Changelog Entries
+
+**Good Examples:**
+```markdown
+### Added
+- SqlSetup
+  - Added support for major version upgrade ([issue #1561](https://github.com/owner/repo/issues/1561)).
+- New public command `Get-SqlDscDatabase` to retrieve database information.
+
+### Changed  
+- **BREAKING CHANGE**: ScheduledTask
+  - StartTime has changed the type from DateTime to String.
+  - StartTime is now processed on the device, rather than at compile time.
+    Fixes [Issue #148](https://github.com/owner/repo/issues/148).
+- Updated minimum PowerShell version to 5.1.
+
+### Fixed
+- Computer
+  - Fix Get-ComputerDomain function to retrieve the computer NETBIOS domain name 
+    instead of the user domain. Fixes [Issue #XXX](link).
+```
+
+**Bad Examples (Avoid):**
+```markdown
+### Changed
+- Updated code  # Too vague
+- Fixed bug  # Which bug? What component?
+- Made improvements  # What improvements?
+```
+
+#### Version Consistency Requirements
+
+**CRITICAL**: Ensure version numbers match across:
+- Module manifest (`.psd1` file) - `ModuleVersion`
+- Changelog.md - Version headers
+- Git tags (if used)
+- Release notes
+
+**Version Format:**
+- Use semantic versioning: `MAJOR.MINOR.PATCH`
+- Include release date: `## [1.2.3] - 2025-01-03`
+- Keep "Unreleased" section at top for work in progress
+
+#### Audience Considerations
+
+Write for your target audience:
+
+**For IT Professional/Admin Modules:**
+- Use plain language, avoid developer jargon
+- Focus on what changed for the **user**, not implementation details
+- Explain **impact** and **how to adapt** for breaking changes
+- Provide examples when helpful
+
+**What to Include:**
+- ✅ "The `Name` parameter now accepts wildcards"
+- ✅ "Fixed issue where service fails to start on Windows Server 2022"
+- ✅ "BREAKING CHANGE: The default value for `Timeout` changed from 30 to 60 seconds"
+
+**What to Avoid:**
+- ❌ "Refactored internal helper function `Get-InternalState`"
+- ❌ "Updated unit test mocks for better coverage"
+- ❌ "Changed variable name from `$x` to `$result`"
+
+#### Unreleased Section
+
+**Always maintain an `[Unreleased]` section:**
+- Place at the top of the changelog
+- All PRs add entries here
+- Remains until next version release
+- Gets renamed to version number on release
+
+```markdown
+## [Unreleased]
+
+### Added
+- Feature being worked on
+
+### Fixed
+- Bug fix pending release
+```
+
+#### Release Process
+
+When creating a new release:
+
+1. **Rename `[Unreleased]`** section to the new version with date
+2. **Create a new empty `[Unreleased]`** section at the top
+3. **Verify version matches** module manifest
+4. **Review all entries** for clarity and completeness
+5. **Check all issue links** are valid
+
+```markdown
+# Change log for ProjectName
+
+## [Unreleased]
+
+## [2.0.0] - 2025-01-15
+
+### Added
+- New feature from unreleased
+
+### Changed
+- **BREAKING CHANGE**: Major change that was in unreleased
+```
+
+#### Quality Checklist for Changelog Entries
+
+Before committing changelog updates:
+
+- [ ] Entry is in the `[Unreleased]` section
+- [ ] Entry uses the correct category (Added/Changed/Fixed/etc.)
+- [ ] Breaking changes are clearly marked with `BREAKING CHANGE:`
+- [ ] Component/resource name is included
+- [ ] Description is clear and user-focused
+- [ ] Related issue numbers are linked
+- [ ] Entry ends with a period
+- [ ] No internal/developer jargon used
+
+#### Changelog Validation
+
+**In CI/CD pipelines**, consider adding tests to verify:
+- Changelog has been updated (for non-documentation PRs)
+- Format follows Keep a Changelog standard
+- Unreleased section exists
+- Version numbers are valid semantic versions
+
+Example test (conceptual):
+```powershell
+# Verify changelog was updated
+$filesChanged | Should -Contain 'CHANGELOG.md' -Because 'the CHANGELOG.md must be updated with at least one entry in the Unreleased section for each PR'
 ```
 
 ### Module Documentation Pattern
