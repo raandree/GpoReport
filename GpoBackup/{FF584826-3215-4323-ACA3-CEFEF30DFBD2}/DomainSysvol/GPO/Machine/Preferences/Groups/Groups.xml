@@ -1,3 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Groups clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}"><Group clsid="{6D4A79E4-529C-4481-ABD0-F5BD7EA93BA7}" name="DnsAdmins" image="2" changed="2025-07-03 11:06:43" uid="{F5F6B730-F9A5-4781-9862-E569F0948CB6}"><Properties action="U" newName="DnsAdmins2" description="" deleteAllUsers="0" deleteAllGroups="0" removeAccounts="0" groupSid="S-1-5-21-1436523760-1216564473-3506967851-1102" groupName="DnsAdmins"><Members><Member name="contoso\a001406" action="ADD" sid="S-1-5-21-1436523760-1216564473-3506967851-1691"/></Members></Properties></Group>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Groups clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}">
+  <Group clsid="{6D4A79E4-529C-4481-ABD0-F5BD7EA93BA7}" name="DnsAdmins" image="2" changed="2025-07-03 11:06:43" uid="{F5F6B730-F9A5-4781-9862-E569F0948CB6}">
+    <Properties action="U" newName="DnsAdmins2" description="" deleteAllUsers="0" deleteAllGroups="0" removeAccounts="0" groupSid="S-1-5-21-2314223357-854812767-645058375-3893" groupName="DnsAdmins">
+      <Members>
+        <Member name="contoso\a001406" action="ADD" sid="S-1-5-21-2314223357-854812767-645058375-1612" />
+      </Members>
+    </Properties>
+  </Group>
+  <Group clsid="{6D4A79E4-529C-4481-ABD0-F5BD7EA93BA7}" name="TestSidGroup" image="2" changed="2026-02-24 14:06:58" uid="{A1B2C3D4-E5F6-7890-ABCD-EF0123456789}">
+    <Properties action="U" newName="" description="Test group for SID-list coverage" deleteAllUsers="0" deleteAllGroups="0" removeAccounts="0" groupSid="S-1-5-21-2314223357-854812767-645058375-7131" groupName="TestSidGroup">
+      <Members>
+        <Member name="a752924" action="ADD" sid="S-1-5-21-2314223357-854812767-645058375-2212" />
+        <Member name="a639276" action="ADD" sid="S-1-5-21-2314223357-854812767-645058375-5837" />
+        <Member name="a108674" action="ADD" sid="S-1-5-21-2314223357-854812767-645058375-6095" />
+        <Member name="a424335" action="ADD" sid="S-1-5-21-2314223357-854812767-645058375-1193" />
+        <Member name="a655558" action="ADD" sid="S-1-5-21-2314223357-854812767-645058375-6114" />
+      </Members>
+    </Properties>
+  </Group>
 </Groups>

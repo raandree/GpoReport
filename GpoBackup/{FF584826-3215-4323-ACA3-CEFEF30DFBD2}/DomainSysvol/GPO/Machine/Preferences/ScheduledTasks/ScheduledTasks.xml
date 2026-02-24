@@ -1,3 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScheduledTasks clsid="{CC63F200-7309-4ba0-B154-A71CD118DBCC}"><Task clsid="{2DEECB1C-261F-4e13-9B21-16FB83BC03BD}" name="Test1" image="2" changed="2025-07-03 11:07:19" uid="{9F967DF4-8F88-44A3-938A-72AD981A1B46}"><Properties action="U" name="Test1" appName="C:\Tools\oscdimg.exe" args="" startIn="" comment="" enabled="1"><Triggers><Trigger type="DAILY" startHour="7" startMinutes="0" beginYear="2025" beginMonth="7" beginDay="3" hasEndDate="0" repeatTask="0" interval="1"/></Triggers></Properties></Task>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ScheduledTasks clsid="{CC63F200-7309-4ba0-B154-A71CD118DBCC}">
+  <Task clsid="{2DEECB1C-261F-4e13-9B21-16FB83BC03BD}" name="Test1" image="2" changed="2025-07-03 11:07:19" uid="{9F967DF4-8F88-44A3-938A-72AD981A1B46}">
+    <Properties action="U" name="Test1" appName="C:\Tools\oscdimg.exe" args="" startIn="" comment="" enabled="1">
+      <Triggers>
+        <Trigger type="DAILY" startHour="7" startMinutes="0" beginYear="2025" beginMonth="7" beginDay="3" hasEndDate="0" repeatTask="0" interval="1" />
+      </Triggers>
+    </Properties>
+  </Task>
+  <TaskV2 clsid="{D76C28E1-2FBE-4a2f-9247-6FC2F94132BE}" name="TestSidTask" image="2" changed="2026-02-24 14:06:58" uid="{B2C3D4E5-F6A7-8901-BCDE-F01234567890}">
+    <Properties action="U" name="TestSidTask" runAs="S-1-5-21-2314223357-854812767-645058375-2212" logonType="Password">
+      <Task version="1.2">
+        <Principals>
+          <Principal id="Author">
+            <UserId>S-1-5-21-2314223357-854812767-645058375-2212</UserId>
+            <LogonType>Password</LogonType>
+            <RunLevel>HighestAvailable</RunLevel>
+          </Principal>
+        </Principals>
+        <Actions>
+          <Exec>
+            <Command>C:\Tools\test.exe</Command>
+          </Exec>
+        </Actions>
+      </Task>
+    </Properties>
+  </TaskV2>
 </ScheduledTasks>

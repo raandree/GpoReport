@@ -1,3 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<NTServices clsid="{2CFB484A-4E96-4b5d-A0B6-093D2F91E6AE}"><NTService clsid="{AB6F0B67-341F-4e51-92F9-005FBFBA1A43}" name="Audiosrv" image="3" changed="2025-07-03 11:07:32" uid="{94428403-615A-4E4E-913E-DE83052D34B4}"><Properties startupType="MANUAL" serviceName="Audiosrv" timeout="30"/></NTService>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NTServices clsid="{2CFB484A-4E96-4b5d-A0B6-093D2F91E6AE}">
+  <NTService clsid="{AB6F0B67-341F-4e51-92F9-005FBFBA1A43}" name="Audiosrv" image="3" changed="2025-07-03 11:07:32" uid="{94428403-615A-4E4E-913E-DE83052D34B4}">
+    <Properties startupType="MANUAL" serviceName="Audiosrv" timeout="30" />
+  </NTService>
+  <NTService clsid="{AB6F0B67-341F-4e51-92F9-005FBFBA1A43}" name="TestSidSvc" image="3" changed="2026-02-24 14:06:58" uid="{C3D4E5F6-A7B8-9012-CDEF-012345678901}">
+    <Properties startupType="AUTOMATIC" serviceName="TestSidSvc" timeout="30" accountName="a070503" accountSid="S-1-5-21-2314223357-854812767-645058375-5649" />
+  </NTService>
 </NTServices>
