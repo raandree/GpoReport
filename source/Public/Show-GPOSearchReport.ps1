@@ -615,8 +615,38 @@ function Show-GPOSearchReport {
             $tableOfResults += "<tr><td><b>Policy Name:</b></td><td>$($result.XmlNode.ParsedXml.Name)</td></tr>"
         }
 
-        # Local Security Settings - Members
-        if ($result.XmlNode.parsedXml.Member) {
+        # Restricted Groups - Group Name, Members, and MemberOf
+        if ($result.XmlNode.ElementName -eq 'RestrictedGroups') {
+            if ($result.XmlNode.ParsedXml.GroupName) {
+                $groupName = if ($result.XmlNode.ParsedXml.GroupName.Name.Text) {
+                    $result.XmlNode.ParsedXml.GroupName.Name.Text
+                }
+                elseif ($result.XmlNode.ParsedXml.GroupName.Name) {
+                    $result.XmlNode.ParsedXml.GroupName.Name
+                }
+                else {
+                    $null
+                }
+                if ($groupName) {
+                    $tableOfResults += "<tr><td><b>Restricted Group:</b></td><td>$groupName</td></tr>"
+                }
+            }
+            if ($result.XmlNode.ParsedXml.Member) {
+                $member = @($result.XmlNode.ParsedXml.Member) | ForEach-Object {
+                    if ($_.Name.Text) { $_.Name.Text } elseif ($_.Name) { $_.Name } else { $_ }
+                }
+                $tableOfResults += "<tr><td><b>Member:</b></td><td>$($member -join '<br>')</td></tr>"
+            }
+            if ($result.XmlNode.ParsedXml.Memberof) {
+                $memberOf = @($result.XmlNode.ParsedXml.Memberof) | ForEach-Object {
+                    if ($_.Name.Text) { $_.Name.Text } elseif ($_.Name) { $_.Name } else { $_ }
+                }
+                $tableOfResults += "<tr><td><b>Member Of:</b></td><td>$($memberOf -join '<br>')</td></tr>"
+            }
+        }
+
+        # Local Security Settings - Members (non-RestrictedGroups)
+        if ($result.XmlNode.ElementName -ne 'RestrictedGroups' -and $result.XmlNode.parsedXml.Member) {
             $member = ($result.XmlNode.parsedXml.Member.Name.Text) -join '<br>'
             $tableOfResults += "<tr><td><b>Policy Member:</b></td><td>$member</td></tr>"
         }
