@@ -22,6 +22,8 @@ function Show-GPOSearchReport {
 
     .PARAMETER OutputPath
         Path where the HTML report will be saved. If not specified, a temporary file will be created.
+        If a directory path is provided (existing folder or path ending with '\'), a file with a
+        meaningful auto-generated name will be created inside that directory.
 
     .PARAMETER Domain
         Specify the domain to query when using GpoFilter. If not specified, uses the current domain.
@@ -84,6 +86,37 @@ function Show-GPOSearchReport {
         # Remove the original temp file since we're using .html extension
         if (Test-Path $tempFile) {
             Remove-Item $tempFile -Force
+        }
+    }
+    else {
+        # If OutputPath is an existing directory or ends with a path separator, generate a filename inside it
+        $isDirectory = (Test-Path -Path $OutputPath -PathType Container) -or
+                       $OutputPath.EndsWith('\') -or
+                       $OutputPath.EndsWith('/')
+
+        if ($isDirectory) {
+            # Ensure the directory exists
+            if (-not (Test-Path -Path $OutputPath)) {
+                $null = New-Item -Path $OutputPath -ItemType Directory -Force
+            }
+
+            # Build a meaningful filename from the parameters
+            $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+            $sanitize = { param($s) ($s -replace '[\\/:*?"<>|]', '_') -replace '_+', '_' }
+            if ($PSCmdlet.ParameterSetName -eq 'GpoFilter') {
+                $filterPart = & $sanitize $GpoFilter
+                $searchPart = & $sanitize $SearchString
+                $fileName = "GPOReport_${filterPart}_${searchPart}_${timestamp}.html"
+            }
+            else {
+                $pathLeaf  = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path -Path $Path -Leaf))
+                $pathPart  = & $sanitize $pathLeaf
+                $searchPart = & $sanitize $SearchString
+                $fileName = "GPOReport_${pathPart}_${searchPart}_${timestamp}.html"
+            }
+
+            $OutputPath = Join-Path -Path $OutputPath -ChildPath $fileName
+            Write-Verbose "OutputPath resolved to file: $OutputPath"
         }
     }
 
