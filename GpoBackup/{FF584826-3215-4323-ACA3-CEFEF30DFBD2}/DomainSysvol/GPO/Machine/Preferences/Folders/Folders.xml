@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Folders clsid="{77CC39E7-3D16-4f8f-AF86-EC0BBEE2C861}"><Folder clsid="{07DA02F5-F9CD-4397-A550-4AE21B6B4BD3}" name="DeployDebug" status="DeployDebug" image="2" changed="2025-07-03 11:00:12" uid="{4792EE17-58C7-41FB-B5E1-36D52BF22B70}" bypassErrors="1"><Properties action="U" path="C:\DeployDebug" readOnly="0" archive="1" hidden="1"/><Filters><FilterRunOnce hidden="1" not="0" bool="AND" id="{7EB00D4E-C6F1-45F0-9968-B66406869016}"/>
+		</Filters></Folder>
+</Folders>

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Files clsid="{215B2E53-57CE-475c-80FE-9EEC14635851}"><File clsid="{50BE44C8-567A-4ed1-B1D0-9234FE1F38AF}" name="WSManRegKey.reg" status="WSManRegKey.reg" image="2" changed="2025-07-03 10:59:52" uid="{14ABD66E-50BB-4544-8749-4AC6D3472884}"><Properties action="U" fromPath="C:\WSManRegKey.reg" targetPath="C:\DeployDebug\WSManRegKey.reg" readOnly="0" archive="1" hidden="0" suppress="0"/></File>
+</Files>

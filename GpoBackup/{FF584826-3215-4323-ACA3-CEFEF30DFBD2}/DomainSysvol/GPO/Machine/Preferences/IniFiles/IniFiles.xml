@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<IniFiles clsid="{694C651A-08F2-47fa-A427-34C4F62BA207}"><Ini clsid="{EEFACE84-D3D8-4680-8D4B-BF103E759448}" name="prop1" status="prop1" image="2" changed="2025-07-03 11:00:39" uid="{EBB35C1C-3A2C-44FD-9BCB-A16223C9DDB3}"><Properties path="C:\Windows\win.ini" section="sec1" value="val1" property="prop1" action="U"/></Ini>
+</IniFiles>

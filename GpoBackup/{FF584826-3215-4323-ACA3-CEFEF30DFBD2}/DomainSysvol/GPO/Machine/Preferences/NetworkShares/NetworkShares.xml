@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NetworkShareSettings clsid="{520870D8-A6E7-47e8-A8D8-E6A4E76EAEC2}"><NetShare clsid="{2888C5E7-94FC-4739-90AA-2C1536D68BC0}" image="2" name="TestShare1" changed="2025-07-03 11:04:43" uid="{BB01004E-B53F-4690-A45D-818C70220965}"><Properties action="U" name="TestShare1" path="C:\TestShare1" comment="" allRegular="0" allHidden="0" allAdminDrive="0" limitUsers="MAX_ALLOWED" abe="DISABLE"/></NetShare>
+</NetworkShareSettings>
