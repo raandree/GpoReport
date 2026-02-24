@@ -46,9 +46,27 @@
     .\Add-GPOTestSidData.ps1 -BackupPath C:\GpoReport\GpoBackup -SampleCount 20
     # Same but samples 20 of each.
 
+.PARAMETER RestrictedGroupCount
+    Number of restricted groups to generate in the [Group Membership] INF section
+    and in GPP Groups.xml.  Each group will receive a random number of members
+    between MembersPerGroupMin and MembersPerGroupMax.  Defaults to 0 (legacy
+    behaviour that creates a small fixed set).
+
+.PARAMETER MembersPerGroupMin
+    Minimum number of member SIDs to add to each generated restricted group.
+    Defaults to 1.
+
+.PARAMETER MembersPerGroupMax
+    Maximum number of member SIDs to add to each generated restricted group.
+    Defaults to 5.
+
 .EXAMPLE
     .\Add-GPOTestSidData.ps1 -BackupPath C:\GpoReport\GpoBackup -DomainSid 'S-1-5-21-111-222-333' -RidPool @(1103,1960)
     # Uses explicit domain SID and RID list instead of querying AD.
+
+.EXAMPLE
+    .\Add-GPOTestSidData.ps1 -BackupPath C:\GpoReport\GpoBackup -RestrictedGroupCount 50 -MembersPerGroupMin 5 -MembersPerGroupMax 50
+    # Creates 50 restricted groups, each with 5-50 random member SIDs.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -65,7 +83,19 @@ param(
 
     [Parameter()]
     [ValidateRange(2, 1000)]
-    [int]$SampleCount = 10
+    [int]$SampleCount = 10,
+
+    [Parameter()]
+    [ValidateRange(0, 10000)]
+    [int]$RestrictedGroupCount = 0,
+
+    [Parameter()]
+    [ValidateRange(1, 1000)]
+    [int]$MembersPerGroupMin = 1,
+
+    [Parameter()]
+    [ValidateRange(1, 1000)]
+    [int]$MembersPerGroupMax = 5
 )
 
 Set-StrictMode -Version 3.0
@@ -80,7 +110,8 @@ if (-not $DomainSid) {
 #endregion
 
 #region --- Constants ---
-$sentinel = '# Added by Add-GPOTestSidData'
+$testDataBeginMarker = '; --- Begin Add-GPOTestSidData ---'
+$testDataEndMarker   = '; --- End Add-GPOTestSidData ---'
 
 # Helper to build a starred SID for INF files
 function Format-InfSid {
@@ -97,7 +128,13 @@ function New-SddlAce {
     )
     return "(${AceType};;${AccessMask};;;${Sid})"
 }
+
 #endregion
+
+# Validate MembersPerGroupMin <= MembersPerGroupMax
+if ($MembersPerGroupMin -gt $MembersPerGroupMax) {
+    throw "MembersPerGroupMin ($MembersPerGroupMin) must be less than or equal to MembersPerGroupMax ($MembersPerGroupMax)."
+}
 
 #region --- Build SID pools ---
 if ($RidPool) {
@@ -258,9 +295,34 @@ if ($infTargetGuid) {
         }
     }
 
-    # --- Remove any prior sentinel lines ---
+    # --- Remove any prior test-data marker blocks ---
+    $beginPattern = [regex]::Escape($testDataBeginMarker)
+    $endPattern   = [regex]::Escape($testDataEndMarker)
     foreach ($key in @($sections.Keys)) {
-        $sections[$key] = [System.Collections.Generic.List[string]]($sections[$key] | Where-Object { $_ -notmatch [regex]::Escape($sentinel) })
+        $cleaned = [System.Collections.Generic.List[string]]::new()
+        $inBlock = $false
+        foreach ($sectionLine in $sections[$key]) {
+            if ($sectionLine -match $beginPattern) {
+                $inBlock = $true
+                continue
+            }
+            if ($sectionLine -match $endPattern) {
+                $inBlock = $false
+                continue
+            }
+            if (-not $inBlock) {
+                $cleaned.Add($sectionLine)
+            }
+        }
+        $sections[$key] = $cleaned
+    }
+
+    # --- Remove any legacy sentinel lines from prior script versions ---
+    $legacySentinel = '# Added by Add-GPOTestSidData'
+    foreach ($key in @($sections.Keys)) {
+        $sections[$key] = [System.Collections.Generic.List[string]](
+            $sections[$key] | Where-Object { $_ -notmatch [regex]::Escape($legacySentinel) }
+        )
     }
 
     # --- 2a. [Service General Setting]: add entries with SDDL containing domain SIDs ---
@@ -275,8 +337,10 @@ if ($infTargetGuid) {
     $svcAce2a = if ($userSidPool.Count -gt 2) { $userSidPool[2] } else { $userSidPool[0] }
     $svcAce2b = if ($userSidPool.Count -gt 3) { $userSidPool[3] } else { $userSidPool[1] }
     $sddlSvc2 = "D:AR$(New-SddlAce -Sid $svcAce2a)$(New-SddlAce -Sid $svcAce2b)"
-    $sections[$svcSection].Add("`"TestSvcAlpha`",2,`"$sddlSvc1`" $sentinel")
-    $sections[$svcSection].Add("`"TestSvcBravo`",3,`"$sddlSvc2`" $sentinel")
+    $sections[$svcSection].Add($testDataBeginMarker)
+    $sections[$svcSection].Add("`"TestSvcAlpha`",2,`"$sddlSvc1`"")
+    $sections[$svcSection].Add("`"TestSvcBravo`",3,`"$sddlSvc2`"")
+    $sections[$svcSection].Add($testDataEndMarker)
     Write-Verbose "  Added [Service General Setting] with domain SIDs"
 
     # --- 2b. [File Security]: add entry with SDDL containing domain SIDs ---
@@ -290,7 +354,9 @@ if ($infTargetGuid) {
     $fsAce2 = if ($userSidPool.Count -gt 4) { $userSidPool[4] } else { $userSidPool[1] }
     $fsAce3 = if ($userSidPool.Count -gt 5) { $userSidPool[5] } else { $userSidPool[0] }
     $sddlFs = "D:PAR(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)$(New-SddlAce -Sid $fsAce1 -AccessMask '0x1200a9')(A;OICI;0x1200a9;;;BU)$(New-SddlAce -Sid $fsAce2 -AccessMask 'FA')$(New-SddlAce -Sid $fsAce3 -AccessMask '0x1200a9')"
-    $sections[$fsSection].Add("`"%SystemDrive%\TestSidDir`",0,`"$sddlFs`" $sentinel")
+    $sections[$fsSection].Add($testDataBeginMarker)
+    $sections[$fsSection].Add("`"%SystemDrive%\TestSidDir`",0,`"$sddlFs`"")
+    $sections[$fsSection].Add($testDataEndMarker)
     Write-Verbose "  Added [File Security] with domain SIDs"
 
     # --- 2c. [Registry Keys]: add entry with SDDL containing domain SIDs ---
@@ -304,7 +370,9 @@ if ($infTargetGuid) {
     $rkAce2 = if ($userSidPool.Count -gt 6) { $userSidPool[6] } else { $userSidPool[0] }
     $rkAce3 = if ($userSidPool.Count -gt 7) { $userSidPool[7] } else { $userSidPool[1] }
     $sddlRk = "D:PAR(A;CI;KA;;;BA)(A;CI;KA;;;SY)$(New-SddlAce -Sid $rkAce1 -AccessMask 'KA')$(New-SddlAce -Sid $rkAce2 -AccessMask 'KR')$(New-SddlAce -Sid $rkAce3 -AccessMask 'KR')"
-    $sections[$rkSection].Add("`"MACHINE\SOFTWARE\TestSidKey`",0,`"$sddlRk`" $sentinel")
+    $sections[$rkSection].Add($testDataBeginMarker)
+    $sections[$rkSection].Add("`"MACHINE\SOFTWARE\TestSidKey`",0,`"$sddlRk`"")
+    $sections[$rkSection].Add($testDataEndMarker)
     Write-Verbose "  Added [Registry Keys] with domain SIDs"
 
     # --- 2d. [Privilege Rights]: ensure multi-SID entries with domain SIDs ---
@@ -315,7 +383,9 @@ if ($infTargetGuid) {
         # Use up to 4 user SIDs (or as many as available)
         $prCount = [math]::Min(4, $userSidPool.Count)
         $sidList = $userSidPool[0..($prCount - 1)] | ForEach-Object { Format-InfSid $_ }
-        $sections[$prSection].Add("SeTestPrivilege = $($sidList -join ',') $sentinel")
+        $sections[$prSection].Add($testDataBeginMarker)
+        $sections[$prSection].Add("SeTestPrivilege = $($sidList -join ',')")
+        $sections[$prSection].Add($testDataEndMarker)
         Write-Verbose "  Added [Privilege Rights] multi-SID test entry ($prCount SIDs)"
     }
 
@@ -324,15 +394,77 @@ if ($infTargetGuid) {
     if (-not $sections.Contains($gmSection)) {
         $sections[$gmSection] = [System.Collections.Generic.List[string]]::new()
     }
-    $sections[$gmSection] = [System.Collections.Generic.List[string]]($sections[$gmSection] | Where-Object { $_ -notmatch 'S-1-5-32-544__Members.*TestSid' -and $_ -notmatch "$sentinel" })
-
+    # Capture original entry key SIDs before any test-data cleanup
+    $originalGmSids = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($gmLine in $sections[$gmSection]) {
+        if ($gmLine -match '^\*(S[-\d]+)__') {
+            [void]$originalGmSids.Add($Matches[1])
+        }
+    }
+    # Remove prior fixed test entries by pattern (idempotent without markers)
+    $sections[$gmSection] = [System.Collections.Generic.List[string]](
+        $sections[$gmSection] | Where-Object { $_ -notmatch '^\*S-1-5-32-544__' }
+    )
     # Use up to 3 user SIDs as members of Administrators
     $gmCount = [math]::Min(3, $userSidPool.Count)
     $memberSids = $userSidPool[0..($gmCount - 1)] | ForEach-Object { Format-InfSid $_ }
-    $sections[$gmSection].Add("*S-1-5-32-544__Members = $($memberSids -join ',') $sentinel")
-    # Add a __Memberof entry using a group SID
-    $sections[$gmSection].Add("*$($userSidPool[0])__Memberof = *$($groupSidPool[0]) $sentinel")
+    $sections[$gmSection].Add($testDataBeginMarker)
+    $sections[$gmSection].Add("*S-1-5-32-544__Members = $($memberSids -join ',')")
+    # Add a __Memberof entry using builtin SID key for pattern-based cleanup
+    $sections[$gmSection].Add("*S-1-5-32-544__Memberof = *$($groupSidPool[0])")
     Write-Verbose "  Added [Group Membership] multi-SID test entry ($gmCount members)"
+
+    # --- 2f. [Group Membership]: scaled restricted-group generation ---
+    if ($RestrictedGroupCount -gt 0) {
+        # Combine user + group pools into a single pool for group SIDs so we
+        # have the widest possible set of resolvable SIDs to cycle through.
+        $allSidPool  = @($groupSidPool) + @($userSidPool) | Select-Object -Unique
+        $allNamePool = @($groupNamePool) + @($userNamePool) | Select-Object -Unique
+
+        if ($MembersPerGroupMax -gt $userSidPool.Count -or $RestrictedGroupCount -gt $allSidPool.Count) {
+            Write-Warning ("SID pools are smaller than requested scale (users=$($userSidPool.Count), " +
+                "groups=$($groupSidPool.Count)).  SIDs will be recycled.  Increase -SampleCount " +
+                "for more unique resolvable SIDs.")
+        }
+
+        # Remove prior scaled test entries matching any SID in the current pool
+        # but protect original entries that pre-existed in the GPO backup
+        $poolEscaped = ($allSidPool | ForEach-Object { [regex]::Escape($_) }) -join '|'
+        $sections[$gmSection] = [System.Collections.Generic.List[string]](
+            $sections[$gmSection] | Where-Object {
+                if ($_ -match '^\*(S[-\d]+)__Members' -and $originalGmSids.Contains($Matches[1])) {
+                    return $true  # protect original entries
+                }
+                -not ($_ -match "^\*($poolEscaped)__Members")
+            }
+        )
+
+        Write-Host "  Generating $RestrictedGroupCount restricted groups ($MembersPerGroupMin-$MembersPerGroupMax members each)..." -ForegroundColor Cyan
+        for ($g = 0; $g -lt $RestrictedGroupCount; $g++) {
+            # Cycle through real group/user SIDs so every SID resolves in AD
+            $groupSid = $allSidPool[$g % $allSidPool.Count]
+
+            # Random member count within the configured range
+            $memberCount = Get-Random -Minimum $MembersPerGroupMin -Maximum ($MembersPerGroupMax + 1)
+
+            # Cycle through real user SIDs for members
+            $memberSidList = [System.Collections.Generic.List[string]]::new()
+            # Shuffle start offset per group so member lists vary between groups
+            $memberOffset = $g * 3
+            for ($m = 0; $m -lt $memberCount; $m++) {
+                $idx = ($memberOffset + $m) % $userSidPool.Count
+                $memberSidList.Add((Format-InfSid $userSidPool[$idx]))
+            }
+
+            $sections[$gmSection].Add("*$groupSid`__Members = $($memberSidList -join ',')")
+        }
+        $sections[$gmSection].Add($testDataEndMarker)
+        Write-Verbose "  Added $RestrictedGroupCount scaled restricted groups to [Group Membership]"
+    }
+    else {
+        # Close the marker block when no scaled groups are added
+        $sections[$gmSection].Add($testDataEndMarker)
+    }
 
     # --- Reassemble INF ---
     $outputLines = [System.Collections.Generic.List[string]]::new()
@@ -341,6 +473,10 @@ if ($infTargetGuid) {
             $outputLines.Add("[$key]")
         }
         foreach ($line in $sections[$key]) {
+            # Skip marker comment lines - Import-GPO cannot parse ; comments in INF
+            if ($line -eq $testDataBeginMarker -or $line -eq $testDataEndMarker) {
+                continue
+            }
             $outputLines.Add($line)
         }
     }
@@ -404,6 +540,63 @@ if ($gppTargetGuid) {
         [void]$props.AppendChild($members)
         [void]$newGroup.AppendChild($props)
         [void]$groupsXml.Groups.AppendChild($newGroup)
+
+        # --- Scaled GPP restricted groups ---
+        if ($RestrictedGroupCount -gt 0) {
+            Write-Host "  Generating $RestrictedGroupCount GPP restricted groups ($MembersPerGroupMin-$MembersPerGroupMax members each)..." -ForegroundColor Cyan
+            # Remove any prior scaled test groups (TestSidGroupNNN)
+            $existingScaled = $groupsXml.Groups.Group | Where-Object { $_.name -match '^TestSidGroup\d+$' }
+            foreach ($node in $existingScaled) {
+                [void]$groupsXml.Groups.RemoveChild($node)
+            }
+
+            # Combine pools for group SIDs
+            $allSidPool  = @($groupSidPool) + @($userSidPool) | Select-Object -Unique
+            $allNamePool = @($groupNamePool) + @($userNamePool) | Select-Object -Unique
+
+            for ($g = 0; $g -lt $RestrictedGroupCount; $g++) {
+                # Cycle through real SIDs so every SID resolves in AD
+                $gppGroupSid  = $allSidPool[$g % $allSidPool.Count]
+                $gppGroupName = "TestSidGroup$g"
+                $gppUid = [guid]::NewGuid().ToString('B').ToUpperInvariant()
+
+                $scaledGroup = $groupsXml.CreateElement('Group')
+                $scaledGroup.SetAttribute('clsid', '{6D4A79E4-529C-4481-ABD0-F5BD7EA93BA7}')
+                $scaledGroup.SetAttribute('name', $gppGroupName)
+                $scaledGroup.SetAttribute('image', '2')
+                $scaledGroup.SetAttribute('changed', (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))
+                $scaledGroup.SetAttribute('uid', $gppUid)
+
+                $scaledProps = $groupsXml.CreateElement('Properties')
+                $scaledProps.SetAttribute('action', 'U')
+                $scaledProps.SetAttribute('newName', '')
+                $scaledProps.SetAttribute('description', "Scaled test group $g")
+                $scaledProps.SetAttribute('deleteAllUsers', '0')
+                $scaledProps.SetAttribute('deleteAllGroups', '0')
+                $scaledProps.SetAttribute('removeAccounts', '0')
+                $scaledProps.SetAttribute('groupSid', $gppGroupSid)
+                $scaledProps.SetAttribute('groupName', $gppGroupName)
+
+                $scaledMembers = $groupsXml.CreateElement('Members')
+                $scaledMemberCount = Get-Random -Minimum $MembersPerGroupMin -Maximum ($MembersPerGroupMax + 1)
+
+                # Shuffle start offset per group so member lists vary
+                $memberOffset = $g * 3
+                for ($m = 0; $m -lt $scaledMemberCount; $m++) {
+                    $idx = ($memberOffset + $m) % $userSidPool.Count
+                    $scaledMember = $groupsXml.CreateElement('Member')
+                    $scaledMember.SetAttribute('name', $userNamePool[$idx])
+                    $scaledMember.SetAttribute('sid', $userSidPool[$idx])
+                    $scaledMember.SetAttribute('action', 'ADD')
+                    [void]$scaledMembers.AppendChild($scaledMember)
+                }
+
+                [void]$scaledProps.AppendChild($scaledMembers)
+                [void]$scaledGroup.AppendChild($scaledProps)
+                [void]$groupsXml.Groups.AppendChild($scaledGroup)
+            }
+            Write-Verbose "  Added $RestrictedGroupCount scaled groups to Groups.xml"
+        }
 
         if ($PSCmdlet.ShouldProcess($groupsFile, 'Write enriched Groups.xml')) {
             $groupsXml.Save($groupsFile)
@@ -495,6 +688,9 @@ Write-Host ''
 Write-Host 'Test SID data enrichment complete.' -ForegroundColor Green
 Write-Host "Domain SID: $DomainSid" -ForegroundColor Gray
 Write-Host "Source:     $(if ($RidPool) { 'Explicit RidPool' } else { 'Active Directory query' })" -ForegroundColor Gray
+if ($RestrictedGroupCount -gt 0) {
+    Write-Host "Restricted groups: $RestrictedGroupCount ($MembersPerGroupMin-$MembersPerGroupMax members each)" -ForegroundColor Gray
+}
 Write-Host ''
 Write-Host "User SIDs embedded ($($userSidPool.Count)):" -ForegroundColor Cyan
 for ($i = 0; $i -lt $userSidPool.Count; $i++) {
