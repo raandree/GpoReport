@@ -1,23 +1,31 @@
 <#
     .SYNOPSIS
-        Resolves SIDs in GPO backup XML files and replaces any that cannot
-        be resolved with new SIDs from the current domain.
+        Resolves SIDs in GPO backup files and replaces any that cannot
+        be resolved with real SIDs from the current Active Directory domain.
 
     .DESCRIPTION
-        Scans all XML files under the specified GPO backup path for domain
-        SIDs (S-1-5-21-*-RID).  Each unique SID is tested against Active
-        Directory.  SIDs that resolve successfully are left untouched.
+        Scans all text-based files (XML, INF, CMTX, CSV) under the specified
+        GPO backup path for domain SIDs (S-1-5-21-*-RID).  Each unique SID
+        is tested against Active Directory.  SIDs that resolve successfully
+        are left untouched.
 
-        Unresolvable SIDs are replaced with newly generated SIDs that use
-        the current domain's SID as the base and a random RID.  The same
-        source SID always maps to the same replacement SID across all files,
-        keeping internal references consistent.
+        Unresolvable SIDs are handled as follows:
 
-        Well-known SIDs (S-1-5-9, S-1-5-18, S-1-5-32-*, etc.) are never
-        modified.
+        - Well-known RIDs (e.g. -512 Domain Admins, -519 Enterprise Admins)
+          are mapped to the same RID under the current domain SID, because
+          these RIDs are identical in every AD domain.
+
+        - Custom / non-well-known RIDs are replaced with the SID of a
+          randomly selected real security principal (user, group, or
+          computer) from the current domain.  A consistent mapping is
+          maintained so the same source SID always maps to the same
+          replacement across all files.
+
+        Well-known SIDs without a domain prefix (S-1-5-9, S-1-5-18,
+        S-1-5-32-*, etc.) are never modified.
 
         This script is designed to run BEFORE Restore-GPOBackup.ps1 so that
-        imported GPOs contain valid SIDs for the target domain.
+        imported GPOs contain valid, resolvable SIDs for the target domain.
 
     .PARAMETER BackupPath
         The root folder that contains the GUID-named GPO backup sub-folders.
@@ -26,7 +34,7 @@
         .\Update-GPOBackupDomainSid.ps1 -BackupPath C:\GpoBackup
 
         Resolves every SID in the backup.  Unresolvable SIDs are replaced
-        with random SIDs from the current domain.
+        with real SIDs from the current AD domain.
 
     .EXAMPLE
         .\Update-GPOBackupDomainSid.ps1 -BackupPath C:\GpoBackup -Verbose
@@ -42,13 +50,13 @@
         None.  This script does not accept pipeline input.
 
     .OUTPUTS
-        PSCustomObject with properties File, OldSid, NewSid, and Status
-        for every replacement performed.
+        PSCustomObject with properties File, OldSid, NewSid, NewName,
+        and Status for every replacement performed.
 
     .NOTES
         Author:  Raimund Andree
         Date:    2026-02-24
-        Version: 2.0.0
+        Version: 3.0.0
 
         Run this script before Restore-GPOBackup.ps1 to sanitise domain
         SIDs in the backup data.
@@ -75,7 +83,6 @@ function Get-CurrentDomainSid {
     param()
 
     try {
-        # Preferred: use the logged-on user's SID to derive the domain SID
         $userSid = ([System.Security.Principal.WindowsIdentity]::GetCurrent()).User
         return $userSid.AccountDomainSid.ToString()
     } catch {
@@ -88,40 +95,76 @@ function Test-SidResolvable {
     <#
         .SYNOPSIS
             Attempts to translate a SID string to an NTAccount.
-            Returns $true if the SID resolves, $false otherwise.
+            Returns the account name if resolvable, $null otherwise.
     #>
     [CmdletBinding()]
-    [OutputType([bool])]
+    [OutputType([string])]
     param(
         [Parameter(Mandatory)]
         [string]$SidString
     )
 
     try {
-        $sid = [System.Security.Principal.SecurityIdentifier]::new($SidString)
-        [void]$sid.Translate([System.Security.Principal.NTAccount])
-        return $true
+        $sid     = [System.Security.Principal.SecurityIdentifier]::new($SidString)
+        $account = $sid.Translate([System.Security.Principal.NTAccount])
+        return $account.Value
     } catch {
-        return $false
+        return $null
     }
 }
 
-function New-RandomRid {
+function Get-ADSecurityPrincipalPool {
     <#
         .SYNOPSIS
-            Generates a random RID in the user-definable range (1000+).
+            Queries AD for real security principals and returns an array
+            of objects with SID and Name properties.
     #>
     [CmdletBinding()]
-    [OutputType([int])]
+    [OutputType([PSCustomObject[]])]
     param()
 
-    return Get-Random -Minimum 10000 -Maximum 2147483647
+    $searcher = [System.DirectoryServices.DirectorySearcher]::new()
+    $searcher.Filter = '(objectSid=*)'
+    $searcher.PropertiesToLoad.AddRange(@('objectSid', 'sAMAccountName', 'objectClass'))
+    $searcher.PageSize = 1000
+    $searcher.SizeLimit = 0
+
+    Write-Verbose 'Querying Active Directory for security principals...'
+    $results = $searcher.FindAll()
+
+    $pool = foreach ($result in $results) {
+        $sidBytes = $result.Properties['objectsid'][0]
+        if ($sidBytes) {
+            $sid = [System.Security.Principal.SecurityIdentifier]::new($sidBytes, 0)
+            $sidString = $sid.ToString()
+
+            # Only include domain SIDs (S-1-5-21-*) with a RID
+            if ($sidString -match '^S-1-5-21-\d+-\d+-\d+-\d+$') {
+                $name = if ($result.Properties['samaccountname'].Count -gt 0) {
+                    $result.Properties['samaccountname'][0]
+                } else {
+                    $sidString
+                }
+
+                [PSCustomObject]@{
+                    Sid  = $sidString
+                    Name = $name
+                }
+            }
+        }
+    }
+
+    $results.Dispose()
+    $searcher.Dispose()
+
+    Write-Verbose "Retrieved $($pool.Count) security principal(s) from AD."
+    return $pool
 }
 
 function Get-XmlFileEncoding {
     <#
         .SYNOPSIS
-            Detects the encoding of an XML file by inspecting its BOM.
+            Detects the encoding of a file by inspecting its BOM.
     #>
     [CmdletBinding()]
     [OutputType([System.Text.Encoding])]
@@ -130,7 +173,7 @@ function Get-XmlFileEncoding {
         [string]$FilePath
     )
 
-    $bytes = [byte[]]::new(4)
+    $bytes  = [byte[]]::new(4)
     $stream = [System.IO.File]::OpenRead($FilePath)
     try {
         [void]$stream.Read($bytes, 0, 4)
@@ -153,11 +196,37 @@ function Get-XmlFileEncoding {
 
 #endregion
 
+# Well-known RIDs that exist with identical values in every AD domain.
+# These are mapped deterministically: old-domain-SID-RID → current-domain-SID-RID.
+$wellKnownRids = @(
+    498   # Enterprise Read-Only Domain Controllers
+    500   # Administrator
+    501   # Guest
+    502   # krbtgt
+    512   # Domain Admins
+    513   # Domain Users
+    514   # Domain Guests
+    515   # Domain Computers
+    516   # Domain Controllers
+    517   # Cert Publishers
+    518   # Schema Admins
+    519   # Enterprise Admins
+    520   # Group Policy Creator Owners
+    521   # Read-Only Domain Controllers
+    522   # Cloneable Domain Controllers
+    525   # Protected Users
+    526   # Key Admins
+    527   # Enterprise Key Admins
+    553   # RAS and IAS Servers
+    571   # Allowed RODC Password Replication Group
+    572   # Denied RODC Password Replication Group
+)
+
 # ── Determine the current domain SID ──────────────────────────────────────────
 $currentDomainSid = Get-CurrentDomainSid
 Write-Host "Current domain SID: $currentDomainSid" -ForegroundColor Cyan
 
-# ── Collect all text-based GPO backup files ──────────────────────────────────
+# ── Collect all text-based GPO backup files ───────────────────────────────────
 # GPO backups contain SIDs in XML reports, INF security templates, CMTX
 # comment files, and CSV audit maps.  Binary .pol files are excluded.
 $textExtensions = @('*.xml', '*.inf', '*.cmtx', '*.csv')
@@ -174,10 +243,8 @@ if ($backupFiles.Count -eq 0) {
 Write-Verbose "Found $($backupFiles.Count) text-based file(s) under '$BackupPath'."
 
 # ── Phase 1: Discover all unique domain SIDs (S-1-5-21-*-RID) ────────────────
-# Match only full SIDs that include a RID to avoid truncated matches from
-# greedy quantifiers.
-$fullSidPattern  = 'S-1-5-21-\d+-\d+-\d+-\d+'
-$allUniqueSids   = [System.Collections.Generic.HashSet[string]]::new(
+$fullSidPattern = 'S-1-5-21-\d+-\d+-\d+-\d+'
+$allUniqueSids  = [System.Collections.Generic.HashSet[string]]::new(
     [System.StringComparer]::OrdinalIgnoreCase
 )
 
@@ -192,20 +259,24 @@ foreach ($filePath in $backupFiles) {
 }
 
 if ($allUniqueSids.Count -eq 0) {
-    Write-Host 'No domain SIDs (S-1-5-21-*) found in any XML file.  Nothing to do.' -ForegroundColor Green
+    Write-Host 'No domain SIDs (S-1-5-21-*) found in any file.  Nothing to do.' -ForegroundColor Green
     return
 }
 
 Write-Host "Found $($allUniqueSids.Count) unique domain SID(s) to check." -ForegroundColor Cyan
 
 # ── Phase 2: Resolve each SID and build the replacement map ───────────────────
-$sidMap          = @{}   # Old full SID  → New full SID
-$foreignDomains  = [System.Collections.Generic.HashSet[string]]::new(
+$sidMap         = @{}   # Old full SID → New full SID
+$sidNameMap     = @{}   # Old full SID → Replacement account name
+$foreignDomains = [System.Collections.Generic.HashSet[string]]::new(
     [System.StringComparer]::OrdinalIgnoreCase
 )
 $resolvedCount   = 0
 $unresolvedCount = 0
-$usedRids        = [System.Collections.Generic.HashSet[int]]::new()
+
+# Lazily load the AD principal pool only when needed
+$adPool      = $null
+$adPoolIndex = 0
 
 foreach ($sid in $allUniqueSids) {
     $parts = $sid -split '-'
@@ -215,49 +286,76 @@ foreach ($sid in $allUniqueSids) {
         continue
     }
 
-    # Extract domain portion: S-1-5-21-A-B-C
     $domainPart = ($parts[0..6]) -join '-'
+    $rid        = [int]$parts[7]
 
-    # Try to resolve the SID against AD
-    $isResolvable = Test-SidResolvable -SidString $sid
+    # Try to resolve the SID against AD / local SAM
+    $resolvedName = Test-SidResolvable -SidString $sid
 
-    if ($isResolvable) {
-        Write-Verbose "  [Resolved]   $sid"
+    if ($resolvedName) {
+        Write-Verbose "  [Resolved]   $sid ($resolvedName)"
         $resolvedCount++
         continue
     }
 
-    # Unresolvable — generate a replacement with the current domain SID + random RID
+    # Unresolvable
     $unresolvedCount++
 
-    # SIDs that already use the current domain prefix but cannot resolve
-    # were likely generated by a previous run.  They still need new RIDs.
-    if ($domainPart -eq $currentDomainSid) {
-        Write-Verbose "  [Stale]      $sid — current domain but unresolvable"
+    if ($sidMap.ContainsKey($sid)) {
+        continue
     }
 
-    if (-not $sidMap.ContainsKey($sid)) {
-        do {
-            $newRid = New-RandomRid
-        } while (-not $usedRids.Add($newRid))
-
-        $newSid = "$currentDomainSid-$newRid"
-        $sidMap[$sid] = $newSid
-        Write-Verbose "  [Unresolved] $sid -> $newSid"
+    # Strategy 1: Well-known RID — map to same RID in current domain
+    if ($rid -in $wellKnownRids) {
+        $newSid     = "$currentDomainSid-$rid"
+        $newName    = Test-SidResolvable -SidString $newSid
+        $sidMap[$sid]     = $newSid
+        $sidNameMap[$sid] = if ($newName) { $newName } else { "(well-known RID $rid)" }
+        Write-Verbose "  [Well-Known] $sid -> $newSid ($($sidNameMap[$sid]))"
+        [void]$foreignDomains.Add($domainPart)
+        continue
     }
 
-    # Track foreign domain prefixes so we can replace bare domain SIDs in
-    # SDDL strings after all full-SID replacements have been applied.
+    # Strategy 2: Custom RID — pick a real security principal from AD
+    if (-not $adPool) {
+        $adPool = @(Get-ADSecurityPrincipalPool)
+        # Shuffle the pool so assignments are random
+        $adPool = $adPool | Get-Random -Count $adPool.Count
+        $adPoolIndex = 0
+
+        if ($adPool.Count -eq 0) {
+            Write-Warning 'No security principals found in the current domain. Cannot map custom SIDs.'
+            break
+        }
+    }
+
+    # Pick the next principal from the shuffled pool (wrapping if needed)
+    $principal = $adPool[$adPoolIndex % $adPool.Count]
+    $adPoolIndex++
+
+    $sidMap[$sid]     = $principal.Sid
+    $sidNameMap[$sid] = $principal.Name
+    Write-Verbose "  [Mapped]     $sid -> $($principal.Sid) ($($principal.Name))"
+
     [void]$foreignDomains.Add($domainPart)
 }
 
 Write-Host ''
 Write-Host "SID resolution summary:" -ForegroundColor Cyan
-Write-Host "  Resolved / current domain : $resolvedCount" -ForegroundColor Green
-Write-Host "  Unresolvable (to replace) : $unresolvedCount" -ForegroundColor Yellow
-Write-Host "  Unique SID mappings       : $($sidMap.Count)" -ForegroundColor Yellow
-Write-Host "  Foreign domain prefixes   : $($foreignDomains.Count)" -ForegroundColor Yellow
+Write-Host "  Already resolvable : $resolvedCount" -ForegroundColor Green
+Write-Host "  Unresolvable       : $unresolvedCount" -ForegroundColor Yellow
+Write-Host "  Unique mappings    : $($sidMap.Count)" -ForegroundColor Yellow
+Write-Host "  Foreign domains    : $($foreignDomains.Count)" -ForegroundColor Yellow
 Write-Host ''
+
+if ($sidMap.Count -gt 0) {
+    Write-Host 'Replacement mapping:' -ForegroundColor Cyan
+    foreach ($entry in $sidMap.GetEnumerator() | Sort-Object -Property Key) {
+        $name = $sidNameMap[$entry.Key]
+        Write-Host "  $($entry.Key) -> $($entry.Value) ($name)"
+    }
+    Write-Host ''
+}
 
 if ($sidMap.Count -eq 0) {
     Write-Host 'All SIDs resolved successfully.  No replacements needed.' -ForegroundColor Green
@@ -330,6 +428,7 @@ foreach ($filePath in $backupFiles) {
                 File   = $relativePath
                 OldSid = $replacement.Old
                 NewSid = $replacement.New
+                NewName = if ($sidNameMap.ContainsKey($replacement.Old)) { $sidNameMap[$replacement.Old] } else { '(domain prefix)' }
                 Count  = $hitCount
                 Status = 'Replaced'
             }
