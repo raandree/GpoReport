@@ -131,6 +131,11 @@ foreach ($folder in $backupFolders) {
     }
 
     if (-not $PSCmdlet.ShouldProcess($gpoName, 'Create and import GPO from backup')) {
+        [PSCustomObject]@{
+            GpoName  = $gpoName
+            BackupId = $backupId
+            Status   = 'WhatIf'
+        }
         continue
     }
 
