@@ -32,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `ReadTime` and `IncludeComments` properties to GPO metadata (`Get-GPMCGpoInfo`)
 - Added dedicated RestrictedGroups rendering in HTML reports showing group name, members,
   and member-of context
+- Added combined ComboBox/dropdown for GPO Filter field in `Show-GPOSearchReportUi` with
+  autocomplete support, allowing users to type a wildcard pattern or select from existing
+  Group Policy Objects loaded from Active Directory via a "Load GPOs" button
 
 ### Changed
 
@@ -40,6 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling and logging throughout the module
 - Removed `Start-GPOSearchGUI` function (replaced by `Show-GPOSearchReportUi`)
 - Moved demo scripts to `examples/` folder and test scripts to `tests/` folder
+- Changed GPO Filter field in `Show-GPOSearchReportUi` from a plain TextBox to a ComboBox
+  (`DropDown` style) that supports both free-text entry and dropdown selection from
+  AD-queried GPO names with `SuggestAppend` autocomplete
 
 ### Fixed
 

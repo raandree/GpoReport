@@ -1,8 +1,25 @@
 # Progress: What Works and What's Left
 
-## 🎯 ✅ **RECENT ACHIEVEMENTS (February 24, 2026)**
+## 🎯 ✅ **RECENT ACHIEVEMENTS (February 25, 2026)**
 
-### **LATEST UPDATE: RESTRICTED GROUPS HTML CONTEXT & DEDUPLICATION FIX** ✅
+### **LATEST UPDATE: GPO FILTER COMBO BOX UI ENHANCEMENT** ✅
+
+**User Request**: Change GPO Filter from a plain TextBox to a combined ComboBox (text entry + dropdown selection from existing GPOs)
+
+**Implementation**:
+- ✅ Replaced `$gpoFilterTextBox` (TextBox) with `$gpoFilterComboBox` (ComboBox, `DropDown` style)
+- ✅ AutoComplete with `SuggestAppend` and `ListItems` source for type-ahead filtering
+- ✅ Added "Load GPOs" button that queries `Get-GPO -All` to populate dropdown with sorted GPO names
+- ✅ Domain-aware: uses Domain field value when loading GPOs
+- ✅ Graceful error handling if GroupPolicy module or domain access is unavailable
+- ✅ Default `*` wildcard always present as first dropdown item
+- ✅ Module rebuilt successfully (7 tasks, 0 errors, 0 warnings)
+
+**File Modified**: `source/Public/Show-GPOSearchReportUi.ps1`
+
+---
+
+### **PREVIOUS UPDATE: RESTRICTED GROUPS HTML CONTEXT & DEDUPLICATION FIX (February 24, 2026)** ✅
 
 **Issues Reported**: 
 1. HTML report from `Show-GPOSearchReport` did not display the restricted group name where a search string was found
