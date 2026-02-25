@@ -128,7 +128,7 @@ HTML reports. Choose between searching local XML files or querying Active Direct
             $browseButton.Size = New-Object System.Drawing.Size(85, 25)
             $inputGroupBox.Controls.Add($browseButton)
 
-            # GPO Filter input
+            # GPO Filter input (ComboBox: supports free-text entry and dropdown selection)
             $gpoFilterLabel = New-Object System.Windows.Forms.Label
             $gpoFilterLabel.Text = 'GPO Filter:'
             $gpoFilterLabel.Location = New-Object System.Drawing.Point(20, 65)
@@ -136,14 +136,26 @@ HTML reports. Choose between searching local XML files or querying Active Direct
             $gpoFilterLabel.Enabled = $false
             $inputGroupBox.Controls.Add($gpoFilterLabel)
 
-            $gpoFilterTextBox = New-Object System.Windows.Forms.TextBox
-            $gpoFilterTextBox.Location = New-Object System.Drawing.Point(130, 63)
-            $gpoFilterTextBox.Size = New-Object System.Drawing.Size(340, 25)
-            $gpoFilterTextBox.Text = '*'
-            $gpoFilterTextBox.Enabled = $false
-            $inputGroupBox.Controls.Add($gpoFilterTextBox)
+            $gpoFilterComboBox = New-Object System.Windows.Forms.ComboBox
+            $gpoFilterComboBox.Location = New-Object System.Drawing.Point(130, 63)
+            $gpoFilterComboBox.Size = New-Object System.Drawing.Size(340, 25)
+            $gpoFilterComboBox.Text = '*'
+            $gpoFilterComboBox.Enabled = $false
+            $gpoFilterComboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDown
+            $gpoFilterComboBox.AutoCompleteMode = [System.Windows.Forms.AutoCompleteMode]::SuggestAppend
+            $gpoFilterComboBox.AutoCompleteSource = [System.Windows.Forms.AutoCompleteSource]::ListItems
+            $gpoFilterComboBox.Items.Add('*') | Out-Null
+            $inputGroupBox.Controls.Add($gpoFilterComboBox)
 
-            $tooltip.SetToolTip($gpoFilterTextBox, 'Wildcard pattern for GPO names (e.g., *Security*, Default*)')
+            $refreshGpoButton = New-Object System.Windows.Forms.Button
+            $refreshGpoButton.Text = 'Load GPOs'
+            $refreshGpoButton.Location = New-Object System.Drawing.Point(480, 62)
+            $refreshGpoButton.Size = New-Object System.Drawing.Size(85, 25)
+            $refreshGpoButton.Enabled = $false
+            $inputGroupBox.Controls.Add($refreshGpoButton)
+
+            $tooltip.SetToolTip($gpoFilterComboBox, 'Type a wildcard pattern (e.g., *Security*) or select an existing GPO from the dropdown list')
+            $tooltip.SetToolTip($refreshGpoButton, 'Load GPO names from Active Directory to populate the dropdown list')
 
             # Search String input
             $searchLabel = New-Object System.Windows.Forms.Label
@@ -231,7 +243,8 @@ HTML reports. Choose between searching local XML files or querying Active Direct
                         $pathTextBox.Enabled = $true
                         $browseButton.Enabled = $true
                         $gpoFilterLabel.Enabled = $false
-                        $gpoFilterTextBox.Enabled = $false
+                        $gpoFilterComboBox.Enabled = $false
+                        $refreshGpoButton.Enabled = $false
                         $domainLabel.Enabled = $false
                         $domainTextBox.Enabled = $false
                         $pathLabel.Text = 'XML Path/File:'
@@ -251,7 +264,8 @@ HTML reports. Choose between searching local XML files or querying Active Direct
                         $pathTextBox.Enabled = $false
                         $browseButton.Enabled = $false
                         $gpoFilterLabel.Enabled = $true
-                        $gpoFilterTextBox.Enabled = $true
+                        $gpoFilterComboBox.Enabled = $true
+                        $refreshGpoButton.Enabled = $true
                         $domainLabel.Enabled = $true
                         $domainTextBox.Enabled = $true
                         $statusLabel.Text = 'Ready to generate report from Active Directory'
@@ -294,6 +308,51 @@ HTML reports. Choose between searching local XML files or querying Active Direct
                 }
                 catch {
                     Write-Verbose "Error in browseButton Click: $_"
+                }
+            }.GetNewClosure())
+
+            $refreshGpoButton.Add_Click({
+                param($ctrl, $evt)
+                try {
+                    $refreshGpoButton.Enabled = $false
+                    $statusLabel.Text = 'Loading GPO names from Active Directory...'
+                    $statusLabel.ForeColor = [System.Drawing.Color]::DarkBlue
+                    $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+                    [System.Windows.Forms.Application]::DoEvents()
+
+                    $getGpoParams = @{}
+                    if (-not [string]::IsNullOrWhiteSpace($domainTextBox.Text)) {
+                        $getGpoParams['Domain'] = $domainTextBox.Text
+                    }
+
+                    $gpoNames = @(Get-GPO -All @getGpoParams -ErrorAction Stop |
+                        Select-Object -ExpandProperty DisplayName |
+                        Sort-Object)
+
+                    $currentText = $gpoFilterComboBox.Text
+                    $gpoFilterComboBox.Items.Clear()
+                    $gpoFilterComboBox.Items.Add('*') | Out-Null
+                    foreach ($name in $gpoNames) {
+                        $gpoFilterComboBox.Items.Add($name) | Out-Null
+                    }
+                    $gpoFilterComboBox.Text = $currentText
+
+                    $statusLabel.Text = "Loaded $($gpoNames.Count) GPO names into dropdown"
+                    $statusLabel.ForeColor = [System.Drawing.Color]::Green
+                }
+                catch {
+                    $statusLabel.Text = 'Failed to load GPOs - check GroupPolicy module / domain access'
+                    $statusLabel.ForeColor = [System.Drawing.Color]::Red
+                    [System.Windows.Forms.MessageBox]::Show(
+                        "Failed to load GPO names:`n`n$($_.Exception.Message)`n`nEnsure the GroupPolicy module (RSAT) is installed and you have domain access.",
+                        'Load GPOs Failed',
+                        'OK',
+                        'Error'
+                    ) | Out-Null
+                }
+                finally {
+                    $refreshGpoButton.Enabled = $true
+                    $form.Cursor = [System.Windows.Forms.Cursors]::Default
                 }
             }.GetNewClosure())
 
@@ -364,7 +423,7 @@ HTML reports. Choose between searching local XML files or querying Active Direct
                             $params['Path'] = $pathTextBox.Text
                         }
                         else {
-                            $params['GpoFilter'] = $gpoFilterTextBox.Text
+                            $params['GpoFilter'] = $gpoFilterComboBox.Text
                             if (-not [string]::IsNullOrWhiteSpace($domainTextBox.Text)) {
                                 $params['Domain'] = $domainTextBox.Text
                             }
