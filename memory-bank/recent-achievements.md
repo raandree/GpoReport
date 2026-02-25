@@ -1,7 +1,67 @@
 # Recent Achievements
 
+## RestrictedGroups HTML Context & Deduplication Fix ✅
+**Date**: February 24, 2026
+**Status**: COMPLETED
+
+**Background**: User ran `Show-GPOSearchReport -GpoFilter allset* -SearchString a687281 -OutputPath C:\Reports\` and found two issues:
+1. The HTML report did not display which restricted group the search string was found in
+2. Only 1 result was returned even though the string appeared in 20 different restricted groups
+
+### Issue 1: Missing Restricted Group Context in HTML
+
+**Root Cause**: `Show-GPOSearchReport.ps1` had no dedicated rendering block for `RestrictedGroups` elements. The generic `ParsedXml.Name` check didn't match the RestrictedGroups XML structure where the group name is nested at `GroupName.Name.Text`.
+
+**Fix Applied** (source/Public/Show-GPOSearchReport.ps1):
+- Added a `RestrictedGroups` rendering block that checks `$result.XmlNode.ElementName -eq 'RestrictedGroups'`
+- Extracts group name from `ParsedXml.GroupName.Name.Text`
+- Renders Members from `ParsedXml.Member` with array handling
+- Renders MemberOf from `ParsedXml.Memberof` with array handling
+- Guarded existing generic Member rendering to skip when ElementName is RestrictedGroups
+
+**RestrictedGroups XML Structure**:
+```xml
+<q1:RestrictedGroups>
+  <q1:GroupName>
+    <Name xmlns="...">contoso\Domain Admins</Name>
+  </q1:GroupName>
+  <q1:Member>
+    <Name xmlns="...">contoso\a001304</Name>
+  </q1:Member>
+  <q1:Memberof>
+    <Name xmlns="...">contoso\Algeria</Name>
+  </q1:Memberof>
+</q1:RestrictedGroups>
+```
+
+### Issue 2: Deduplication Collapsing Different Restricted Groups
+
+**Root Cause**: `Remove-HierarchicalDuplicates.ps1` Phase 1 grouped results by `XmlPath|CategoryPath`. All RestrictedGroups elements share the same `q1:RestrictedGroups` XmlPath and the same CategoryPath (`Security Settings > Restricted Groups`), so all 20 different group entries were treated as exact duplicates and collapsed to 1.
+
+**Fix Applied** (source/Private/Remove-HierarchicalDuplicates.ps1):
+- Added `OuterXml.GetHashCode()` to the Phase 1 group key: `"$xmlPath|$categoryPath|$outerXmlHash"`
+- Different RestrictedGroups elements (different group names, members) have different OuterXml content, so they get different hash codes and are preserved as distinct results
+- Truly duplicate matches within the same element (same OuterXml) still get properly deduplicated
+
+### Validation Results
+
+```powershell
+# Before fix: 1 result returned
+Search-GPMCReports -GpoFilter allset* -SearchString a687281
+# After fix: 20 results returned (one per restricted group)
+
+# HTML report now shows for each result:
+# Restricted Group: contoso\a904465
+# Member:           contoso\a687281
+# Member Of:        (if applicable)
+```
+
+**HTML report verified**: All 20 restricted group names appear with correct member context.
+
+---
+
 ## GPO Metadata Enhancement ✅
-**Date**: November 3, 2025  
+**Date**: November 3, 2025
 **Status**: COMPLETED
 
 **Enhancement**: Extended Get-GPMCGpoInfo function to capture additional GPO metadata

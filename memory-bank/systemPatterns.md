@@ -2,7 +2,42 @@
 
 ## Final System State: **FULLY COMPLETED WITH ENTERPRISE-GRADE ROBUSTNESS**
 
-### **Latest Enhancement: GPO Metadata Expansion (November 3, 2025)**
+### **Latest Enhancement: RestrictedGroups Rendering & Deduplication Fix (February 24, 2026)**
+
+**Pattern: Element-Specific HTML Rendering**
+
+The `Show-GPOSearchReport` HTML generation uses element-type detection to render context-appropriate details. Each XML element type (Policy, Registry, ScheduledTasks, etc.) has a dedicated rendering block. RestrictedGroups was missing and has now been added:
+
+```powershell
+# RestrictedGroups rendering pattern
+if ($result.XmlNode.ElementName -eq 'RestrictedGroups') {
+    # Group name: ParsedXml.GroupName.Name.Text
+    # Members:    ParsedXml.Member (array-safe)
+    # MemberOf:   ParsedXml.Memberof (array-safe)
+}
+```
+
+**Pattern: Deduplication Group Key Must Distinguish Different Elements**
+
+When multiple XML elements share the same element name and category path (e.g., 20 different `RestrictedGroups` entries), the deduplication group key must include content-distinguishing information:
+
+```powershell
+# WRONG: Groups different elements as duplicates
+$groupKey = "$xmlPath|$categoryPath"
+
+# CORRECT: OuterXml hash distinguishes different elements
+$outerXmlHash = $result.XmlNode.OuterXml.GetHashCode()
+$groupKey = "$xmlPath|$categoryPath|$outerXmlHash"
+```
+
+**Why This Matters**:
+- XML element names are not unique within a GPO (many RestrictedGroups, Registry, etc.)
+- Phase 1 deduplication must only collapse truly identical matches (same element instance)
+- OuterXml hash provides a fast, reliable content-based identity for XML elements
+
+---
+
+### **Previous Enhancement: GPO Metadata Expansion (November 3, 2025)**
 
 **Enhancement Pattern: Complete Metadata Capture**
 
