@@ -22,6 +22,8 @@ function Show-GPOSearchReport {
 
     .PARAMETER OutputPath
         Path where the HTML report will be saved. If not specified, a temporary file will be created.
+        If a directory path is provided (existing folder or path ending with '\'), a file with a
+        meaningful auto-generated name will be created inside that directory.
 
     .PARAMETER Domain
         Specify the domain to query when using GpoFilter. If not specified, uses the current domain.
@@ -84,6 +86,37 @@ function Show-GPOSearchReport {
         # Remove the original temp file since we're using .html extension
         if (Test-Path $tempFile) {
             Remove-Item $tempFile -Force
+        }
+    }
+    else {
+        # If OutputPath is an existing directory or ends with a path separator, generate a filename inside it
+        $isDirectory = (Test-Path -Path $OutputPath -PathType Container) -or
+                       $OutputPath.EndsWith('\') -or
+                       $OutputPath.EndsWith('/')
+
+        if ($isDirectory) {
+            # Ensure the directory exists
+            if (-not (Test-Path -Path $OutputPath)) {
+                $null = New-Item -Path $OutputPath -ItemType Directory -Force
+            }
+
+            # Build a meaningful filename from the parameters
+            $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+            $sanitize = { param($s) ($s -replace '[\\/:*?"<>|]', '_') -replace '_+', '_' }
+            if ($PSCmdlet.ParameterSetName -eq 'GpoFilter') {
+                $filterPart = & $sanitize $GpoFilter
+                $searchPart = & $sanitize $SearchString
+                $fileName = "GPOReport_${filterPart}_${searchPart}_${timestamp}.html"
+            }
+            else {
+                $pathLeaf  = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path -Path $Path -Leaf))
+                $pathPart  = & $sanitize $pathLeaf
+                $searchPart = & $sanitize $SearchString
+                $fileName = "GPOReport_${pathPart}_${searchPart}_${timestamp}.html"
+            }
+
+            $OutputPath = Join-Path -Path $OutputPath -ChildPath $fileName
+            Write-Verbose "OutputPath resolved to file: $OutputPath"
         }
     }
 
@@ -582,8 +615,38 @@ function Show-GPOSearchReport {
             $tableOfResults += "<tr><td><b>Policy Name:</b></td><td>$($result.XmlNode.ParsedXml.Name)</td></tr>"
         }
 
-        # Local Security Settings - Members
-        if ($result.XmlNode.parsedXml.Member) {
+        # Restricted Groups - Group Name, Members, and MemberOf
+        if ($result.XmlNode.ElementName -eq 'RestrictedGroups') {
+            if ($result.XmlNode.ParsedXml.GroupName) {
+                $groupName = if ($result.XmlNode.ParsedXml.GroupName.Name.Text) {
+                    $result.XmlNode.ParsedXml.GroupName.Name.Text
+                }
+                elseif ($result.XmlNode.ParsedXml.GroupName.Name) {
+                    $result.XmlNode.ParsedXml.GroupName.Name
+                }
+                else {
+                    $null
+                }
+                if ($groupName) {
+                    $tableOfResults += "<tr><td><b>Restricted Group:</b></td><td>$groupName</td></tr>"
+                }
+            }
+            if ($result.XmlNode.ParsedXml.Member) {
+                $member = @($result.XmlNode.ParsedXml.Member) | ForEach-Object {
+                    if ($_.Name.Text) { $_.Name.Text } elseif ($_.Name) { $_.Name } else { $_ }
+                }
+                $tableOfResults += "<tr><td><b>Member:</b></td><td>$($member -join '<br>')</td></tr>"
+            }
+            if ($result.XmlNode.ParsedXml.Memberof) {
+                $memberOf = @($result.XmlNode.ParsedXml.Memberof) | ForEach-Object {
+                    if ($_.Name.Text) { $_.Name.Text } elseif ($_.Name) { $_.Name } else { $_ }
+                }
+                $tableOfResults += "<tr><td><b>Member Of:</b></td><td>$($memberOf -join '<br>')</td></tr>"
+            }
+        }
+
+        # Local Security Settings - Members (non-RestrictedGroups)
+        if ($result.XmlNode.ElementName -ne 'RestrictedGroups' -and $result.XmlNode.parsedXml.Member) {
             $member = ($result.XmlNode.parsedXml.Member.Name.Text) -join '<br>'
             $tableOfResults += "<tr><td><b>Policy Member:</b></td><td>$member</td></tr>"
         }

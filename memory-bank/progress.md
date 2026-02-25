@@ -1,8 +1,31 @@
 # Progress: What Works and What's Left
 
-## 🎯 ✅ **RECENT ACHIEVEMENTS (January 13, 2025)**
+## 🎯 ✅ **RECENT ACHIEVEMENTS (February 24, 2026)**
 
-### **LATEST UPDATE: REMOVED START-GPOSEARCHGUI** ✅
+### **LATEST UPDATE: RESTRICTED GROUPS HTML CONTEXT & DEDUPLICATION FIX** ✅
+
+**Issues Reported**: 
+1. HTML report from `Show-GPOSearchReport` did not display the restricted group name where a search string was found
+2. Search string present in multiple RestrictedGroups entries returned only 1 result instead of all matching groups
+
+**Fix 1 — RestrictedGroups HTML Rendering** (Show-GPOSearchReport.ps1):
+- ✅ Added dedicated `RestrictedGroups` rendering block with group name, members, and member-of
+- ✅ Group name extracted from `ParsedXml.GroupName.Name.Text`
+- ✅ Members and MemberOf rendered with proper array handling
+- ✅ Existing generic Member rendering guarded to skip for RestrictedGroups elements
+
+**Fix 2 — Deduplication Over-Collapsing** (Remove-HierarchicalDuplicates.ps1):
+- ✅ Phase 1 group key now includes `OuterXml.GetHashCode()` to distinguish different XML elements with same element name
+- ✅ Different RestrictedGroups entries (different groups) no longer collapsed as "exact duplicates"
+- ✅ Validated: `a687281` now returns 20 results (one per restricted group) instead of 1
+
+**Files Modified**:
+- `source/Public/Show-GPOSearchReport.ps1` — RestrictedGroups rendering block
+- `source/Private/Remove-HierarchicalDuplicates.ps1` — OuterXml hash in dedup key
+
+---
+
+### **PREVIOUS UPDATE: REMOVED START-GPOSEARCHGUI (January 13, 2025)** ✅
 
 **User Request**: Remove Start-GPOSearchGUI function as it was "not very helpful"
 

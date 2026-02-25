@@ -40,13 +40,16 @@ function Remove-HierarchicalDuplicates {
     
     Write-Verbose "Starting deduplication process with $($Results.Count) results"
     
-    # Phase 1: Group by XmlPath and CategoryPath to find exact duplicates
-    # Results with the same XmlPath (same XML element) in the same category are exact duplicates
+    # Phase 1: Group by XmlPath, CategoryPath, and OuterXml to find exact duplicates
+    # Results with the same XmlPath (same XML element) in the same category AND same OuterXml
+    # are exact duplicates. Different elements that share the same XmlPath (e.g., multiple
+    # RestrictedGroups entries with different group names) are kept as distinct results.
     $exactDuplicateGroups = @()
     foreach ($result in $Results) {
         $xmlPath = $result.XmlNode.XmlPath
         $categoryPath = $result.CategoryPath
-        $groupKey = "$xmlPath|$categoryPath"
+        $outerXmlHash = if ($result.XmlNode.OuterXml) { $result.XmlNode.OuterXml.GetHashCode() } else { 0 }
+        $groupKey = "$xmlPath|$categoryPath|$outerXmlHash"
         Write-Verbose "Creating exact duplicate group key: '$groupKey' (XmlPath='$xmlPath', CategoryPath='$categoryPath')"
         
         $existingGroup = $exactDuplicateGroups | Where-Object { $_.Name -eq $groupKey }
