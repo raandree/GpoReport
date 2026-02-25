@@ -48,6 +48,7 @@ The GPO Report Search System is fully operational with comprehensive Group Polic
 - ✅ **Show-GPOSearchReportUi**: User-friendly graphical interface for generating GPO search HTML reports
 - ✅ **Two Search Modes**: Local XML files or Active Directory queries with radio button selection
 - ✅ **Guided Input**: Browse dialogs, tooltips, and validation for all parameters
+- ✅ **Search String ComboBox**: Combined dropdown/text field with auto-complete, populated with GPO names from AD
 - ✅ **Progress Feedback**: Visual progress indicators and status messages during report generation
 - ✅ **Auto-Open Reports**: Option to automatically open generated HTML reports in browser
 
@@ -59,7 +60,7 @@ Show-GPOSearchReportUi
 # Features:
 # - File mode: Browse for XML files/folders
 # - AD mode: Query GPOs with filter patterns
-# - Search string with wildcard support
+# - Search string combo box with GPO name dropdown and auto-complete
 # - Optional domain specification
 # - Custom output path or auto-generated temp file
 ```

@@ -35,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed `Show-GPOSearchReportUi` search string field from a plain TextBox to a ComboBox
+  (combined dropdown/text field) with auto-complete, populated with existing GPO display names
+  from Active Directory when the GroupPolicy module is available
 - Migrated from standalone scripts to proper PowerShell module structure
 - Organized functions into Public and Private directories following Sampler conventions
 - Improved error handling and logging throughout the module

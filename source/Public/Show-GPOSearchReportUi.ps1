@@ -145,20 +145,40 @@ HTML reports. Choose between searching local XML files or querying Active Direct
 
             $tooltip.SetToolTip($gpoFilterTextBox, 'Wildcard pattern for GPO names (e.g., *Security*, Default*)')
 
-            # Search String input
+            # Search String input (ComboBox: type freely or select from existing GPOs)
             $searchLabel = New-Object System.Windows.Forms.Label
             $searchLabel.Text = 'Search String:'
             $searchLabel.Location = New-Object System.Drawing.Point(20, 100)
             $searchLabel.Size = New-Object System.Drawing.Size(100, 20)
             $inputGroupBox.Controls.Add($searchLabel)
 
-            $searchTextBox = New-Object System.Windows.Forms.TextBox
+            $searchTextBox = New-Object System.Windows.Forms.ComboBox
             $searchTextBox.Location = New-Object System.Drawing.Point(130, 98)
             $searchTextBox.Size = New-Object System.Drawing.Size(340, 25)
             $searchTextBox.Text = '*'
+            $searchTextBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDown
+            $searchTextBox.AutoCompleteMode = [System.Windows.Forms.AutoCompleteMode]::SuggestAppend
+            $searchTextBox.AutoCompleteSource = [System.Windows.Forms.AutoCompleteSource]::ListItems
+            $searchTextBox.Sorted = $true
             $inputGroupBox.Controls.Add($searchTextBox)
 
-            $tooltip.SetToolTip($searchTextBox, 'Pattern to search for in GPO settings (e.g., *password*, *audit*)')
+            # Populate with GPO names from Active Directory if GroupPolicy module is available
+            try {
+                if (Get-Command -Name Get-GPO -ErrorAction SilentlyContinue) {
+                    $gpoNames = Get-GPO -All -ErrorAction Stop |
+                        Select-Object -ExpandProperty DisplayName |
+                        Sort-Object
+                    foreach ($gpoName in $gpoNames) {
+                        [void]$searchTextBox.Items.Add($gpoName)
+                    }
+                    Write-Verbose "Populated search combo box with $($gpoNames.Count) GPO names from AD"
+                }
+            }
+            catch {
+                Write-Verbose "Could not retrieve GPO names from AD: $_"
+            }
+
+            $tooltip.SetToolTip($searchTextBox, 'Type a search pattern or select an existing GPO name from the dropdown (e.g., *password*, *audit*)')
 
             # Domain input
             $domainLabel = New-Object System.Windows.Forms.Label

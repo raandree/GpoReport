@@ -55,6 +55,7 @@
 - ✅ **Show-GPOSearchReportUi**: Interactive GUI for generating GPO search HTML reports
 - ✅ **User-Friendly Interface**: Radio buttons, tooltips, browse dialogs, and progress indicators
 - ✅ **Dual Search Modes**: Local XML files or Active Directory queries
+- ✅ **Search String ComboBox**: Combined dropdown/text field with GPO name auto-complete from AD
 - ✅ **Complete Validation**: Input validation with helpful error messages
 - ✅ **Automatic Report Opening**: Option to view generated reports immediately
 

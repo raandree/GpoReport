@@ -22,13 +22,14 @@ Show-GPOSearchReportUi
 ### 2. Guided Input Fields
 - **XML Path/File**: Browse for local XML files or folders containing GPO reports
 - **GPO Filter**: Wildcard pattern for GPO names when querying AD (e.g., `*Security*`, `Default*`)
-- **Search String**: Pattern to search for in GPO settings (e.g., `*password*`, `*audit*`)
+- **Search String**: Combined dropdown/text field — type a search pattern (e.g., `*password*`, `*audit*`) or select an existing GPO name from the dropdown list. When the GroupPolicy module is available, the dropdown is auto-populated with all GPO display names from Active Directory with type-ahead auto-complete.
 - **Domain**: Optional domain specification for AD queries (uses current domain if empty)
 - **Output Path**: Custom path for HTML report (auto-generates temp file if empty)
 
 ### 3. User Experience
 - Clear instructions and tooltips throughout the interface
 - Real-time input validation
+- Auto-complete suggestions for GPO names as you type in the search field
 - Progress indicator during report generation
 - Automatic report opening after generation
 - Error handling with user-friendly messages
@@ -46,7 +47,7 @@ Show-GPOSearchReportUi
 3. **Configure Parameters**:
    - File Mode: Browse to select XML file or folder
    - AD Mode: Enter GPO filter pattern (e.g., `*`)
-   - Enter search string (e.g., `*password*`)
+   - Enter search string (e.g., `*password*`) or select a GPO name from the dropdown
    - (Optional) Specify output path
 
 4. **Generate Report**:
@@ -64,13 +65,13 @@ Show-GPOSearchReportUi
 ### Example 1: Search Local XML Files
 1. Select "Search Local XML Files"
 2. Browse to folder containing GPO XML exports
-3. Enter search string: `*Remote*`
+3. Enter search string: `*Remote*` (or select a GPO name from the dropdown)
 4. Click "Generate Report"
 
 ### Example 2: Query Active Directory
 1. Select "Query Active Directory GPOs"
 2. Enter GPO filter: `*Security*`
-3. Enter search string: `*audit*`
+3. Enter search string: `*audit*` (or pick a GPO name from the auto-complete dropdown)
 4. (Optional) Specify domain
 5. Click "Generate Report"
 
@@ -84,6 +85,8 @@ Show-GPOSearchReportUi
 
 - Leave Output Path empty to auto-generate a temporary file
 - Use wildcard patterns (`*`) for broader searches
+- The Search String dropdown auto-populates with GPO names when the GroupPolicy module (RSAT) is installed
+- Start typing in the Search String field for auto-complete suggestions from existing GPO names
 - Tooltips provide additional guidance (hover over fields)
 - The UI validates inputs before generating reports
 - Reports are automatically saved and can be opened immediately

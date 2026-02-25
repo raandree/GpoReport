@@ -34,6 +34,7 @@ Write-Host ""
 Write-Host "4. UI Features:" -ForegroundColor Yellow
 Write-Host "   • Two search modes: Local XML files or Active Directory" -ForegroundColor White
 Write-Host "   • Guided input fields with tooltips" -ForegroundColor White
+Write-Host "   • Search string combo box with GPO name auto-complete" -ForegroundColor White
 Write-Host "   • Browse dialogs for file/folder selection" -ForegroundColor White
 Write-Host "   • Real-time input validation" -ForegroundColor White
 Write-Host "   • Progress indicator during report generation" -ForegroundColor White
